@@ -1,0 +1,31 @@
+1. Install Python 3
+===================
+Download the latest version on https://repo.anaconda.com/archive/Anaconda3
+Check Install for All users
+Check Add Path 
+
+2. Packages requried by Direct Electron
+===================================
+python -m pip install --upgrade pip
+python -m pip install protobuf
+python -m pip install mrcfile
+
+3. The Path Environment variable
+==============================
+If you encourter ssl module problem while installing packages, add the following to the path variable
+C:\...\Anaconda3
+C:\...\Anaconda3\Scripts
+C:\...\Anaconda3\Library\bin
+
+
+4. Migrate Python 2 code to Python 3
+==================================
+If you have Python 2 code, you can migrate to Python 3 using this tool. 
+python -m pip install 2to3
+Example: 2to3.exe -w some_p2_code.py
+
+
+5. Documentation
+================
+Run 90_example2.py with the simulator version server to verify the API is work.
+The result should be "OnTestMovieBuffer : Check value passed!"  

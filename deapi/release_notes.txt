@@ -1,0 +1,34 @@
+Changes in 5.1.0:
+=================
+#2522 Fixed GetResult for scanning in SDK uses image size instead of scan size
+#2434 Allow users to retrieve the subsampling mask through the API
+#2319 Display the fraction of saturated in the c#, c++, python SDK
+#2318 add upperMostLocalMaxima to the c++/c#/python sdk
+#2275 Allow arbitrary virtual image mask loading in the API
+#2063: Update properties name in examples
+
+Changes in 3.0.0:
+#1356 Make processed images ready for API in output buffers
+
+Changes in 2.0.2:
+==================
+#1355 Add GetPropertySpec to Python client
+
+Changes in 2.0.1:
+==================
+#1322 Use memory mapped file to share image between server and Python client on the same computer
+#1320 Python benchmark script 943
+#1319 Use "I" for Python data unpacking to support Linux
+
+
+Changes in 2.0.0:
+==================
+#1269 Rename Python package to DEAPI to avoid conflict with customer packages
+#942  Added support of API 2.0. 
+
+Changes in 1.0.0:
+==================
+#557 Add function acquireDarkReference to acquire dark reference
+#511 Support protocol buffer version 3.11.4 with Python 3.8
+#509 Fixded decoding error while connecting to the server from a different machine
+
