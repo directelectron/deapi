@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools>=64", "setuptools_scm>=8", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+authors = [{name = "Direct Electron"}]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "numpy>=1.20.0",
+    "protobuf",
+    "pillow",
+]
+description = "API for DE Server"
+version = "0.1.0"
+keywords = [
+    "EELS",
+    "STEM",
+    "TEM",
+    "hyperspy",
+    "microscopy",
+    "Cryo EM",
+    "4D STEM",
+]
+name = "deapi"
+requires-python = ">=3.8"
+
+[tool.setuptools.packages.find]
+include = ["deapi*", "deapi.*"]
+where = ["."]
+
+[project.optional-dependencies]
+tests = [
+    "pytest-instafail",
+    "pytest-mpl",
+    "pytest-rerunfailures",
+    "pytest-xdist",
+    "pytest>=3.6",
+    "setuptools_scm"
+]
+doc = [
+    "sphinx",
+    "pydata_sphinx_theme"
+]
+
+[project.urls]
+"Bug Reports" = "https://github.com/hyperspy/hyperspy/issues"
+Documentation = "https://hyperspy.org/hyperspy-doc/current/index.html"
+Conda-forge = "https://anaconda.org/conda-forge/hyperspy"
+Homepage = "https://hyperspy.org"
+Support = "https://gitter.im/hyperspy/hyperspy"
+Source = "https://github.com/hyperspy/hyperspy"
