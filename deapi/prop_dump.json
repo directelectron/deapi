@@ -1,1 +1,417 @@
-{"Autosave Counted Movie Pixel Format": {"value": "uint8", "data_type": "String", "value_type": "Set", "category": "Basic", "options": "'Auto', 'float32', 'uint16', 'uint8*'", "default_value": "uint8"}, "Autosave Directory": {"value": "D:\\DEOutput\\DESim", "data_type": "String", "value_type": "AllowAll", "category": "Basic", "options": "", "default_value": "D:\\DEOutput\\DESim"}, "Autosave External Image 1": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'On', 'Off*'", "default_value": "Off"}, "Autosave External Image 2": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'On', 'Off*'", "default_value": "Off"}, "Autosave External Image 3": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'On', 'Off*'", "default_value": "Off"}, "Autosave External Image 4": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'On', 'Off*'", "default_value": "Off"}, "Autosave File Format": {"value": "MRC", "data_type": "String", "value_type": "Set", "category": "Basic", "options": "'Auto*', 'MRC', 'TIFF', 'TIFF LZW'", "default_value": "Auto"}, "Autosave Filename Suffix": {"value": "", "data_type": "String", "value_type": "AllowAll", "category": "Basic", "options": "", "default_value": ""}, "Autosave Final Frames Written": {"value": "0", "data_type": "Integer", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0"}, "Autosave Final Image": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Basic", "options": "'On', 'Off*'", "default_value": "Off"}, "Autosave Final Image File Path": {"value": "", "data_type": "String", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": ""}, "Autosave Final Image Sum Count": {"value": "0", "data_type": "Integer", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0"}, "Autosave Final Motion Corrected Frames Written": {"value": "0", "data_type": "Integer", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0"}, "Autosave Final Motion Corrected Image File Path": {"value": "", "data_type": "String", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": ""}, "Autosave Integrated Movie Pixel Format": {"value": "uint16", "data_type": "String", "value_type": "Set", "category": "Basic", "options": "'Auto', 'float32', 'uint16*', 'uint8'", "default_value": "uint16"}, "Autosave Movie": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Basic", "options": "'On', 'Off*'", "default_value": "Off"}, "Autosave Movie File Format": {"value": "Auto", "data_type": "String", "value_type": "Set", "category": "Basic", "options": "'Auto*', 'MRC', 'TIFF', 'TIFF LZW', 'DE5', 'HSPY'", "default_value": "Auto"}, "Autosave Movie Frames File Path": {"value": "", "data_type": "String", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": ""}, "Autosave Movie Frames Written": {"value": "0", "data_type": "Integer", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0"}, "Autosave Movie Sum Count": {"value": "1", "data_type": "Integer", "value_type": "Range", "category": "Basic", "options": "1.0, 10000.0, '1 - 10000'", "default_value": "1"}, "Autosave Scan Subsampling Mask": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'On', 'Off*'", "default_value": "Off"}, "Autosave Status": {"value": "Finished", "data_type": "String", "value_type": "ReadOnly", "category": "Advanced", "options": "'Starting', 'In Progress', 'Stopped', 'Finished'", "default_value": ""}, "Autosave Virtual Image 0": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'On', 'Off*'", "default_value": "Off"}, "Autosave Virtual Image 0 File Path": {"value": "", "data_type": "String", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": ""}, "Autosave Virtual Image 0 Frames Written": {"value": "0", "data_type": "Integer", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0"}, "Autosave Virtual Image 1": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'On', 'Off*'", "default_value": "Off"}, "Autosave Virtual Image 1 File Path": {"value": "", "data_type": "String", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": ""}, "Autosave Virtual Image 1 Frames Written": {"value": "0", "data_type": "Integer", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0"}, "Autosave Virtual Image 2": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'On', 'Off*'", "default_value": "Off"}, "Autosave Virtual Image 2 File Path": {"value": "", "data_type": "String", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": ""}, "Autosave Virtual Image 2 Frames Written": {"value": "0", "data_type": "Integer", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0"}, "Autosave Virtual Image 3": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'On', 'Off*'", "default_value": "Off"}, "Autosave Virtual Image 3 File Path": {"value": "", "data_type": "String", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": ""}, "Autosave Virtual Image 3 Frames Written": {"value": "0", "data_type": "Integer", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0"}, "Autosave Virtual Image 4": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'On', 'Off*'", "default_value": "Off"}, "Autosave Virtual Image 4 File Path": {"value": "", "data_type": "String", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": ""}, "Autosave Virtual Image 4 Frames Written": {"value": "0", "data_type": "Integer", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0"}, "Binning Method": {"value": "Average", "data_type": "String", "value_type": "Set", "category": "Basic", "options": "'Average', 'Fourier Crop', 'Sample', 'Sum*'", "default_value": "Sum"}, "Binning X": {"value": "1", "data_type": "Integer", "value_type": "Set", "category": "Basic", "options": "'1*', '2', '4', '8', '16', '32', '64', '128', '256', '512', '1024'", "default_value": "1"}, "Binning Y": {"value": "1", "data_type": "Integer", "value_type": "Set", "category": "Basic", "options": "'1*', '2', '4', '8', '16', '32', '64', '128', '256', '512', '1024'", "default_value": "1"}, "Camera Auto Retract Delay": {"value": "1 hour", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'15 mins', '30 mins', '1 hour*', '2 hours', 'Off'", "default_value": "1 hour"}, "Camera Model": {"value": "DESim", "data_type": "String", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "DESim"}, "Camera Name": {"value": "DESim", "data_type": "String", "value_type": "AllowAll", "category": "Basic", "options": "", "default_value": "DESim"}, "Camera Position Control": {"value": "Retract", "data_type": "String", "value_type": "Set", "category": "Basic", "options": "'Retract', 'Extend'", "default_value": ""}, "Camera Position Status": {"value": "Retracted", "data_type": "String", "value_type": "ReadOnly", "category": "Basic", "options": "'Unknown', 'Retracted', 'Extended', 'In Progress', 'Not Homed', 'Interlocked', 'Argument Error', 'Command Sequence Error', 'Error'", "default_value": ""}, "Camera SN": {"value": "", "data_type": "String", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": ""}, "Check TEM-Channel": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Off*', 'On'", "default_value": "Off"}, "Crop Offset X": {"value": "0", "data_type": "Integer", "value_type": "Range", "category": "Basic", "options": "0.0, 1024.0, '0 - 1024'", "default_value": "0"}, "Crop Offset Y": {"value": "0", "data_type": "Integer", "value_type": "Range", "category": "Basic", "options": "0.0, 1024.0, '0 - 1024'", "default_value": "0"}, "Crop Size X": {"value": "1024", "data_type": "Integer", "value_type": "Range", "category": "Basic", "options": "1.0, 1024.0, '1 - 1024'", "default_value": "1024"}, "Crop Size Y": {"value": "1024", "data_type": "Integer", "value_type": "Range", "category": "Basic", "options": "1.0, 1024.0, '1 - 1024'", "default_value": "1024"}, "Dataset Name": {"value": "20240814_00000", "data_type": "String", "value_type": "ReadOnly", "category": "Basic", "options": "", "default_value": ""}, "Diffraction Pixel Size X": {"value": "-1", "data_type": "Float", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0.000000"}, "Diffraction Pixel Size Y": {"value": "-1", "data_type": "Float", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0.000000"}, "Disk Space (GB)": {"value": "10571.216217041", "data_type": "Float", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0.000000"}, "Event Counting - Method": {"value": "Maxima", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Binary Centroid', 'Centroid', 'Maxima*', 'None'", "default_value": "Maxima"}, "Event Counting - Sparseness": {"value": "3.9296321869", "data_type": "Float", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0.000000"}, "Exposure Mode": {"value": "Normal", "data_type": "String", "value_type": "Set", "category": "Basic", "options": "'Dark', 'Gain', 'Normal*', 'Raw', 'Trial'", "default_value": "Normal"}, "Exposure Rate (e-/pix/s)": {"value": "-1", "data_type": "Float", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0.000000"}, "Exposure Time (seconds)": {"value": "1.0005281", "data_type": "Float", "value_type": "AllowAll", "category": "Basic", "options": "", "default_value": "1.000000"}, "Faraday Plate - Beam Intensity (pA/cm^2)": {"value": "0", "data_type": "Float", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0.000000"}, "Faraday Plate - Peak Intensity (e-/pix/frame)": {"value": "0", "data_type": "Float", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0.000000"}, "Faraday Plate - Peak Intensity (e-/pix/s)": {"value": "0", "data_type": "Float", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0.000000"}, "Faraday Plate - Peak Intensity (pA/cm^2)": {"value": "0", "data_type": "Float", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0.000000"}, "Faraday Plate - Total Dose (e-/pix)": {"value": "0", "data_type": "Float", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0.000000"}, "Feature - AKRA": {"value": "Off", "data_type": "String", "value_type": "ReadOnly", "category": "Basic", "options": "", "default_value": "Off"}, "Feature - Centered": {"value": "Off", "data_type": "String", "value_type": "ReadOnly", "category": "Basic", "options": "", "default_value": "Off"}, "Feature - Counting": {"value": "On", "data_type": "String", "value_type": "ReadOnly", "category": "Basic", "options": "", "default_value": "On"}, "Feature - Global Shutter": {"value": "On", "data_type": "String", "value_type": "ReadOnly", "category": "Basic", "options": "", "default_value": "On"}, "Feature - HDR": {"value": "Rolling Shutter", "data_type": "String", "value_type": "ReadOnly", "category": "Basic", "options": "", "default_value": "Rolling Shutter"}, "Feature - HW ROI X": {"value": "On", "data_type": "String", "value_type": "ReadOnly", "category": "Basic", "options": "", "default_value": "On"}, "Feature - HW ROI Y": {"value": "On", "data_type": "String", "value_type": "ReadOnly", "category": "Basic", "options": "", "default_value": "On"}, "Feature - Hardware Binning": {"value": "On", "data_type": "String", "value_type": "ReadOnly", "category": "Basic", "options": "", "default_value": "On"}, "Feature - Hardware Counting": {"value": "Off", "data_type": "String", "value_type": "ReadOnly", "category": "Basic", "options": "", "default_value": "Off"}, "Feature - Off-chip CDS": {"value": "Off", "data_type": "String", "value_type": "ReadOnly", "category": "Basic", "options": "", "default_value": "Off"}, "Feature - Sensor Gain": {"value": "On", "data_type": "String", "value_type": "ReadOnly", "category": "Basic", "options": "", "default_value": "On"}, "Firmware Version": {"value": "", "data_type": "String", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": ""}, "Frame Count": {"value": "341", "data_type": "Integer", "value_type": "Range", "category": "Basic", "options": "1.0, 1000000000.0, '1 - 1000000000'", "default_value": "1"}, "Frame Time (nanoseconds)": {"value": "2934100", "data_type": "Float", "value_type": "AllowAll", "category": "Basic", "options": "", "default_value": "5838800.000000"}, "Frames Per Second": {"value": "340.8200073242", "data_type": "Float", "value_type": "Range", "category": "Basic", "options": "0.05999999865889549, 1000000.0, '0.05999999865889549 - 1000000.0'", "default_value": "171.268066"}, "Frames Per Second (Max)": {"value": "340.8171090189", "data_type": "Float", "value_type": "ReadOnly", "category": "Basic", "options": "", "default_value": "0.000000"}, "Grab Buffer Length (milliseconds)": {"value": "7358", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "100.0, 1000000.0, '100 - 1000000'", "default_value": "7358"}, "Grab Buffer Size": {"value": "9135", "data_type": "Integer", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0"}, "Hardware Binning X": {"value": "1", "data_type": "Integer", "value_type": "Set", "category": "Advanced", "options": "'1*', '2'", "default_value": "1"}, "Hardware Binning Y": {"value": "1", "data_type": "Integer", "value_type": "Set", "category": "Advanced", "options": "'1*', '2'", "default_value": "1"}, "Hardware Frame Size X": {"value": "1024", "data_type": "Integer", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "1024"}, "Hardware Frame Size Y": {"value": "1024", "data_type": "Integer", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "1024"}, "Hardware ROI Offset X": {"value": "0", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "0.0, 1023.0, '0 - 1023'", "default_value": "0"}, "Hardware ROI Offset Y": {"value": "0", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "0.0, 1023.0, '0 - 1023'", "default_value": "0"}, "Hardware ROI Size X": {"value": "1024", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "1.0, 1024.0, '1 - 1024'", "default_value": "1024"}, "Hardware ROI Size Y": {"value": "1024", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "1.0, 1024.0, '1 - 1024'", "default_value": "1024"}, "Image Processing - Apply Gain on Final": {"value": "On", "data_type": "String", "value_type": "Set", "category": "Basic", "options": "'On*', 'Off'", "default_value": "On"}, "Image Processing - Apply Gain on Movie": {"value": "On", "data_type": "String", "value_type": "Set", "category": "Basic", "options": "'On*', 'Off'", "default_value": "On"}, "Image Processing - Edge Pixel Fill": {"value": "Zero", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Mean', 'Mirror', 'Zero*'", "default_value": "Zero"}, "Image Processing - Flatfield Correction": {"value": "None", "data_type": "String", "value_type": "Set", "category": "Basic", "options": "'Dark', 'Dark and Gain*', 'None'", "default_value": "Dark and Gain"}, "Image Processing - Flip Horizontally": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Basic", "options": "'On', 'Off*'", "default_value": "Off"}, "Image Processing - Flip Vertically": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Basic", "options": "'On', 'Off*'", "default_value": "Off"}, "Image Processing - Mode": {"value": "Integrating", "data_type": "String", "value_type": "AllowAll", "category": "Basic", "options": "", "default_value": "Integrating"}, "Image Processing - Motion Correction": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Off*', 'On'", "default_value": "Off"}, "Image Processing - Motion Correction Extend Pixel Values": {"value": "On", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'On*', 'Off'", "default_value": "On"}, "Image Processing - Motion Correction Reference Image": {"value": "First", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'First*', 'Sum'", "default_value": "First"}, "Image Processing - Output Buffer Size": {"value": "100", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "0.0, 100000.0, '0 - 100000'", "default_value": "100"}, "Image Processing - Rotation": {"value": "None", "data_type": "String", "value_type": "Set", "category": "Basic", "options": "'Clockwise', 'Counterclockwise', 'None*'", "default_value": "None"}, "Image Processing - Scaling Factor": {"value": "1", "data_type": "Float", "value_type": "Range", "category": "Advanced", "options": "0.009999999776482582, 1000.0, '0.009999999776482582 - 1000.0'", "default_value": "1.000000"}, "Image Size X (pixels)": {"value": "1024", "data_type": "Integer", "value_type": "ReadOnly", "category": "Basic", "options": "", "default_value": "1024"}, "Image Size Y (pixels)": {"value": "1024", "data_type": "Integer", "value_type": "ReadOnly", "category": "Basic", "options": "", "default_value": "1024"}, "Instrument Accelerating Voltage (V)": {"value": "300000", "data_type": "Integer", "value_type": "AllowAll", "category": "Advanced", "options": "", "default_value": "300000"}, "Instrument Beam Blanking": {"value": "-1", "data_type": "Integer", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0"}, "Instrument Project Camera Length (centimeters)": {"value": "-1", "data_type": "Float", "value_type": "AllowAll", "category": "Advanced", "options": "", "default_value": "0.000000"}, "Instrument Project Magnification": {"value": "-1", "data_type": "Integer", "value_type": "AllowAll", "category": "Advanced", "options": "", "default_value": "2500"}, "Instrument Project Mode": {"value": "-1", "data_type": "Integer", "value_type": "AllowAll", "category": "Advanced", "options": "", "default_value": "1"}, "Instrument Project Name": {"value": "Unknown", "data_type": "String", "value_type": "AllowAll", "category": "Advanced", "options": "", "default_value": "Unknown"}, "Instrument Project Sub Mode": {"value": "-1", "data_type": "Integer", "value_type": "AllowAll", "category": "Advanced", "options": "", "default_value": "0"}, "Instrument Project TEMorSTEM Mode": {"value": "-1", "data_type": "Integer", "value_type": "AllowAll", "category": "Advanced", "options": "", "default_value": "0"}, "Instrument Screen Position": {"value": "-1", "data_type": "Integer", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0"}, "License - 4D STEM Workflow": {"value": "Valid (Perpetual)", "data_type": "String", "value_type": "ReadOnly", "category": "Basic", "options": "", "default_value": "Valid (Perpetual)"}, "License - Event Counting": {"value": "Valid (Perpetual)", "data_type": "String", "value_type": "ReadOnly", "category": "Basic", "options": "", "default_value": "Valid (Perpetual)"}, "License - HDR Readout Modes": {"value": "Valid (Perpetual)", "data_type": "String", "value_type": "ReadOnly", "category": "Basic", "options": "", "default_value": "Valid (Perpetual)"}, "Log Level": {"value": "Debug", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Debug', 'Info*', 'None', 'Verbose'", "default_value": "Info"}, "Number of Frames Grabbed": {"value": "16384", "data_type": "Integer", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0"}, "Number of Frames Processed": {"value": "16384", "data_type": "Integer", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0"}, "Number of Frames Requested": {"value": "341", "data_type": "Integer", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0"}, "Post-Specimen Shutter Control": {"value": "Auto", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Auto*', 'Open', 'Close'", "default_value": "Auto"}, "Pre-Exposure Time (seconds)": {"value": "0", "data_type": "Float", "value_type": "AllowAll", "category": "Advanced", "options": "", "default_value": "0.000000"}, "Pre-Specimen Blanker Control": {"value": "Auto", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Auto*', 'Open', 'Close'", "default_value": "Auto"}, "Preset - Current": {"value": "Custom", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Large-Area Integrating', 'High-Resolution Integrating', 'Large-Area Counting', 'High-Resolution Counting', 'Last Used Parameters', 'Custom*'", "default_value": "Custom"}, "Preset - List": {"value": "Large-Area Integrating,High-Resolution Integrating,Large-Area Counting,High-Resolution Counting,Last Used Parameters,Custom", "data_type": "String", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": ""}, "Preset - Properties": {"value": "Readout - Shutter:Rolling,Readout - CDS:Rolling,Hardware ROI Offset X:0,Hardware ROI Offset Y:0,Hardware ROI Size X:1024,Hardware ROI Size Y:1024,Hardware Binning X:1,Hardware Binning Y:1,Crop Offset X:0,Crop Offset Y:0,Crop Size X:1024,Crop Size Y:1024,Binning X:1,Binning Y:1,Frames Per Second:340.8200073242,Image Processing - Mode:Integrating,Autosave Movie Sum Count:1", "data_type": "String", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": ""}, "Preset - Save": {"value": "Custom", "data_type": "String", "value_type": "AllowAll", "category": "Advanced", "options": "", "default_value": ""}, "Protection Cover Delay (milliseconds)": {"value": "100", "data_type": "Integer", "value_type": "AllowAll", "category": "Advanced", "options": "", "default_value": "100"}, "Protection Cover Operation Mode": {"value": "Open/Close During Each Exposure", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Always Open During Operation', 'Open/Close During Each Exposure*'", "default_value": "Open/Close During Each Exposure"}, "Protection Cover Status": {"value": "Open", "data_type": "String", "value_type": "ReadOnly", "category": "Advanced", "options": "'Closed', 'Open'", "default_value": "Closed"}, "Readout - Frames to Ignore": {"value": "0", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "0.0, 1000.0, '0 - 1000'", "default_value": "0"}, "Readout - Hardware HDR": {"value": "None", "data_type": "String", "value_type": "Set", "category": "Basic", "options": "'2-Level', '3-Level', 'None*'", "default_value": "None"}, "Readout - Shutter": {"value": "Rolling", "data_type": "String", "value_type": "Set", "category": "Basic", "options": "'Global', 'Rolling*'", "default_value": "Rolling"}, "Reference - Counting Gain": {"value": "None", "data_type": "String", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": ""}, "Reference - Counting Gain Acquisitions": {"value": "0", "data_type": "Integer", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0"}, "Reference - Counting Gain Exposure Time (seconds)": {"value": "1", "data_type": "Integer", "value_type": "AllowAll", "category": "Advanced", "options": "", "default_value": "1"}, "Reference - Counting Gain Target (e-/pix)": {"value": "2000", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "1.0, 10000000.0, '1 - 10000000'", "default_value": "2000"}, "Reference - Dark": {"value": "None", "data_type": "String", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": ""}, "Reference - Delay Between Multiple Acquisitions (milliseconds)": {"value": "0", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "0.0, 1000000.0, '0 - 1000000'", "default_value": "0"}, "Reference - Exposure Level": {"value": "Low", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'High', 'Low*'", "default_value": "Low"}, "Reference - Integrating Gain": {"value": "None", "data_type": "String", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": ""}, "Reference - Integrating Gain Acquisitions": {"value": "0", "data_type": "Integer", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0"}, "Reference - Integrating Gain Exposure Time (seconds)": {"value": "1", "data_type": "Integer", "value_type": "AllowAll", "category": "Advanced", "options": "", "default_value": "1"}, "Reference - Integrating Gain Target (ADU/pix)": {"value": "16000", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "1.0, 10000000.0, '1 - 10000000'", "default_value": "16000"}, "Reference - Match Frame Rate": {"value": "On", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'On*', 'Off'", "default_value": "On"}, "Reference - Match Server Version": {"value": "On", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'On*', 'Off'", "default_value": "On"}, "Reference - Save Copy": {"value": "On", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'On*', 'Off'", "default_value": "On"}, "Remaining Number of Acquisitions": {"value": "0", "data_type": "Integer", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0"}, "Scan - Camera Frames Per Point": {"value": "1", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "1.0, 1000.0, '1 - 1000'", "default_value": "1"}, "Scan - Controller": {"value": "DE-FreeScan", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'DE-FreeScan*', 'External Controller'", "default_value": "DE-FreeScan"}, "Scan - Dwell Time (microseconds)": {"value": "10250", "data_type": "Float", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "10.000000"}, "Scan - Enable": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Off*', 'On'", "default_value": "Off"}, "Scan - External Detector 1 Auto Adjust": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Basic", "options": "'Off*', 'On', 'Reset'", "default_value": "Off"}, "Scan - External Detector 1 Enable": {"value": "On", "data_type": "String", "value_type": "Set", "category": "Basic", "options": "'On*', 'Off'", "default_value": "On"}, "Scan - External Detector 1 Gain": {"value": "1", "data_type": "Integer", "value_type": "Range", "category": "Basic", "options": "1.0, 1000.0, '1 - 1000'", "default_value": "1"}, "Scan - External Detector 1 Name": {"value": "Ext #1", "data_type": "String", "value_type": "AllowAll", "category": "Advanced", "options": "", "default_value": "Ext #1"}, "Scan - External Detector 1 Offset": {"value": "0.0024437928", "data_type": "Float", "value_type": "Range", "category": "Basic", "options": "-5.0, 5.0, '-5.0 - 5.0'", "default_value": "0.000000"}, "Scan - External Detector 2 Auto Adjust": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Basic", "options": "'Off*', 'On', 'Reset'", "default_value": "Off"}, "Scan - External Detector 2 Enable": {"value": "On", "data_type": "String", "value_type": "Set", "category": "Basic", "options": "'Off*', 'On'", "default_value": "Off"}, "Scan - External Detector 2 Gain": {"value": "1", "data_type": "Integer", "value_type": "Range", "category": "Basic", "options": "1.0, 1000.0, '1 - 1000'", "default_value": "1"}, "Scan - External Detector 2 Name": {"value": "Ext #2", "data_type": "String", "value_type": "AllowAll", "category": "Advanced", "options": "", "default_value": "Ext #2"}, "Scan - External Detector 2 Offset": {"value": "0.0024437928", "data_type": "Float", "value_type": "Range", "category": "Basic", "options": "-5.0, 5.0, '-5.0 - 5.0'", "default_value": "0.000000"}, "Scan - External Detector 3 Auto Adjust": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Basic", "options": "'Off*', 'On', 'Reset'", "default_value": "Off"}, "Scan - External Detector 3 Enable": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Basic", "options": "'Off*', 'On'", "default_value": "Off"}, "Scan - External Detector 3 Gain": {"value": "1", "data_type": "Integer", "value_type": "Range", "category": "Basic", "options": "1.0, 1000.0, '1 - 1000'", "default_value": "1"}, "Scan - External Detector 3 Name": {"value": "Ext #3", "data_type": "String", "value_type": "AllowAll", "category": "Advanced", "options": "", "default_value": "Ext #3"}, "Scan - External Detector 3 Offset": {"value": "0.0024437928", "data_type": "Float", "value_type": "Range", "category": "Basic", "options": "-5.0, 5.0, '-5.0 - 5.0'", "default_value": "0.000000"}, "Scan - External Detector 4 Auto Adjust": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Basic", "options": "'Off*', 'On', 'Reset'", "default_value": "Off"}, "Scan - External Detector 4 Enable": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Basic", "options": "'Off*', 'On'", "default_value": "Off"}, "Scan - External Detector 4 Gain": {"value": "1", "data_type": "Integer", "value_type": "Range", "category": "Basic", "options": "1.0, 1000.0, '1 - 1000'", "default_value": "1"}, "Scan - External Detector 4 Name": {"value": "Ext #4", "data_type": "String", "value_type": "AllowAll", "category": "Advanced", "options": "", "default_value": "Ext #4"}, "Scan - External Detector 4 Offset": {"value": "0.0024437928", "data_type": "Float", "value_type": "Range", "category": "Basic", "options": "-5.0, 5.0, '-5.0 - 5.0'", "default_value": "0.000000"}, "Scan - Flip Horizontally": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Off*', 'On'", "default_value": "Off"}, "Scan - Flip Vertically": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Off*', 'On'", "default_value": "Off"}, "Scan - Flyback Time Going Negative (microseconds)": {"value": "0", "data_type": "Float", "value_type": "Range", "category": "Advanced", "options": "0.0, 1000000.0, '0.0 - 1000000.0'", "default_value": "0.000000"}, "Scan - Flyback Time Going Positive (microseconds)": {"value": "0", "data_type": "Float", "value_type": "Range", "category": "Advanced", "options": "0.0, 1000000.0, '0.0 - 1000000.0'", "default_value": "0.000000"}, "Scan - Initial Delay (microseconds)": {"value": "0", "data_type": "Float", "value_type": "Range", "category": "Advanced", "options": "0.0, 10000000.0, '0.0 - 10000000.0'", "default_value": "0.000000"}, "Scan - Link ROI Type to Type": {"value": "On", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'On*', 'Off'", "default_value": "On"}, "Scan - Park Enable": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Off*', 'On'", "default_value": "Off"}, "Scan - Park Position X": {"value": "0", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "-2048.0, 10240.0, '-2048 - 10240'", "default_value": "0"}, "Scan - Park Position Y": {"value": "0", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "-2048.0, 10240.0, '-2048 - 10240'", "default_value": "0"}, "Scan - Points": {"value": "16384", "data_type": "Integer", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "1"}, "Scan - Points Per Camera Frame": {"value": "1", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "1.0, 1000.0, '1 - 1000'", "default_value": "1"}, "Scan - Preset Current": {"value": "Custom", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Default', 'Last Used Parameters', 'Custom*'", "default_value": "Custom"}, "Scan - Preset List": {"value": "Default,Last Used Parameters,Custom", "data_type": "String", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": ""}, "Scan - Preset Save": {"value": "Custom", "data_type": "String", "value_type": "AllowAll", "category": "Advanced", "options": "", "default_value": ""}, "Scan - ROI Enable": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Off*', 'On'", "default_value": "Off"}, "Scan - ROI Offset X": {"value": "0", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "0.0, 124.0, '0 - 124'", "default_value": "0"}, "Scan - ROI Offset Y": {"value": "0", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "0.0, 124.0, '0 - 124'", "default_value": "0"}, "Scan - ROI Size X": {"value": "64", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "4.0, 128.0, '4 - 128'", "default_value": "64"}, "Scan - ROI Size Y": {"value": "64", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "4.0, 128.0, '4 - 128'", "default_value": "64"}, "Scan - ROI Subsampling": {"value": "1", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "1.0, 256.0, '1 - 256'", "default_value": "1"}, "Scan - ROI Subsampling Is Random": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Off*', 'On'", "default_value": "Off"}, "Scan - ROI Type": {"value": "Raster", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Distributed', 'Distributed Random', 'Hilbert Curve', 'Moore Curve', 'Random', 'Raster*', 'Raster Interlaced', 'Rectangular Spiral', 'Serpentine', 'Serpentine Interlaced', 'Serpentine Interwoven'", "default_value": "Raster"}, "Scan - ROI Upsampling": {"value": "1", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "1.0, 100.0, '1 - 100'", "default_value": "1"}, "Scan - Repeat Delay (seconds)": {"value": "3", "data_type": "Float", "value_type": "Range", "category": "Advanced", "options": "0.0, 600.0, '0.0 - 600.0'", "default_value": "3.000000"}, "Scan - Repeats": {"value": "1", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "1.0, 1000.0, '1 - 1000'", "default_value": "1"}, "Scan - Rotation": {"value": "0", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "-180.0, 180.0, '-180 - 180'", "default_value": "0"}, "Scan - Size X": {"value": "128", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "4.0, 8192.0, '4 - 8192'", "default_value": "128"}, "Scan - Size Y": {"value": "128", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "4.0, 8192.0, '4 - 8192'", "default_value": "128"}, "Scan - Subsampling": {"value": "1", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "1.0, 256.0, '1 - 256'", "default_value": "1"}, "Scan - Subsampling Is Random": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Off*', 'On'", "default_value": "Off"}, "Scan - Time (seconds)": {"value": "167.9360046387", "data_type": "Float", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "1.000000"}, "Scan - Time Per Scan (seconds)": {"value": "167.9360046387", "data_type": "Float", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "1.000000"}, "Scan - Trigger Source": {"value": "Camera (Before Frame)", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Camera (After Frame)', 'Camera (Before Frame)*', 'DE-FreeScan', 'External Controller'", "default_value": "Camera (Before Frame)"}, "Scan - Type": {"value": "Raster", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Distributed', 'Distributed Random', 'Hilbert Curve', 'Moore Curve', 'Random', 'Raster*', 'Raster Interlaced', 'Rectangular Spiral', 'Serpentine', 'Serpentine Interlaced', 'Serpentine Interwoven', 'XY File'", "default_value": "Raster"}, "Scan - Use DE Camera": {"value": "Use Frame Time", "data_type": "String", "value_type": "Set", "category": "Basic", "options": "'Use Frame Time*', 'Independent', 'Off'", "default_value": "Use Frame Time"}, "Scan - Virtual Detector 0 Calculation": {"value": "Sum", "data_type": "String", "value_type": "ReadOnly", "category": "Advanced", "options": "'Centroid Amplitude', 'Centroid Angle', 'Centroid X', 'Centroid Y', 'Difference', 'Standard Deviation', 'Sum'", "default_value": "Sum"}, "Scan - Virtual Detector 0 Name": {"value": "Virt #0", "data_type": "String", "value_type": "AllowAll", "category": "Advanced", "options": "", "default_value": "Virt #0"}, "Scan - Virtual Detector 0 Shape": {"value": "Ellipse", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Arbitrary', 'Ellipse*', 'Off', 'Rectangle'", "default_value": "Ellipse"}, "Scan - Virtual Detector 1 Calculation": {"value": "Centroid Amplitude", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Centroid Amplitude', 'Centroid Angle', 'Centroid X', 'Centroid Y', 'Difference', 'Standard Deviation', 'Sum*'", "default_value": "Sum"}, "Scan - Virtual Detector 1 Minus Center X": {"value": "512", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "-81920.0, 81920.0, '-81920 - 81920'", "default_value": "512"}, "Scan - Virtual Detector 1 Minus Center Y": {"value": "512", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "-81920.0, 81920.0, '-81920 - 81920'", "default_value": "512"}, "Scan - Virtual Detector 1 Minus Radius X": {"value": "256", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "1.0, 163840.0, '1 - 163840'", "default_value": "256"}, "Scan - Virtual Detector 1 Minus Radius Y": {"value": "256", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "1.0, 163840.0, '1 - 163840'", "default_value": "256"}, "Scan - Virtual Detector 1 Minus Thickness": {"value": "56", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "0.0, 81920.0, '0 - 81920'", "default_value": "56"}, "Scan - Virtual Detector 1 Name": {"value": "Virt #1", "data_type": "String", "value_type": "AllowAll", "category": "Advanced", "options": "", "default_value": "Virt #1"}, "Scan - Virtual Detector 1 Plus Center X": {"value": "521", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "-81920.0, 81920.0, '-81920 - 81920'", "default_value": "512"}, "Scan - Virtual Detector 1 Plus Center Y": {"value": "485", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "-81920.0, 81920.0, '-81920 - 81920'", "default_value": "512"}, "Scan - Virtual Detector 1 Plus Radius X": {"value": "320", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "1.0, 163840.0, '1 - 163840'", "default_value": "256"}, "Scan - Virtual Detector 1 Plus Radius Y": {"value": "320", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "1.0, 163840.0, '1 - 163840'", "default_value": "256"}, "Scan - Virtual Detector 1 Plus Thickness": {"value": "320", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "0.0, 81920.0, '0 - 81920'", "default_value": "512"}, "Scan - Virtual Detector 1 Preset Current": {"value": "Custom", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Default', 'Circular', 'Annular', 'Custom*'", "default_value": "Custom"}, "Scan - Virtual Detector 1 Preset Save": {"value": "Custom", "data_type": "String", "value_type": "AllowAll", "category": "Advanced", "options": "", "default_value": ""}, "Scan - Virtual Detector 1 Shape": {"value": "Arbitrary", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Arbitrary', 'Ellipse*', 'Off', 'Rectangle'", "default_value": "Ellipse"}, "Scan - Virtual Detector 2 Calculation": {"value": "Sum", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Centroid Amplitude', 'Centroid Angle', 'Centroid X', 'Centroid Y', 'Difference', 'Standard Deviation', 'Sum*'", "default_value": "Sum"}, "Scan - Virtual Detector 2 Minus Center X": {"value": "512", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "-81920.0, 81920.0, '-81920 - 81920'", "default_value": "512"}, "Scan - Virtual Detector 2 Minus Center Y": {"value": "512", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "-81920.0, 81920.0, '-81920 - 81920'", "default_value": "512"}, "Scan - Virtual Detector 2 Minus Radius X": {"value": "512", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "1.0, 163840.0, '1 - 163840'", "default_value": "512"}, "Scan - Virtual Detector 2 Minus Radius Y": {"value": "512", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "1.0, 163840.0, '1 - 163840'", "default_value": "512"}, "Scan - Virtual Detector 2 Minus Thickness": {"value": "256", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "0.0, 81920.0, '0 - 81920'", "default_value": "256"}, "Scan - Virtual Detector 2 Name": {"value": "Virt #2", "data_type": "String", "value_type": "AllowAll", "category": "Advanced", "options": "", "default_value": "Virt #2"}, "Scan - Virtual Detector 2 Plus Center X": {"value": "512", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "-81920.0, 81920.0, '-81920 - 81920'", "default_value": "512"}, "Scan - Virtual Detector 2 Plus Center Y": {"value": "512", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "-81920.0, 81920.0, '-81920 - 81920'", "default_value": "512"}, "Scan - Virtual Detector 2 Plus Radius X": {"value": "512", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "1.0, 163840.0, '1 - 163840'", "default_value": "512"}, "Scan - Virtual Detector 2 Plus Radius Y": {"value": "512", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "1.0, 163840.0, '1 - 163840'", "default_value": "512"}, "Scan - Virtual Detector 2 Plus Thickness": {"value": "256", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "0.0, 81920.0, '0 - 81920'", "default_value": "256"}, "Scan - Virtual Detector 2 Preset Current": {"value": "Custom", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Default', 'Circular', 'Annular', 'Custom*'", "default_value": "Custom"}, "Scan - Virtual Detector 2 Preset Save": {"value": "Custom", "data_type": "String", "value_type": "AllowAll", "category": "Advanced", "options": "", "default_value": ""}, "Scan - Virtual Detector 2 Shape": {"value": "Ellipse", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Arbitrary', 'Ellipse*', 'Off', 'Rectangle'", "default_value": "Ellipse"}, "Scan - Virtual Detector 3 Calculation": {"value": "Sum", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Centroid Amplitude', 'Centroid Angle', 'Centroid X', 'Centroid Y', 'Difference', 'Standard Deviation', 'Sum*'", "default_value": "Sum"}, "Scan - Virtual Detector 3 Minus Center X": {"value": "512", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "-81920.0, 81920.0, '-81920 - 81920'", "default_value": "512"}, "Scan - Virtual Detector 3 Minus Center Y": {"value": "512", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "-81920.0, 81920.0, '-81920 - 81920'", "default_value": "512"}, "Scan - Virtual Detector 3 Minus Radius X": {"value": "100", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "1.0, 163840.0, '1 - 163840'", "default_value": "100"}, "Scan - Virtual Detector 3 Minus Radius Y": {"value": "100", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "1.0, 163840.0, '1 - 163840'", "default_value": "100"}, "Scan - Virtual Detector 3 Minus Thickness": {"value": "100", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "0.0, 81920.0, '0 - 81920'", "default_value": "100"}, "Scan - Virtual Detector 3 Name": {"value": "Virt #3", "data_type": "String", "value_type": "AllowAll", "category": "Advanced", "options": "", "default_value": "Virt #3"}, "Scan - Virtual Detector 3 Plus Center X": {"value": "512", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "-81920.0, 81920.0, '-81920 - 81920'", "default_value": "512"}, "Scan - Virtual Detector 3 Plus Center Y": {"value": "512", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "-81920.0, 81920.0, '-81920 - 81920'", "default_value": "512"}, "Scan - Virtual Detector 3 Plus Radius X": {"value": "256", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "1.0, 163840.0, '1 - 163840'", "default_value": "256"}, "Scan - Virtual Detector 3 Plus Radius Y": {"value": "256", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "1.0, 163840.0, '1 - 163840'", "default_value": "256"}, "Scan - Virtual Detector 3 Plus Thickness": {"value": "128", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "0.0, 81920.0, '0 - 81920'", "default_value": "128"}, "Scan - Virtual Detector 3 Preset Current": {"value": "Custom", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Default', 'Circular', 'Annular', 'Custom*'", "default_value": "Custom"}, "Scan - Virtual Detector 3 Preset Save": {"value": "Custom", "data_type": "String", "value_type": "AllowAll", "category": "Advanced", "options": "", "default_value": ""}, "Scan - Virtual Detector 3 Shape": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Arbitrary', 'Ellipse', 'Off*', 'Rectangle'", "default_value": "Off"}, "Scan - Virtual Detector 4 Calculation": {"value": "Sum", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Centroid Amplitude', 'Centroid Angle', 'Centroid X', 'Centroid Y', 'Difference', 'Standard Deviation', 'Sum*'", "default_value": "Sum"}, "Scan - Virtual Detector 4 Minus Center X": {"value": "730", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "-81920.0, 81920.0, '-81920 - 81920'", "default_value": "730"}, "Scan - Virtual Detector 4 Minus Center Y": {"value": "430", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "-81920.0, 81920.0, '-81920 - 81920'", "default_value": "430"}, "Scan - Virtual Detector 4 Minus Radius X": {"value": "200", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "1.0, 163840.0, '1 - 163840'", "default_value": "200"}, "Scan - Virtual Detector 4 Minus Radius Y": {"value": "200", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "1.0, 163840.0, '1 - 163840'", "default_value": "200"}, "Scan - Virtual Detector 4 Minus Thickness": {"value": "200", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "0.0, 81920.0, '0 - 81920'", "default_value": "200"}, "Scan - Virtual Detector 4 Name": {"value": "Virt #4", "data_type": "String", "value_type": "AllowAll", "category": "Advanced", "options": "", "default_value": "Virt #4"}, "Scan - Virtual Detector 4 Plus Center X": {"value": "256", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "-81920.0, 81920.0, '-81920 - 81920'", "default_value": "256"}, "Scan - Virtual Detector 4 Plus Center Y": {"value": "512", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "-81920.0, 81920.0, '-81920 - 81920'", "default_value": "512"}, "Scan - Virtual Detector 4 Plus Radius X": {"value": "256", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "1.0, 163840.0, '1 - 163840'", "default_value": "256"}, "Scan - Virtual Detector 4 Plus Radius Y": {"value": "256", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "1.0, 163840.0, '1 - 163840'", "default_value": "256"}, "Scan - Virtual Detector 4 Plus Thickness": {"value": "128", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "0.0, 81920.0, '0 - 81920'", "default_value": "128"}, "Scan - Virtual Detector 4 Preset Current": {"value": "Custom", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Default', 'Circular', 'Annular', 'Custom*'", "default_value": "Custom"}, "Scan - Virtual Detector 4 Preset Save": {"value": "Custom", "data_type": "String", "value_type": "AllowAll", "category": "Advanced", "options": "", "default_value": ""}, "Scan - Virtual Detector 4 Shape": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Arbitrary', 'Ellipse', 'Off*', 'Rectangle'", "default_value": "Off"}, "Scan - Virtual Detector Preset List": {"value": "Default,Circular,Annular,Custom", "data_type": "String", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": ""}, "Scan - Wait (seconds)": {"value": "30", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "1.0, 600.0, '1 - 600'", "default_value": "30"}, "Scan - XY File": {"value": "", "data_type": "String", "value_type": "AllowAll", "category": "Advanced", "options": "", "default_value": ""}, "Scan - XY File Pattern ID": {"value": "0", "data_type": "Integer", "value_type": "Range", "category": "Advanced", "options": "0.0, 16.0, '0 - 16'", "default_value": "0"}, "Sensor Clock Frequency": {"value": "260MHz", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'260MHz*'", "default_value": "260MHz"}, "Sensor Module SN": {"value": "", "data_type": "String", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": ""}, "Sensor Pixel Depth": {"value": "12", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'12*', '10'", "default_value": "12"}, "Sensor Pixel Pitch (micrometers)": {"value": "10", "data_type": "Float", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "10.000000"}, "Sensor Readout Delay (milliseconds)": {"value": "0", "data_type": "Integer", "value_type": "AllowAll", "category": "Advanced", "options": "", "default_value": "0"}, "Sensor Size X (pixels)": {"value": "1024", "data_type": "Integer", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "1024"}, "Sensor Size Y (pixels)": {"value": "1024", "data_type": "Integer", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "1024"}, "Server IP Addresss": {"value": "0.0.0.0", "data_type": "String", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0.0.0.0"}, "Server Port Number": {"value": "13240", "data_type": "String", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "13240"}, "Server Software Version": {"value": "2.7.3.9918", "data_type": "String", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "2.7.3.9918"}, "Specimen Pixel Size X (nanometers)": {"value": "-1", "data_type": "Float", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0.000000"}, "Specimen Pixel Size Y (nanometers)": {"value": "-1", "data_type": "Float", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0.000000"}, "System Status": {"value": "OK", "data_type": "String", "value_type": "ReadOnly", "category": "Basic", "options": "", "default_value": ""}, "Temperature - Chilled Water (Celsius)": {"value": "-273.1499938965", "data_type": "Float", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0.000000"}, "Temperature - Chilled Water Status": {"value": "Unknown", "data_type": "String", "value_type": "ReadOnly", "category": "Advanced", "options": "'Unknown', 'OK', 'Too High', 'Invalid'", "default_value": "OK"}, "Temperature - Control": {"value": "", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Warm Up', 'Cool Down'", "default_value": ""}, "Temperature - Detector (Celsius)": {"value": "25", "data_type": "Integer", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0"}, "Temperature - Detector Status": {"value": "Warmed", "data_type": "String", "value_type": "ReadOnly", "category": "Advanced", "options": "'Unknown', 'Cooled', 'Cooling', 'Warmed', 'Warming'", "default_value": ""}, "Test Pattern": {"value": "Off", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Off*', 'C:\\\\direct_electron\\\\de64\\\\v2.7.3\\\\DE_MC_2.7.3.9918_Beta\\\\images\\\\CBED_4DSTEM_8bitGray.tif', 'C:\\\\direct_electron\\\\de64\\\\v2.7.3\\\\DE_MC_2.7.3.9918_Beta\\\\images\\\\STO_464AngstromFOV_16_bit.tif', 'D:\\\\TestImages\\\\20230622_43398_crude_frames.mrc', 'D:\\\\TestImages\\\\TestImage_1x3.mrc', 'D:\\\\TestImages\\\\20230622_43395_final.tif', 'SW Gradient Diagonal', 'SW Gradient Horizontal', 'SW Gradient Vertical', 'SW Jaehne', 'SW Constant 1', 'SW Constant 2', 'SW Constant 10', 'SW Constant 400', 'SW Constant 1600', 'SW Gaussian M500 D100', 'SW Gaussian M1600 D200', 'SW Four Parts', 'SW Frame Number', 'SW Memory', 'Sequence', 'SequenceByColumn', 'FPGA Test Pattern', 'ADC Test Pattern - 2047-2048', 'ADC Test Pattern - 1365-2730', 'ADC Test Pattern - 1484-2611', 'ADC Test Pattern - PN 23', 'ADC Test Pattern - PN 9', 'ADC Test Pattern - Diamond'", "default_value": "Off"}, "Threshold - Method": {"value": "Auto", "data_type": "String", "value_type": "Set", "category": "Advanced", "options": "'Adaptive Subtraction', 'Adaptive to Zero', 'Auto*', 'Fixed to Zero', 'None'", "default_value": "Auto"}, "Total Number of Acquisitions": {"value": "1", "data_type": "Integer", "value_type": "ReadOnly", "category": "Advanced", "options": "", "default_value": "0"}, "Vacuum State": {"value": "Unknown", "data_type": "String", "value_type": "ReadOnly", "category": "Advanced", "options": "'Unknown', 'Atmosphere', 'Vacuum'", "default_value": "Unknown"}}
+{"Frames Per Second":{
+    "value":"340.8200073242",
+    "data_type":"Float",
+    "value_type":"Range",
+    "category":"Basic",
+    "options":"0.05999999865889549, 1000000.0, '0.05999999865889549 - 1000000.0'",
+    "default_value":"171.268066"
+  },
+  "Hardware Binning X":{
+    "value":"1",
+    "data_type":"Integer",
+    "value_type":"Set",
+    "category":"Advanced",
+    "options":"'1*', '2'",
+    "default_value":"1"
+  },
+  "Hardware Binning Y":{
+    "value":"1",
+    "data_type":"Integer",
+    "value_type":"Set",
+    "category":"Advanced",
+    "options":"'1*', '2'",
+    "default_value":"1"
+  },
+  "Hardware ROI Offset X":{
+    "value":"0",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Advanced",
+    "options":"0.0, 1023.0, '0 - 1023'",
+    "default_value":"0",
+    "set_also": {"hardware_roi_size_x": "Piecewise((hardware_roi_size_x, sensor_size_x_pixels - hardware_roi_offset_x > hardware_roi_size_x), (sensor_size_x_pixels - hardware_roi_offset_x, True))"
+    }
+  },
+  "Hardware ROI Offset Y":{
+    "value":"0",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Advanced",
+    "options":"0.0, 1023.0, '0 - 1023'",
+    "default_value":"0",
+    "set_also": {"hardware_roi_size_y": "Piecewise((hardware_roi_size_y, sensor_size_y_pixels - hardware_roi_offset_y > hardware_roi_size_y), (sensor_size_y_pixels - hardware_roi_offset_y, True))"
+    }
+  },
+  "Hardware ROI Size X":{
+    "value":"1024",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Advanced",
+    "options":"1.0, 1024.0, '1 - 1024'",
+    "default_value":"1024",
+    "set": "Piecewise((value, sensor_size_x_pixels - hardware_roi_offset_x > value), (sensor_size_x_pixels - hardware_roi_offset_x, True))"
+  },
+  "Hardware ROI Size Y":{
+    "value":"1024",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Advanced",
+    "options":"1.0, 1024.0, '1 - 1024'",
+    "default_value":"1024",
+    "set": "Piecewise((value, sensor_size_y_pixels - hardware_roi_offset_y > value), (sensor_size_y_pixels - hardware_roi_offset_y, True))"
+  },
+  "Image Processing - Output Buffer Size":{
+    "value":"100",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Advanced",
+    "options":"0.0, 100000.0, '0 - 100000'",
+    "default_value":"100"
+  },
+  "Scan - Camera Frames Per Point":{
+    "value":"1",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Advanced",
+    "options":"1.0, 1000.0, '1 - 1000'",
+    "default_value":"1"
+  },
+  "Scan - Enable":{
+    "value":"Off",
+    "data_type":"String",
+    "value_type":"Set",
+    "category":"Advanced",
+    "options":"'Off*', 'On'",
+    "default_value":"Off"
+  },
+  "Scan - External Detector 1 Enable":{
+    "value":"On",
+    "data_type":"String",
+    "value_type":"Set",
+    "category":"Basic",
+    "options":"'On*', 'Off'",
+    "default_value":"On"
+  },
+  "Scan - External Detector 1 Name":{
+    "value":"Ext #1",
+    "data_type":"String",
+    "value_type":"AllowAll",
+    "category":"Advanced",
+    "options":"",
+    "default_value":"Ext #1"
+  },
+  "Scan - Initial Delay (microseconds)":{
+    "value":"0",
+    "data_type":"Float",
+    "value_type":"Range",
+    "category":"Advanced",
+    "options":"0.0, 10000000.0, '0.0 - 10000000.0'",
+    "default_value":"0.000000"
+  },
+  "Scan - Points Per Camera Frame":{
+    "value":"1",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Advanced",
+    "options":"1.0, 1000.0, '1 - 1000'",
+    "default_value":"1"
+  },
+  "Scan - ROI Enable":{
+    "value":"Off",
+    "data_type":"String",
+    "value_type":"Set",
+    "category":"Advanced",
+    "options":"'Off*', 'On'",
+    "default_value":"Off"
+  },
+  "Scan - ROI Offset X":{
+    "value":"0",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Advanced",
+    "options":"0.0, 124.0, '0 - 124'",
+    "default_value":"0"
+  },
+  "Scan - ROI Offset Y":{
+    "value":"0",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Advanced",
+    "options":"0.0, 124.0, '0 - 124'",
+    "default_value":"0"
+  },
+  "Scan - ROI Size X":{
+    "value":"64",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Advanced",
+    "options":"4.0, 128.0, '4 - 128'",
+    "default_value":"64"
+  },
+  "Scan - ROI Size Y":{
+    "value":"64",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Advanced",
+    "options":"4.0, 128.0, '4 - 128'",
+    "default_value":"64"
+  },
+  "Scan - ROI Upsampling":{
+    "value":"1",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Advanced",
+    "options":"1.0, 100.0, '1 - 100'",
+    "default_value":"1"
+  },
+  "Scan - Repeat Delay (seconds)":{
+    "value":"3",
+    "data_type":"Float",
+    "value_type":"Range",
+    "category":"Advanced",
+    "options":"0.0, 600.0, '0.0 - 600.0'",
+    "default_value":"3.000000"
+  },
+  "Scan - Repeats":{
+    "value":"1",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Advanced",
+    "options":"1.0, 1000.0, '1 - 1000'",
+    "default_value":"1"
+  },
+  "Scan - Size X":{
+    "value":"128",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Advanced",
+    "options":"4.0, 8192.0, '4 - 8192'",
+    "default_value":"128"
+  },
+  "Scan - Size Y":{
+    "value":"128",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Advanced",
+    "options":"4.0, 8192.0, '4 - 8192'",
+    "default_value":"128"
+  },
+  "Scan - Type":{
+    "value":"Raster",
+    "data_type":"String",
+    "value_type":"Set",
+    "category":"Advanced",
+    "options":"'Distributed', 'Distributed Random', 'Hilbert Curve', 'Moore Curve', 'Random', 'Raster*', 'Raster Interlaced', 'Rectangular Spiral', 'Serpentine', 'Serpentine Interlaced', 'Serpentine Interwoven', 'XY File'",
+    "default_value":"Raster"
+  },
+  "Scan - Virtual Detector 0 Calculation":{
+    "value":"Sum",
+    "data_type":"String",
+    "value_type":"ReadOnly",
+    "category":"Advanced",
+    "options":"'Centroid Amplitude', 'Centroid Angle', 'Centroid X', 'Centroid Y', 'Difference', 'Standard Deviation', 'Sum'",
+    "default_value":"Sum"
+  },
+  "Scan - Virtual Detector 0 Name":{
+    "value":"Virt #0",
+    "data_type":"String",
+    "value_type":"AllowAll",
+    "category":"Advanced",
+    "options":"",
+    "default_value":"Virt #0"
+  },
+  "Scan - Virtual Detector 0 Shape":{
+    "value":"Ellipse",
+    "data_type":"String",
+    "value_type":"Set",
+    "category":"Advanced",
+    "options":"'Arbitrary', 'Ellipse*', 'Off', 'Rectangle'",
+    "default_value":"Ellipse"
+  },
+  "Scan - Virtual Detector 1 Calculation":{
+    "value":"Centroid Amplitude",
+    "data_type":"String",
+    "value_type":"Set",
+    "category":"Advanced",
+    "options":"'Centroid Amplitude', 'Centroid Angle', 'Centroid X', 'Centroid Y', 'Difference', 'Standard Deviation', 'Sum*'",
+    "default_value":"Sum"
+  },
+  "Scan - Virtual Detector 1 Name":{
+    "value":"Virt #1",
+    "data_type":"String",
+    "value_type":"AllowAll",
+    "category":"Advanced",
+    "options":"",
+    "default_value":"Virt #1"
+  },
+  "Scan - Virtual Detector 1 Shape":{
+    "value":"Arbitrary",
+    "data_type":"String",
+    "value_type":"Set",
+    "category":"Advanced",
+    "options":"'Arbitrary', 'Ellipse*', 'Off', 'Rectangle'",
+    "default_value":"Ellipse"
+  },
+  "Scan - Virtual Detector 2 Calculation":{
+    "value":"Sum",
+    "data_type":"String",
+    "value_type":"Set",
+    "category":"Advanced",
+    "options":"'Centroid Amplitude', 'Centroid Angle', 'Centroid X', 'Centroid Y', 'Difference', 'Standard Deviation', 'Sum*'",
+    "default_value":"Sum"
+  },
+  "Scan - Virtual Detector 2 Name":{
+    "value":"Virt #2",
+    "data_type":"String",
+    "value_type":"AllowAll",
+    "category":"Advanced",
+    "options":"",
+    "default_value":"Virt #2"
+  },
+  "Scan - Virtual Detector 2 Shape":{
+    "value":"Ellipse",
+    "data_type":"String",
+    "value_type":"Set",
+    "category":"Advanced",
+    "options":"'Arbitrary', 'Ellipse*', 'Off', 'Rectangle'",
+    "default_value":"Ellipse"
+  },
+  "Scan - Virtual Detector 3 Calculation":{
+    "value":"Sum",
+    "data_type":"String",
+    "value_type":"Set",
+    "category":"Advanced",
+    "options":"'Centroid Amplitude', 'Centroid Angle', 'Centroid X', 'Centroid Y', 'Difference', 'Standard Deviation', 'Sum*'",
+    "default_value":"Sum"
+  },
+  "Scan - Virtual Detector 3 Name":{
+    "value":"Virt #3",
+    "data_type":"String",
+    "value_type":"AllowAll",
+    "category":"Advanced",
+    "options":"",
+    "default_value":"Virt #3"
+  },
+  "Scan - Virtual Detector 3 Shape":{
+    "value":"Off",
+    "data_type":"String",
+    "value_type":"Set",
+    "category":"Advanced",
+    "options":"'Arbitrary', 'Ellipse', 'Off*', 'Rectangle'",
+    "default_value":"Off"
+  },
+  "Scan - Virtual Detector 4 Calculation":{
+    "value":"Sum",
+    "data_type":"String",
+    "value_type":"Set",
+    "category":"Advanced",
+    "options":"'Centroid Amplitude', 'Centroid Angle', 'Centroid X', 'Centroid Y', 'Difference', 'Standard Deviation', 'Sum*'",
+    "default_value":"Sum"
+  },
+  "Scan - Virtual Detector 4 Name":{
+    "value":"Virt #4",
+    "data_type":"String",
+    "value_type":"AllowAll",
+    "category":"Advanced",
+    "options":"",
+    "default_value":"Virt #4"
+  },
+  "Scan - Virtual Detector 4 Shape":{
+    "value":"Off",
+    "data_type":"String",
+    "value_type":"Set",
+    "category":"Advanced",
+    "options":"'Arbitrary', 'Ellipse', 'Off*', 'Rectangle'",
+    "default_value":"Off"
+  },
+  "Sensor Size X (pixels)":{
+    "value":"1024",
+    "data_type":"Integer",
+    "value_type":"ReadOnly",
+    "category":"Advanced",
+    "options":"",
+    "default_value":"1024"
+  },
+  "Sensor Size Y (pixels)":{
+    "value":"1024",
+    "data_type":"Integer",
+    "value_type":"ReadOnly",
+    "category":"Advanced",
+    "options":"",
+    "default_value":"1024"
+  },
+  "Total Number of Acquisitions":{
+    "value":"1",
+    "data_type":"Integer",
+    "value_type":"ReadOnly",
+    "category":"Advanced",
+    "options":"",
+    "default_value":"0"
+  },
+  "Image Size X (pixels)":{
+    "value":"1024",
+    "data_type":"Integer",
+    "value_type":"ReadOnly",
+    "category":"Advanced",
+    "options":"",
+    "default_value":"1024",
+    "get": "hardware_roi_size_x / hardware_binning_x"
+  },
+    "Image Size Y (pixels)":{
+        "value":"1024",
+        "data_type":"Integer",
+        "value_type":"ReadOnly",
+        "category":"Advanced",
+        "options":"",
+        "default_value":"1024",
+        "get": "hardware_roi_size_y / hardware_binning_y"
+    },
+  "Server Software Version":{
+    "value":"3.7.8893",
+    "data_type":"String",
+    "value_type":"ReadOnly",
+    "category":"Basic",
+    "options":"",
+    "default_value":"1.0.0"
+  },
+  "Crop Size X":{
+    "value":"1024",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Advanced",
+    "options":"1.0, 1024.0, '1 - 1024'",
+    "default_value":"1024"
+  },
+    "Crop Size Y":{
+        "value":"1024",
+        "data_type":"Integer",
+        "value_type":"Range",
+        "category":"Advanced",
+        "options":"1.0, 1024.0, '1 - 1024'",
+        "default_value":"1024"
+    },
+  "Binning X":{
+    "value":"1",
+    "data_type":"Integer",
+    "value_type":"Set",
+    "category":"Advanced",
+    "options":"'1', '2', '4', '8', '16', '32', '64', '128', '256', '512', '1024'",
+    "default_value":"1"
+  },
+    "Binning Y":{
+        "value":"1",
+        "data_type":"Integer",
+        "value_type":"Set",
+        "category":"Advanced",
+        "options":"'1', '2', '4', '8', '16', '32', '64', '128', '256', '512', '1024'",
+        "default_value":"1"
+    },
+  "Exposure Time (seconds)":{
+    "value":"1000",
+    "data_type":"Float",
+    "value_type":"Range",
+    "category":"Basic",
+    "options":"0.0, 1000000.0, '0.0 - 1000000.0'",
+    "default_value":"1000"
+  }
+}

@@ -1,3 +1,4 @@
+import numpy as np
 
 from deapi.fake_client import FakeClient
 
@@ -52,3 +53,15 @@ class TestClient:
         assert client.scan["size_x"] == 45
         assert client.scan["size_y"] == 450
 
+    def test_get_movie_buffer_info(self, client):
+        info = client.get_movie_buffer_info()
+        assert info.framesInBuffer == 64
+
+    def test_get_movie_buffer(self, client):
+        info = client.get_movie_buffer_info()
+
+        buffer = info.to_buffer()
+        client.start_acquisition()
+        _,_,_,data = client.get_movie_buffer(buffer, info.total_bytes, info.framesInBuffer)
+        data = np.frombuffer(data, dtype=np.uint16)
+        assert data.size == 64 * 1024 * 1024

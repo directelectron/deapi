@@ -1,4 +1,4 @@
-# File containg the Client for connecting to the DE-Server
+# File containing the Client for connecting to the DE-Server
 #
 # Last update: 2024-08-07
 # cfrancis@directelectron.com
@@ -7,26 +7,22 @@
 # Python System imports
 import socket
 import sys
-import math
 import struct
-import types
 import time
 import os
-import mmap
-import ctypes
 import logging
 import mmap
 from datetime import datetime
 from time import sleep
 import re
 from typing import List
+from enum import Enum
 
 import numpy as np
 
 # External package imports
 from PIL import Image
 import numpy
-from streamz import Stream
 
 
 # Internal package imports
@@ -44,13 +40,13 @@ from deapi.data_types import (
 
 
 from deapi.buffer_protocols import pb
-from deapi.version import version
+from deapi.version import version, commandVersion
 
 
-versionInfo = list(map(int, version.split(".")))
+
 
 ## the commandInfo contains [VERSION_MAJOR.VERSION_MINOR.VERSION_PATCH.VERSION_REVISION]
-commandVersion = (versionInfo[0] - 4) * 10 + versionInfo[1]
+
 logLevel = logging.DEBUG
 logLevel = logging.INFO
 logLevel = logging.WARNING
@@ -63,7 +59,6 @@ log.info("logLevel  : " + str(logging.getLevelName(logLevel)))
 
 
 class Client:
-
     def __str__(self):
         return f"Client(host={self.host}, port={self.port}, camera={self.get_current_camera()})"
 
@@ -130,8 +125,6 @@ class Client:
         port : int, optional
             The port to connect to, by default 13240
         """
-        global commandVersion
-
         if host == "localhost" or host == "127.0.0.1":
             tcpNoDelay = 0  # on loopback interface, nodelay causes delay
 
@@ -189,10 +182,20 @@ class Client:
             ## version after 2.1.17
             commandVersion = 3
         self._initialize_attributes()
+        self.update_scan_size()
+        self.update_image_size()
 
+    def update_scan_size(self):
+        self.scan_sizex = self["Scan - Size X"]
+        self.scan_sizey = self["Scan - Size Y"]
 
+    def update_image_size(self):
+        self.image_sizex = self["Image Size X (pixels)"]
+        self.image_sizey = self["Image Size Y (pixels)"]
 
-    # Disonnect from DE-Server
+    def plot_virtual_masks(self):
+        pass
+
     def disconnect(self):
         """
         Disconnects from the server.
@@ -214,6 +217,14 @@ class Client:
         List the available cameras on the server.
         """
         return self.cameras
+
+    def get_virtual_mask(self, index):
+        mask_name = f"virtual_mask{index}"
+        a = Attributes()
+        a.windowWidth = self[["Image Size X (pixels)"]]
+        a.windowHeight = self[["Image Size Y (pixels)"]]
+        res, _, _, _, = self.get_result(mask_name, DataType.DE8u, attributes=a)
+        return res
 
     def get_current_camera(self) -> str:
         """
@@ -648,7 +659,7 @@ class Client:
         return ret
 
     def start_acquisition(
-        self, numberOfAcquisitions: int = 1, requestMovieBuffer=False
+        self, numberOfAcquisitions: int = 1, requestMovieBuffer=False, update=True,
     ):
         """
         Start acquiring images. Make sure all of the properties are set to the desired values.
@@ -664,6 +675,10 @@ class Client:
         """
         start_time = self.GetTime()
         step_time = self.GetTime()
+
+        if update:
+            self.update_scan_size()
+            self.update_image_size()
 
         if self.refreshProperties:
             self.roi_x = self.GetProperty("Crop Size X")
@@ -740,16 +755,26 @@ class Client:
 
         return b"Stopped" in respond
 
-    def get_result(self, frameType, pixelFormat, attributes=None, histogram=None):
+    def get_result(self, frameType="singleframe_integrated", pixelFormat="UINT16", attributes="auto", histogram=None):
         """
         Get the specified type of frames in the desired pixel format and associated information.
 
         Parameters
         ----------
         frameType: FrameType
-            The type of frame to get. Use the FrameType enum.
+            The type of frame to get. Use the FrameType enum or a string.
+            Most common:
+                - virtual_image0 (or 1, 2, 3, 4)
+                - external_image1 (or 2, 3, 4)
+                - sumtotal
+                - singleframe_integrated
         pixelFormat: PixelFormat
-            The pixel format to get. Use the PixelFormat enum.
+            The pixel format to get. Use the PixelFormat enum or a string.
+            One of the following:
+                - DE8u
+                - DE16u
+                - DE32f
+                - DE64f
         attributes: Attributes
             Defines the image to be returned, some members can be updated.
             Some members of this parameter are input only, some are input/output.
@@ -760,10 +785,22 @@ class Client:
         Note
         ----
         During acquisition, live frames will be returned; after acquisition, the last image will be returned.
-
-
-
         """
+        if isinstance(frameType, str):
+            frameType = getattr(FrameType, frameType.upper())
+        if isinstance(pixelFormat, str):
+            pixelFormat = getattr(PixelFormat, pixelFormat)
+
+        if attributes == "auto":
+            attributes = Attributes()
+            scan_images = [17, 18, 19, 20, 21, 22,23,24,25]
+            if frameType in scan_images:
+                attributes.windowWidth = self.scan_sizex
+                attributes.windowHeight = self.scan_sizey
+            else:
+                attributes.windowWidth = self.image_sizex
+                attributes.windowHeight = self.image_sizey
+
         log.debug("GetResult frameType:%s, pixelFormat:%s", frameType, pixelFormat)
         start_time = self.GetTime()
         step_time = self.GetTime()
@@ -829,7 +866,6 @@ class Client:
                 lapsed = (self.GetTime() - step_time) * 1000
                 log.debug("   Build Time: %.1f ms", lapsed)
                 step_time = self.GetTime()
-
             response = self._sendCommand(command)
             if logLevel == logging.DEBUG:
                 lapsed = (self.GetTime() - step_time) * 1000
@@ -838,7 +874,7 @@ class Client:
 
             if response != False:
                 values = self.__getParameters(response.acknowledge[0])
-                if type(values) is list and len(values) >= 20:
+                if type(values) is list and len(values) >= 20:  # This should be majorly simplified
                     i = 0
                     pixelFormat = PixelFormat(values[i])
                     i += 1
@@ -930,14 +966,14 @@ class Client:
                     self.width = attributes.frameWidth
                     self.height = attributes.frameHeight
 
-                recvbyteSizeString = self.__recvFromSocket(
+                recvbyteSizeString = self._recvFromSocket(
                     self.socket, 4
                 )  # get the first 4 bytes
                 if len(recvbyteSizeString) == 4:
                     recvbyteSize = struct.unpack(
                         "I", recvbyteSizeString
                     )  # interpret as size
-                    received_string = self.__recvFromSocket(
+                    received_string = self._recvFromSocket(
                         self.socket, recvbyteSize[0]
                     )  # get the rest
                     data_header = pb.DEPacket()
@@ -954,11 +990,14 @@ class Client:
                     image.shape = [self.height, self.width]
                     bytesize = self.width * self.height * 2
                 elif bytesize > 0:
-                    packet = self.__recvFromSocket(self.socket, bytesize)
+                    packet = self._recvFromSocket(self.socket, bytesize)
                     if len(packet) == bytesize:
                         image = numpy.frombuffer(packet, imageDataType)
                         bytesize = self.height * self.width * 2
                         image.shape = [self.height, self.width]
+                    else:
+                        log.error("The size of the image does not match the expected size from "
+                                  "The header. Expected: %d, Received: %d", bytesize, len(packet))
 
                 if logLevel == logging.DEBUG:
                     elapsed = self.GetTime() - step_time
@@ -1025,7 +1064,7 @@ class Client:
             The width of the mask
         h : int
             The height of the mask
-        mask : list
+        mask : np.ndarray
             The mask to set
         """
         if 0 <= id < 4 and w >= 0 and h >= 0:
@@ -1041,7 +1080,7 @@ class Client:
                 ret = False
 
             if ret:
-                self.__sendToSocket(self.socket, mask, w * h)
+                self.__sendToSocket(self.socket, mask, mask.nbytes)
 
             ret = self.__ReceiveResponseForCommand(command) != False
 
@@ -1084,10 +1123,9 @@ class Client:
         self, movieBuffer, movieBufferSize, numFrames, timeoutMsec=5000
     ):
         """
-        Get the movie buffer of the current camera on DE-Server.
-
-        Parameters
-        ----------
+        Get the movie buffer of the current camera on DE-Server. The movie buffer
+        is a series of frames that are stored in memory and can be retrieved as
+        a single buffer for faster processing.
 
         """
 
@@ -1112,7 +1150,7 @@ class Client:
                         retval = False
                         log.error("Image received did not have the expected size.")
                     else:
-                        movieBuffer = self.__recvFromSocket(self.socket, totalBytes)
+                        movieBuffer = self._recvFromSocket(self.socket, totalBytes)
         else:
             retval = False
 
@@ -1552,7 +1590,6 @@ class Client:
         command.type = pb.DEPacket.P_COMMAND
         singlecommand1 = command.command.add()  # add the first single command
         singlecommand1.command_id = command_id + commandVersion * 100
-
         if not label is None:
             str_param = command.command[0].parameter.add()
             str_param.type = pb.AnyParameter.P_STRING
@@ -1613,14 +1650,14 @@ class Client:
     def __ReceiveResponseForCommand(self, command):
         step_time = self.GetTime()
 
-        recvbyteSizeString = self.__recvFromSocket(
+        recvbyteSizeString = self._recvFromSocket(
             self.socket, 4
         )  # get the first 4 byte
 
         if len(recvbyteSizeString) == 4:
             recvbyteSize = struct.unpack("I", recvbyteSizeString)  # interpret as size
             log.debug("-- recvbyteSize: " + str(recvbyteSize))
-            received_string = self.__recvFromSocket(
+            received_string = self._recvFromSocket(
                 self.socket, recvbyteSize[0]
             )  # get the rest
             if logLevel == logging.DEBUG:
@@ -1676,7 +1713,7 @@ class Client:
 
         return False
 
-    def __recvFromSocket(self, sock, bytes):
+    def _recvFromSocket(self, sock, bytes):
         timeout = self.exposureTime * 10 + 30
         startTime = self.GetTime()
         self.socket.settimeout(timeout)
@@ -1748,7 +1785,7 @@ class Client:
         chunkSize = 4096
         for i in range(0, len(buffer), chunkSize):
             try:
-                sock.send(buffer[i : min(len(buffer), i + chunkSize)])
+                sock.send(buffer[i: min(len(buffer), i + chunkSize)])
             except socket.timeout:
 
                 log.debug(

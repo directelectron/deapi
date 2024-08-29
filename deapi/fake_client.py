@@ -20,6 +20,8 @@ import json
 from importlib import resources
 
 import deapi
+from skimage.draw import disk
+from multiprocessing import Process
 
 inp_file = resources.files(deapi) / 'prop_dump.json'
 
@@ -39,8 +41,13 @@ log.info("CommandVer: " + str(commandVersion))
 log.info("logLevel  : " + str(logging.getLevelName(logLevel)))
 
 
+
+
 class FakeClient(Client):
     def __init__(self):
+        self.is_acquisition_running = False
+        self.current_stream_id = 0
+        self.socket = None
         with open(inp_file) as f:
             self._values = json.load(f)
 
@@ -81,6 +88,21 @@ class FakeClient(Client):
             ## version after 2.1.17
             commandVersion = 3
         self._initialize_attributes()
+
+    def start_acquisition(
+        self, numberOfAcquisitions: int = 1, requestMovieBuffer=False, data=None,
+    ):
+        """
+        Starts the acquisition of the camera.
+        If requestMovieBuffer is True, the movie buffer will be requested.
+        """
+
+        self.is_acquisition_running = True
+        num_real_space = self.get_
+        if data is None:
+            from deapi.fake_data.grains import TiltGrains
+            data = TiltGrains(n)
+
 
 
     def disconnect(self):
@@ -129,45 +151,6 @@ class FakeClient(Client):
         else:
             return False
 
-    # add a new command (with optional label and parameter)
-    def _add_single_command(self, command_id=None, label=None, params=None):
-        if command_id is None:
-            return False
-        command = pb.DEPacket()  # create the command packet
-        command.type = pb.DEPacket.P_COMMAND
-        singlecommand1 = command.command.add()  # add the first single command
-        singlecommand1.command_id = command_id + commandVersion * 100
-
-        if not label is None:
-            str_param = command.command[0].parameter.add()
-            str_param.type = pb.AnyParameter.P_STRING
-            str_param.p_string = label
-            str_param.name = "label"
-
-        if not params is None:
-            for param in params:
-                if isinstance(param, bool):
-                    bool_param = command.command[0].parameter.add()
-                    bool_param.type = pb.AnyParameter.P_BOOL
-                    bool_param.p_bool = bool(param)
-                    bool_param.name = "val"
-                elif isinstance(param, int) or isinstance(param, np.int32):
-                    int_param = command.command[0].parameter.add()
-                    int_param.type = pb.AnyParameter.P_INT
-                    int_param.p_int = int(param)
-                    int_param.name = "val"
-                elif isinstance(param, float):
-                    float_param = command.command[0].parameter.add()
-                    float_param.type = pb.AnyParameter.P_FLOAT
-                    float_param.p_float = param
-                    float_param.name = "val"
-                else:
-                    str_param = command.command[0].parameter.add()
-                    str_param.type = pb.AnyParameter.P_STRING
-                    str_param.p_string = str(param)
-                    str_param.name = "val"
-        return command
-
     # send single command and get a response, if error occurred, return False
     def _sendCommand(self, command=None):
         if command is None:
@@ -180,6 +163,25 @@ class FakeClient(Client):
             return self._fake_list_properties(command)
         elif command.command[0].command_id == self.LIST_ALLOWED_VALUES + commandVersion * 100:
             return self._fake_list_allowed_values(command)
+        elif command.command[0].command_id == self.GET_MOVIE_BUFFER_INFO + commandVersion * 100:
+            return self._fake_get_movie_buffer_info(command)
+        elif command.command[0].command_id == self.GET_MOVIE_BUFFER + commandVersion * 100:
+            return self._fake_get_movie_buffer(command)
+        elif command.command[0].command_id == self.START_ACQUISITION + commandVersion * 100:
+            return self._fake_start_acquisition(command)
+        elif command.command[0].command_id == self.GET_RESULT + commandVersion * 100:
+            return self._fake_get_result(command)
+        else:
+            raise NotImplementedError(f"Command {command.command[0].command_id} not implemented"
+                                      f" in FakeClient")
+
+    def _fake_start_acquisition(self, command):
+        self.is_acquisition_running = True
+        acknowledge_return = pb.DEPacket()
+        acknowledge_return.type = pb.DEPacket.P_ACKNOWLEDGE
+        ack1 = acknowledge_return.acknowledge.add()
+        ack1.command_id = command.command[0].command_id
+        return acknowledge_return
 
     def _fake_list_allowed_values(self, command):
         acknowledge_return = pb.DEPacket()
@@ -275,68 +277,90 @@ class FakeClient(Client):
             string_param.p_string = val
         return acknowledge_return
 
-    def __recvFromSocket(self, sock, bytes):
-        timeout = self.exposureTime * 10 + 30
-        startTime = self.GetTime()
-        self.socket.settimeout(timeout)
+    def _fake_get_movie_buffer_info(self, command):
+        acknowledge_return = pb.DEPacket()
+        acknowledge_return.type = pb.DEPacket.P_ACKNOWLEDGE
+        ack1 = acknowledge_return.acknowledge.add()
+        ack1.command_id = command.command[0].command_id
+        int_param = ack1.parameter.add()
+        int_param.type = pb.AnyParameter.P_INT
+        int_param.p_int = 512  # header size
+        # Image total bytes
+        int_param = ack1.parameter.add()
+        int_param.type = pb.AnyParameter.P_INT
+        size_x = self.get_property("Crop Size X")
+        size_y = self.get_property("Crop Size Y")
+        grab = self.get_property("Grab Buffer Size")
 
-        buffer = ""
-        try:
-            buffer = sock.recv(bytes)
-        except:
-            pass  # continue if more needed
+        int_param.p_int = (self.get_property("Crop Size X") *
+                           self.get_property("Crop Size Y") *
+                           self.get_property("Grab Buffer Size") * 2)  # 16 bit
+        # frame index start
+        int_param = ack1.parameter.add()
+        int_param.type = pb.AnyParameter.P_INT
+        # Header Size
+        int_param = ack1.parameter.add()
+        int_param.type = pb.AnyParameter.P_INT
+        int_param.p_int = 512
+        # image H
+        int_param = ack1.parameter.add()
+        int_param.type = pb.AnyParameter.P_INT
+        int_param.p_int = self.get_property("Crop Size X")
+        # image W
+        int_param = ack1.parameter.add()
+        int_param.type = pb.AnyParameter.P_INT
+        int_param.p_int = self.get_property("Crop Size Y")
+        # number of frames
+        int_param = ack1.parameter.add()
+        int_param.type = pb.AnyParameter.P_INT
+        int_param.p_int = self.get_property("Grab Buffer Size")
+        # image data type
+        int_param = ack1.parameter.add()
+        int_param.type = pb.AnyParameter.P_INT
+        int_param.p_int = 5  # uint16
+        return acknowledge_return
 
-        log.debug(
-            " __recvFromSocket : %d of %d in %.1f ms",
-            len(buffer),
-            bytes,
-            (self.GetTime() - startTime) * 1000,
-        )
-        total_len = len(buffer)
+    def _fake_get_result(self, command):
+        acknowledge_return = pb.DEPacket()
+        acknowledge_return.type = pb.DEPacket.P_ACKNOWLEDGE
+        ack1 = acknowledge_return.acknowledge.add()
+        ack1.command_id = command.command[0].command_id
+        int_param = ack1.parameter.add()
+        int_param.type = pb.AnyParameter.P_INT
+        int_param.p_int = 0
+        return acknowledge_return
 
-        if total_len < bytes:
-            while total_len < bytes:
-                loopTime = self.GetTime()
-                try:
-                    buffer += sock.recv(bytes)
-                    log.debug(
-                        " __recvFromSocket : %d bytes of %d in %.1f ms",
-                        len(buffer),
-                        bytes,
-                        (self.GetTime() - loopTime) * 1000,
-                    )
+    def _fake_get_movie_buffer(self, command):
+        acknowledge_return = pb.DEPacket()
+        acknowledge_return.type = pb.DEPacket.P_ACKNOWLEDGE
+        ack1 = acknowledge_return.acknowledge.add()
+        ack1.command_id = command.command[0].command_id
+        int_param = ack1.parameter.add()
+        int_param.type = pb.AnyParameter.P_INT
+        if self.is_acquisition_running:
+            int_param.p_int = 5
+        else:
+            int_param.p_int = 4
+        # Frame size
+        int_param = ack1.parameter.add()
+        int_param.type = pb.AnyParameter.P_INT
+        int_param.p_int = (self.get_property("Grab Buffer Size") *
+                           self.get_property("Crop Size X") *
+                           self.get_property("Crop Size X")*2)  # 16 bit
+        # number of frames
+        int_param = ack1.parameter.add()
+        int_param.type = pb.AnyParameter.P_INT
+        int_param.p_int = self.get_property("Grab Buffer Size")
 
-                except socket.timeout:
-                    log.debug(
-                        " __recvFromSocket : timeout in trying to receive %d bytes in %.1f ms",
-                        bytes,
-                        (self.GetTime() - loopTime) * 1000,
-                    )
-                    if self.GetTime() - startTime > timeout:
-                        log.error(" __recvFromSocket: max timeout %d seconds", timeout)
-                        break
-                    else:
-                        pass  # continue further
-                except:
-                    log.error(
-                        "Unknown exception occurred. Current Length: %d in %.1f ms",
-                        len(buffer),
-                        (self.GetTime() - loopTime) * 1000,
-                    )
-                    break
-                total_len = len(buffer)
+        self.current_stream_id = 0
+        return acknowledge_return
 
-        totalTimeMs = (self.GetTime() - startTime) * 1000
-        Gbps = total_len * 8 / (totalTimeMs / 1000) / 1024 / 1024 / 1024
-        log.debug(
-            " __recvFromSocket :received %d of %d bytes in total in %.1f ms, %.1f Gbps",
-            total_len,
-            bytes,
-            totalTimeMs,
-            Gbps,
-        )
+    def _recvFromSocket(self, socket, bytes):
+        if self.current_stream_id == 0:
 
-        return buffer
+            return self.fake_dp(single=False)
+        elif self.current_stream_id==1:
+            return None
 
     def __sendToSocket(self, sock, buffer, bytes):
         timeout = self.exposureTime * 10 + 30
@@ -401,5 +425,10 @@ class FakeClient(Client):
             log.error("Parse changed properties failed." + e.Message)
 
         return changedProperties
+
+
+
+
+
 
 

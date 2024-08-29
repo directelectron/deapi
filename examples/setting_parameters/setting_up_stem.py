@@ -25,7 +25,7 @@ client.connect()
 
 # %%
 # Set the scan size to 256x256
-client.scan(size_x=256, size_y=256)
+client.scan(size_x=256, size_y=256, enable=True)
 
 # %%
 # Set the number of frames per second to 1000

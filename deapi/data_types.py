@@ -1,4 +1,4 @@
-# File containg the data types used in the DE API
+# File containing the data types used in the DE API
 # 
 # Last update: 2024-08-07
 # cfrancis@directelectron.com
@@ -168,7 +168,14 @@ class MovieBufferInfo:
     imageW = 0
     imageH = 0
     framesInBuffer = 0
-    imageDataType = DataType.DEUndef    
+    imageDataType = DataType.DEUndef
+
+    @property
+    def total_bytes(self):
+        return self.headerBytes + self.imageBufferBytes
+
+    def to_buffer(self):
+        return bytearray(self.total_bytes)
 
 class PropertySpec:
         dataType            = None # "String"   | "Integer"  | "Float"
@@ -203,10 +210,15 @@ class PropertyCollection:
         return self.client.get_property(name)
 
     def __setitem__(self, key, value):
+        if isinstance(value, bool):
+            if value:
+                value = "On"
+            else:
+                value = "Off"
         if key in self.properties:
             name = self.properties[key]
         else:
-            raise KeyError(f"Property {item} not found")
+            raise KeyError(f"Property {key} not found")
         self.client.set_property(name, value)
 
     def _repr_html_(self):
@@ -244,6 +256,7 @@ class PropertyCollection:
         for prop in properties:
             if prop.islower():
                 # Determine the data type and create an appropriate widget
+                # TODO: Add support for checking the property spec.
                 current_value = self.client.get_property(self.properties[prop])
                 if isinstance(current_value, bool):
                     widget = widgets.Checkbox(value=current_value, description=prop)
@@ -273,6 +286,33 @@ class PropertyCollection:
 
         return VBox(form_items + [submit_button, output])
 
+
+class VirtualImage:
+    def __init__(self, client, index):
+        self.client = client
+        self.index = index
+
+    def __getitem__(self, item):
+        full_img = self.client.get_virtual_mask(self.index)
+        return full_img[item]
+
+    def __setitem__(self, key, value):
+        full_img = self.client.get_virtual_mask(self.index)
+        if value > 3 or value < 0:
+            raise ValueError("Value must be between 0 and 2. Please use 2 for positive mask,"
+                             " 0 for negative mask, and 0 for no mask.")
+        full_img[key] = value
+        self.client.set_virtual_mask(self.index,
+                                     w=full_img.shape[0],
+                                     h=full_img.shape[1],
+                                     mask=full_img)
+
+    def plot(self, ax=None, **kwargs):
+        import matplotlib.pyplot as plt
+        if ax is None:
+            fig, ax = plt.subplots()
+        ax.imshow(self.client.get_virtual_mask(self.index), vmax=3, vmin=0, **kwargs)
+        return ax
 
 
 
