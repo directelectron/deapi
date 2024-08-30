@@ -21,8 +21,9 @@ class TiltGrains(BaseFakeData):
         self.rotations = self.rng.uniform(0, 2 * np.pi, num_grains)
         dps = [self.create_fake_diffraction_data(kx_pixels,
                                                       ky_pixels,
-                                                      rotation=r)
-                    for r in self.rotations]
+                                                      rotation=r,
+                                                      intensity= i*10,)
+                    for r,i in enumerate(self.rotations)]
         super().__init__(grains, dps, server=server)
 
     def create_fake_diffraction_data(self,
@@ -30,6 +31,7 @@ class TiltGrains(BaseFakeData):
                                      ky_pixels=512,
                                      rotation=0,
                                      radius=None,
+                                     intensity=10,
                                      dtype=np.int16):
         """
         Fake data is created from 4 diffraction patterns which are seperated into Grains.
@@ -42,12 +44,12 @@ class TiltGrains(BaseFakeData):
         center = (kx_pixels//2, ky_pixels//2)
         distance = kx_pixels *.3
         rr, cc = disk(center, radius=radius)
-        dp[rr ,cc ] =10
+        dp[rr ,cc ] =intensity*10
 
         for theta in np.linspace(0 ,np.pi *2, 7):
             delta = np.array((np.cos(theta +rotation), np.sin(theta +rotation))) *distance
-            rr, cc = disk(np.add(center ,delta), radius=radius)
-            dp[rr ,cc ] =10
+            rr, cc = disk(np.add(center, delta), radius=radius)
+            dp[rr ,cc ] =intensity*7
         return dp
 
     def create_grains(self,

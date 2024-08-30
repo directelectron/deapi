@@ -19,11 +19,12 @@ Additionally virtual images can be
 from deapi import Client
 import matplotlib.pyplot as plt
 import time
+from skimage.draw import disk
 
 c = Client()
-c.connect()  # connect to the running DE Server
+c.usingMmf = False
+c.connect(port=13241)  # connect to the running DE Server
 
-c.set_hw_roi(256,256, 512+256, 512+256) # Note setting the hw roi to a new size will reset the virtual masks.
 c.virtual_masks[0][:] = 1 # Set everything to 1
 c.virtual_masks[0].plot()  # plot the current v0 mask
 
@@ -52,6 +53,18 @@ c.virtual_masks[1][::2] = 2  # every other pixel subtracts
 c.virtual_masks[1].plot()
 
 # %%
+# Creating a Virtual BrightField Image
+# ------------------------------------
+
+c.virtual_masks[2].calculation ="Sum"
+c.virtual_masks[2].name ="VBF"
+shape = c.virtual_masks[2][:].shape
+rr,cc = disk((shape[0]//2, shape[1]//2), 100)
+c.virtual_masks[2][:]=1
+c.virtual_masks[2][rr,cc]=2
+c.virtual_masks[2].plot()
+
+# %%
 
 # Plotting Multiple Virtual Images
 # --------------------------------
@@ -69,7 +82,7 @@ for a, v in zip(axs, c.virtual_masks):
 # start acquisition function
 
 c["Frames Per Second"] = 5000  # 5000 frames per second
-c.scan(enable="On", size_x=32, size_y=32)
+c.scan(enable="On", size_x=128, size_y=128)
 c.start_acquisition()
 
 while c.acquiring:  # wait for acquisition to finish and then plot the results

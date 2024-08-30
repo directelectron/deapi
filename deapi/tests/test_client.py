@@ -46,6 +46,15 @@ class TestClient:
             time.sleep(1)
         assert not client.acquiring
 
+    def test_start_acquisition_scan_disabled(self, client):
+        client["Frames Per Second"] = 1000
+        client.scan(enable="Off")
+        client.start_acquisition(1)
+        assert client.acquiring
+        while client.acquiring:
+            time.sleep(1)
+        assert not client.acquiring
+
     def test_get_result(self, client):
         client["Frames Per Second"] = 1000
         client.scan(size_x=10, size_y=10, enable="On")
@@ -57,7 +66,18 @@ class TestClient:
         assert len(result) == 4
         assert result[0].shape == (1024, 1024)
 
+    def test_get_result_no_scan(self, client):
+        client["Frames Per Second"] = 1000
+        client.scan(enable="Off")
+        client.start_acquisition(1)
+        result = client.get_result("singleframe_integrated")
+        assert isinstance(result, tuple)
+        assert len(result) == 4
+        assert result[0].shape == (1024, 1024)
+
+
     def test_binning_linked_parameters(self, client):
+
         client["Hardware Binning X"] = 2
         assert client["Hardware Binning X"] == 2
         assert client["Image Size X (pixels)"] == 512
