@@ -113,6 +113,8 @@ class TestClient:
         client.virtual_masks[1][:] = 2
         client["Hardware ROI Offset X"] = 512
         client["Hardware ROI Offset Y"] = 512
+        client["Hardware Binning X"] = 1
+        client["Hardware Binning Y"] = 1
         assert client.virtual_masks[1][:].shape == (512, 512)
 
     def test_virtual_mask_calculation(self, client):
