@@ -18,6 +18,7 @@ extensions = ['sphinx.ext.autodoc',
               "sphinx.ext.autosummary",
                 "sphinx.ext.intersphinx",
                 "sphinx.ext.napoleon",
+              'sphinx_gallery.gen_gallery',
               ]
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
@@ -45,5 +46,21 @@ autodoc_default_options = {
 }
 
 autosummary_generate = True
+
+# sphinx_gallery
+# --------------
+# https://sphinx-gallery.github.io/stable/configuration.html
+
+sphinx_gallery_conf = {
+    "examples_dirs": "../examples",
+    "gallery_dirs": "examples",
+    "filename_pattern": "^((?!sgskip).)*$",
+    "ignore_pattern":  "_sgskip.py",
+    "backreferences_dir": "api",
+    "doc_module": ("deapi",),
+    "reference_url": {
+        "deapi": None,
+    },
+}
 
 

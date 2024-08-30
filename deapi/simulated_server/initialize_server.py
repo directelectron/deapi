@@ -18,23 +18,29 @@ def main(port=13241):
         server_socket.listen()
         sys.stderr.write("started")
         sys.stderr.flush()
-        conn, addr = server_socket.accept()  # What waits for a connection
-        server = FakeServer(socket=conn)
         while True:
-            totallen = conn.recv(4)
-            totallenRecv = struct.unpack('I', totallen)[0]
+            conn, addr = server_socket.accept()  # What waits for a connection
+            server = FakeServer(socket=conn)
+            connected = True
+            while connected:
+                try:
+                    totallen = conn.recv(4)
+                    totallenRecv = struct.unpack('I', totallen)[0]
+                    message = conn.recv(totallenRecv)
+                    message_packet = pb.DEPacket()
+                    message_packet.ParseFromString(message)
+                    response = server._respond_to_command(message_packet)
 
-            message = conn.recv(totallenRecv)
-            message_packet = pb.DEPacket()
-            message_packet.ParseFromString(message)
-            response = server._respond_to_command(message_packet)
+                    for r in response:
+                        if isinstance(r, pb.DEPacket):
+                            packet = struct.pack("I", r.ByteSize()) + r.SerializeToString()
+                            conn.send(packet)
+                        else:
+                            conn.sendall(r)
+                except:
+                    connected = False
 
-            for r in response:
-                if isinstance(r, pb.DEPacket):
-                    packet = struct.pack("I", r.ByteSize()) + r.SerializeToString()
-                    conn.send(packet)
-                else:
-                    conn.sendall(r)
+
 
 # Using the special variable
 # __name__
