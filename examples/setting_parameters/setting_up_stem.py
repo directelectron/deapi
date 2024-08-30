@@ -21,20 +21,26 @@ client.connect()
 
 # %%
 # Set the hardware ROI to 256x256
-#client.set_hw_roi(0, 0, 256, 256)
+# --------------------------------
+# In this case we just use the center 256 pixels of the 1024 pixel sensor.
+
+client["Hardware ROI Size X"] = 256
+client["Hardware ROI Size Y"] = 256
+client["Hardware ROI Offset X"] = 256
+client["Hardware ROI Offset Y"] = 256
 
 # %%
 # Set the scan size to 256x256
-client.scan(size_x=256, size_y=256, enable=True)
+client.scan(size_x=256, size_y=256, enable="On")
 
 # %%
 # Set the number of frames per second to 1000
 client["Frames Per Second"] = 1000
-client
+
 
 # %%
 # Acquire a STEM image using a HAADF detector
-#client.start_acquisition(numberOfAcquisitions=1)
+
 
 
 
