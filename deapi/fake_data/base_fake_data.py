@@ -17,7 +17,7 @@ class BaseFakeData:
         Virtual Images are then created by only calculating the virtual image from each of the M signals
         and then substituting the result into the navigator array!
         """
-        self.navigator = np.array(navigator)
+        self.navigator = np.array(navigator).astype(int)
         self._signal = np.array(signal)
         self.server = server
 
@@ -67,11 +67,13 @@ class BaseFakeData:
         """
         positive = virtual_mask == 2
         negative = virtual_mask == 0
+        s = self.signal
 
         if method == 'Sum':
-            values = np.sum(self.signal*positive, axis=0)
+            values = np.sum(s*positive[np.newaxis], axis=(1,2))
         elif method == 'Difference':
-            values = np.sum(self.signal*positive, axis=0) - np.sum(self.signal*negative, axis=0)
+            values = (np.sum(s*positive[np.newaxis], axis=(1, 2)) -
+                      np.sum(s*negative[np.newaxis], axis=(1, 2)))
         else:
             raise ValueError(f"Method {method} not recognized. Please use 'sum' or 'difference'")
         return values[self.navigator]

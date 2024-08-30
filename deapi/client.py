@@ -35,7 +35,8 @@ from deapi.data_types import (
     MovieBufferStatus,
     MovieBufferInfo,
     DataType,
-    PropertyCollection
+    PropertyCollection,
+    VirtualMask,
 )
 
 
@@ -184,6 +185,9 @@ class Client:
         self._initialize_attributes()
         self.update_scan_size()
         self.update_image_size()
+        self.virtual_masks = []
+        for i in range(4):
+            self.virtual_masks.append(VirtualMask(client=self, index=i))
 
     def update_scan_size(self):
         self.scan_sizex = self["Scan - Size X"]
@@ -221,8 +225,8 @@ class Client:
     def get_virtual_mask(self, index):
         mask_name = f"virtual_mask{index}"
         a = Attributes()
-        a.windowWidth = self[["Image Size X (pixels)"]]
-        a.windowHeight = self[["Image Size Y (pixels)"]]
+        a.windowWidth = self["Image Size X (pixels)"]
+        a.windowHeight = self["Image Size Y (pixels)"]
         res, _, _, _, = self.get_result(mask_name, DataType.DE8u, attributes=a)
         return res
 
@@ -793,8 +797,8 @@ class Client:
 
         if attributes == "auto":
             attributes = Attributes()
-            scan_images = [17, 18, 19, 20, 21, 22,23,24,25]
-            if frameType in scan_images:
+            scan_images = [17, 18, 19, 20, 21, 22, 23, 24, 25]
+            if frameType.value in scan_images:
                 attributes.windowWidth = self.scan_sizex
                 attributes.windowHeight = self.scan_sizey
             else:
@@ -1080,7 +1084,8 @@ class Client:
                 ret = False
 
             if ret:
-                self.__sendToSocket(self.socket, mask, mask.nbytes)
+                mask_bytes = mask.tobytes()
+                self.__sendToSocket(self.socket, mask_bytes, len(mask_bytes))
 
             ret = self.__ReceiveResponseForCommand(command) != False
 

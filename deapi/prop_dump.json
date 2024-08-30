@@ -229,7 +229,7 @@
     "default_value":"Ellipse"
   },
   "Scan - Virtual Detector 1 Calculation":{
-    "value":"Centroid Amplitude",
+    "value":"Sum",
     "data_type":"String",
     "value_type":"Set",
     "category":"Advanced",

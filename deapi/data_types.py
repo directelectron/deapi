@@ -287,7 +287,7 @@ class PropertyCollection:
         return VBox(form_items + [submit_button, output])
 
 
-class VirtualImage:
+class VirtualMask:
     def __init__(self, client, index):
         self.client = client
         self.index = index

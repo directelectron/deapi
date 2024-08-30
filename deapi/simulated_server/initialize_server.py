@@ -19,7 +19,7 @@ def main(port=13241):
         sys.stderr.write("started")
         sys.stderr.flush()
         conn, addr = server_socket.accept()  # What waits for a connection
-        server = FakeServer()
+        server = FakeServer(socket=conn)
         while True:
             totallen = conn.recv(4)
             totallenRecv = struct.unpack('I', totallen)[0]

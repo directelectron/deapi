@@ -127,13 +127,14 @@ class Property:
 
 
 class FakeServer:
-    def __init__(self, dataset="grains"):
+    def __init__(self, dataset="grains", socket=None):
         self.start_time = time.time()
         self.end_time = time.time()
         self.has_movie_buffer = False
         self.movie_buffer_index = 0
         self.dataset = dataset
         self.fake_data = None
+        self.socket = socket
 
 
         with open(inp_file) as f:
@@ -255,11 +256,21 @@ class FakeServer:
         ack1.command_id = command.command[0].command_id
 
         mask_id = command.command[0].parameter[0].p_int
-        mask = command.command[0].parameter[1].p_string
+        w = command.command[0].parameter[1].p_int
+        h = command.command[0].parameter[2].p_int
 
-
-        mask = np.array(mask.split(",")).astype(int).reshape(self["Image Size X (pixels)"],
-                                                              self["Image Size Y (pixels)"])
+        total_bytes = w*h
+        buffer = self.socket.recv(total_bytes)
+        total_len = len(buffer)
+        if total_len < total_bytes:
+            while total_len < total_bytes:
+                try:
+                    buffer += self.socket.recv(total_bytes)
+                    total_len = len(buffer)
+                except self.socket.timeout:
+                    raise ValueError("Socket timed out")
+        buffer = buffer
+        mask = np.frombuffer(buffer, dtype=np.int8).reshape((w, h))
         self.virtual_masks[mask_id] = mask
         return (acknowledge_return, )
 
@@ -475,6 +486,10 @@ class FakeServer:
 
         pixel_format_dict = {1: np.int8, 5: np.int16, 13: np.float32}
 
+        if self.fake_data is None:
+            self._initialize_data(scan_size_x=1, scan_size_y=1,
+                                  kx_pixels=int(self['Sensor Size X (pixels)']),
+                                  ky_pixels=int(self['Sensor Size X (pixels)']))
         curr = self.current_navigation_index
         flat_index = int(np.ravel_multi_index(curr, self.fake_data.navigator.shape))
 
@@ -490,12 +505,23 @@ class FakeServer:
         pack = pb.DEPacket()
         pack.type = pb.DEPacket.P_DATA_HEADER
 
-        if frame_type > 2 and frame_type < 8:
+        if 2 < frame_type < 8:
             image = self.fake_data[self.current_navigation_index].astype(pixel_format_dict[pixel_format])
             result = image.tobytes()
         elif frame_type == 10:
             image = np.sum(self.fake_data.signal, axis=1).astype(pixel_format_dict[pixel_format])
             result = image.tobytes()
+        elif 11 < frame_type < 17: # virtual image
+            mask = self.virtual_masks[frame_type - 12]
+            if mask.shape != (windowWidth, windowHeight):
+                mask = resize(mask, (windowWidth, windowHeight), preserve_range=True).astype(np.int8)
+            result = mask.tobytes()
+        elif 17 <= frame_type < 22:
+            mask = self.virtual_masks[frame_type - 17]
+            calculation_type = self[f"Scan - Virtual Detector {frame_type-17} Calculation"]
+            result = self.fake_data.get_virtual_image(mask, method=calculation_type)
+            result = result.astype(pixel_format_dict[pixel_format]).tobytes()
+
         else:
             raise ValueError(f"Frame type {frame_type} not Supported in PythonDEServer")
         pack.data_header.bytesize = len(result)
