@@ -18,7 +18,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 client = Client()
-client.connect()  # connect to the running DE Server
+client.usingMmf = False
+
+client.connect(port=13241)  # connect to the running DE Server
 
 client.scan(size_x=128, size_y=128, enable="On")
 client.start_acquisition(1)
@@ -30,6 +32,13 @@ live_im = axs[0].imshow(np.zeros_like(data))
 
 data2, _, _, _= client.get_result("singleframe_integrated")
 live_virt_im = axs[1].imshow(np.zeros_like(data))
+
+# %%
+# Plotting the Sensor Data
+# ------------------------
+# We will plot the sensor data during acquisition. Note that matplotlib will block unless you are
+# using the Qt backend, and you won't get a live view unless you initialize the plot first and then
+# update the data. If you have troubles with this please raise an issue on the github page.
 
 while client.acquiring:
     data, _,_,_ = client.get_result("singleframe_integrated")
