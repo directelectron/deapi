@@ -49,6 +49,7 @@ tests = [
     "pytest>=3.6",
     "setuptools_scm",
     "pytest-cov",
+    "pytest-xprocess",
 ]
 doc = [
     "sphinx",
