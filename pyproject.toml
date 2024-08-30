@@ -24,6 +24,7 @@ dependencies = [
     "matplotlib",
     "scipy",
     "scikit-image",
+    "sympy",
 ]
 description = "API for DE Server"
 version = "0.1.0"
