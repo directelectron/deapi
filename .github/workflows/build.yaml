@@ -17,7 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ["3.9", "3.10", "3.11"]
+        python-version: ["3.10", "3.11", "3.12"]
         include:
           - os: ubuntu-latest
             python-version: 3.8
@@ -55,7 +55,7 @@ jobs:
 
       - name: Run tests
         run: |
-          pytest -n 2 --cov=deapi
+          pytest -n 2 --cov
 
       - name: Generate line coverage
         if: ${{ matrix.os == 'ubuntu-latest' }}
