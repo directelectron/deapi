@@ -11,13 +11,13 @@ This script will:
 5. Acquire a STEM image using a HAADF detector
 """
 
-from deapi.fake_client import FakeClient as Client
-# from deapi import Client
+from deapi import Client
 
 # %%
 # Connect to the DE server
 client = Client()
-client.connect()
+client.usingMmf = False
+client.connect(port=13241)  # connect to the running DE Server
 
 # %%
 # Set the hardware ROI to 256x256

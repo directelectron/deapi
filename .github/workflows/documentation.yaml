@@ -23,7 +23,10 @@ jobs:
 
       - name: Sphinx build
         run: |
-          sphinx-build doc _build
+          python deapi/simulated_server/initialize_server.py 13241 &
+          sleep 5 &&
+          sphinx-build doc _build &&
+          kill %1
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
