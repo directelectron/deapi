@@ -55,18 +55,19 @@ jobs:
 
       - name: Run tests
         run: |
-          pytest ${{ env.PYTEST_ARGS }} -n ${{ steps.cpus.outputs.count }} --cov=. --cov-report=xml
+          pytest -n 2 --cov=. --cov-report=xml
 
       - name: Generate line coverage
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           coverage report --show-missing
 
-      - name: Upload coverage to Coveralls
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        uses: AndreMiras/coveralls-python-action@develop
-        with:
-          parallel: true
+      - name: Upload coverage to Codecov
+        if: ${{ always() }}
+        uses: codecov/codecov-action@v4
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
 
   coveralls-finish:
     needs: build-with-pip
