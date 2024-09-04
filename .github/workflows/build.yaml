@@ -51,11 +51,11 @@ jobs:
       - name: Run docstring tests
         continue-on-error: true
         run: |
-          pytest --doctest-modules --doctest-continue-on-failure --ignore-glob=pyxem/tests pyxem
+          pytest --doctest-modules --doctest-continue-on-failure --ignore-glob=deapi/tests deapi
 
       - name: Run tests
         run: |
-          pytest -n 2 --cov
+          pytest -n 2 --cov deapi
 
       - name: Generate line coverage
         if: ${{ matrix.os == 'ubuntu-latest' }}
