@@ -20,9 +20,9 @@ jobs:
         python-version: ["3.10", "3.11", "3.12"]
         include:
           - os: ubuntu-latest
-            python-version: 3.8
+            python-version: 3.10
 
-            DEPENDENCIES: protobuf==3.18.0
+            DEPENDENCIES: protobuf>= 5.0.0
             LABEL: -oldest
     steps:
       - uses: actions/checkout@v3
@@ -55,7 +55,7 @@ jobs:
 
       - name: Run tests
         run: |
-          pytest -n 2 --cov=deapi
+          pytest -n 2 --cov=deapi --pyargs deapi
 
       - name: Generate line coverage
         if: ${{ matrix.os == 'ubuntu-latest' }}
