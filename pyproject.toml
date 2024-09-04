@@ -21,6 +21,10 @@ dependencies = [
     "numpy>=1.20.0",
     "protobuf",
     "pillow",
+    "matplotlib",
+    "scipy",
+    "scikit-image",
+    "sympy",
 ]
 description = "API for DE Server"
 version = "0.1.0"
@@ -47,7 +51,9 @@ tests = [
     "pytest-rerunfailures",
     "pytest-xdist",
     "pytest>=3.6",
-    "setuptools_scm"
+    "setuptools_scm",
+    "pytest-cov",
+    "pytest-xprocess",
 ]
 doc = [
     "sphinx",
