@@ -55,7 +55,7 @@ jobs:
 
       - name: Run tests
         run: |
-          pytest -n 2 --cov=deapi --pyargs deapi
+          pytest ${{ env.PYTEST_ARGS }} -n ${{ steps.cpus.outputs.count }} --cov=. --cov-report=xml
 
       - name: Generate line coverage
         if: ${{ matrix.os == 'ubuntu-latest' }}
