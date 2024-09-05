@@ -6,11 +6,11 @@ Reference
 
 Below is the API reference for the DEAPI package. The Client class is the main entry point
 for communication with the DE Server.  Also included are classes acting as containers for
-data and metadata
+data and metadata!
 
 
 .. toctree::
-    :caption: API Reference
+    :caption: Client
     :maxdepth: 1
 
     client
@@ -19,4 +19,4 @@ data and metadata
     :caption: Metadata Containers
     :maxdepth: 1
 
-    metadata
+    data_types

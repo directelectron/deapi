@@ -189,14 +189,45 @@ class Histogram:
 
 
 class MovieBufferInfo:
-    headerBytes = 0
-    imageBufferBytes = 0
-    frameIndexStartPos = 0
-    imageStartPos = 0
-    imageW = 0
-    imageH = 0
-    framesInBuffer = 0
-    imageDataType = DataType.DEUndef
+    """
+    Structure to hold information about the movie buffer
+
+    Parameters
+    ----------
+    headerBytes : int
+        Number of bytes in the header
+    imageBufferBytes : int
+        Number of bytes in the image buffer
+    frameIndexStartPos : int
+        Starting position of the frame index
+    imageStartPos : int
+        Starting position of the image
+    imageW : int
+        Width of the image
+    imageH : int
+        Height of the image
+    framesInBuffer : int
+        Number of frames in the buffer
+    imageDataType : int
+        Data type of the image
+    """
+    def __init__(self, headerBytes: int=0,
+                 imageBufferBytes: int=0,
+                 frameIndexStartPos: int=0,
+                 imageStartPos: int=0,
+                 imageW: int=0,
+                 imageH: int=0,
+                 framesInBuffer: int=0,
+                 imageDataType: int = DataType.DEUndef):
+
+        self.headerBytes = headerBytes
+        self.imageBufferBytes = imageBufferBytes
+        self.frameIndexStartPos = frameIndexStartPos
+        self.imageStartPos = imageStartPos
+        self.imageW = imageW
+        self.imageH = imageH
+        self.framesInBuffer = framesInBuffer
+        self.imageDataType = imageDataType
 
     @property
     def total_bytes(self):
@@ -218,6 +249,24 @@ class PropertySpec:
 
 
 class PropertyCollection:
+    """Class to interact with collections of properties in the DE API
+
+    Parameters
+    ----------
+    client : deapi.Client
+        Client object to interact with the DE API
+    name : str
+        Name of the property collection
+    properties : list
+        List of property names in the collection
+
+    Notes
+    -----
+    This class is mostly used via the client."property_collection" attribute which groups
+    properties together for easier access.  Groups are determined by properties which have
+    names that start with the same string. For example, the properties "Group - Property 1"
+    would allow access to the property using client.group["Property 1"]
+    """
     def __init__(self, client, name, properties):
         self.properties = {}
         self.client = client
@@ -318,6 +367,20 @@ class PropertyCollection:
 
 
 class VirtualMask:
+    """Class to interact with virtual masks in the DE API
+
+    Parameters
+    ----------
+    client : deapi.Client
+        Client object to interact with the DE API
+    index : int
+        Index of the virtual mask
+
+    Notes
+    -----
+    This class is mostly used via the client.virtual_masks property which is a list
+    of VirtualMask objects.
+    """
     def __init__(self, client, index):
         self.client = client
         self.index = index
@@ -339,6 +402,22 @@ class VirtualMask:
         )
 
     def plot(self, ax=None, **kwargs):
+        """Plot the virtual mask using matplotlib
+
+        Parameters
+        ----------
+        ax : matplotlib.axes.Axes, optional
+            Axes object to plot the virtual mask on. If not provided, a new figure will be created.
+        **kwargs
+            Additional keyword arguments to pass to ax.imshow
+
+        Examples
+        --------
+        >>> import matplotlib.pyplot as plt
+        >>> fig, ax = plt.subplots()
+        >>> mask.plot(ax=ax)
+
+        """
         import matplotlib.pyplot as plt
 
         if ax is None:
