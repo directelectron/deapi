@@ -75,6 +75,8 @@ class TestClient:
         assert isinstance(result, tuple)
         assert len(result) == 4
         assert result[0].shape == (1024, 1024)
+        while client.acquiring:
+            time.sleep(1)
 
     def test_binning_linked_parameters(self, client):
 
@@ -106,27 +108,28 @@ class TestClient:
         np.testing.assert_allclose(client.virtual_masks[1][:], 1)
         client.virtual_masks[2][:] = 2
         np.testing.assert_allclose(client.virtual_masks[2][:], 2)
-        client.virtual_masks[3][:] = 2
-        np.testing.assert_allclose(client.virtual_masks[3][:], 2)
 
     def test_resize_virtual_mask(self, client):
-        client.virtual_masks[1][:] = 2
+        client.virtual_masks[2][:] = 2
         client["Hardware ROI Offset X"] = 512
         client["Hardware ROI Offset Y"] = 512
         client["Hardware Binning X"] = 1
         client["Hardware Binning Y"] = 1
-        assert client.virtual_masks[1][:].shape == (512, 512)
+        assert client.virtual_masks[2][:].shape == (512, 512)
 
     def test_virtual_mask_calculation(self, client):
-        client.virtual_masks[1][:] = 2
-        client.virtual_masks[1].calculation = "Difference"
-        client.virtual_masks[1][1::2] = 0
-        client.virtual_masks[1][::2] = 2
-        assert client.virtual_masks[1].calculation == "Difference"
-        np.testing.assert_allclose(client.virtual_masks[1][::2], 2)
+
         client.scan(size_x=10, size_y=10, enable="On")
+        client.virtual_masks[2][:] = 2
+        client.virtual_masks[2].calculation = "Difference"
+        client.virtual_masks[2][1::2] = 0
+        client.virtual_masks[2][::2] = 2
+        assert client.virtual_masks[2].calculation == "Difference"
+        assert client["Scan - Virtual Detector 2 Calculation"] == "Difference"
+        np.testing.assert_allclose(client.virtual_masks[2][::2], 2)
         client.start_acquisition(1)
         while client.acquiring:
             time.sleep(1)
-        result = client.get_result("virtual_image1")
+        result = client.get_result("virtual_image3")
+        assert result is not None
         assert result[0].shape == (10, 10)

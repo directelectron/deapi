@@ -4,9 +4,8 @@
 
   Introduction <intro.rst>
   Reference <reference/index>
-  Get Help <help/help.rst>
   Examples <examples/index.rst>
   Changes <changes.rst>
-
+  Get Help <help/index.rst>
 
 .. include:: intro.rst

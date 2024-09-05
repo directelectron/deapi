@@ -1,4 +1,5 @@
 import numpy as np
+from skimage.transform import resize
 
 
 class BaseFakeData:
@@ -76,6 +77,13 @@ class BaseFakeData:
         """
         Get the virtual image at the given item in the navigator array.
         """
+        if virtual_mask.shape != self.signal.shape[1:]:
+            virtual_mask = resize(
+                virtual_mask,
+                (self.signal.shape[1], self.signal.shape[2]),
+                preserve_range=True,
+            ).astype(np.int8)
+
         positive = virtual_mask == 2
         negative = virtual_mask == 0
         s = self.signal

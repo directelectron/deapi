@@ -77,7 +77,7 @@ for a, v in zip(axs, c.virtual_masks):
 
 # %%
 # Starting an Acquisition
-# ----------------------
+# -----------------------
 # Once we have set up an experiment we can start an acquisition using the
 # start acquisition function
 
