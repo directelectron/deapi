@@ -26,11 +26,11 @@ client.scan(size_x=128, size_y=128, enable="On")
 client.start_acquisition(1)
 
 
-fig, axs = plt.subplots(1,2)
-data, _,_,_= client.get_result("virtual_image0")
+fig, axs = plt.subplots(1, 2)
+data, _, _, _ = client.get_result("virtual_image0")
 live_im = axs[0].imshow(np.zeros_like(data))
 
-data2, _, _, _= client.get_result("singleframe_integrated")
+data2, _, _, _ = client.get_result("singleframe_integrated")
 live_virt_im = axs[1].imshow(np.zeros_like(data))
 
 # %%
@@ -41,12 +41,14 @@ live_virt_im = axs[1].imshow(np.zeros_like(data))
 # update the data. If you have troubles with this please raise an issue on the github page.
 
 while client.acquiring:
-    data, _,_,_ = client.get_result("singleframe_integrated")
+    data, _, _, _ = client.get_result("singleframe_integrated")
     live_im.set_data(data)
 
-    data, _,_,_ = client.get_result("virtual_image0")
+    data, _, _, _ = client.get_result("virtual_image0")
     live_virt_im.set_data(data)
-    plt.pause(.02)  # allow the matplotlib event loop to run. ~50 fps. Anything faster we need to
+    plt.pause(
+        0.02
+    )  # allow the matplotlib event loop to run. ~50 fps. Anything faster we need to
     # use blitting in matplotlib. (up to ~500 fps)
     live_im.autoscale()
     live_virt_im.autoscale()

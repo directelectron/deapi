@@ -20,6 +20,7 @@ Here we will
    disk in the diffraction pattern.
 5. Acquire the VDF/VBF images and plot them.
 """
+
 import numpy as np
 
 from deapi import Client
@@ -50,16 +51,18 @@ img = client.get_result("singleframe_integrated")[0]
 # %%
 # Define a function to automatically find the bright field in the diffraction pattern
 
+
 def auto_find_bf(img, threshold=0.5, sigma=10, dilation_rad=30):
     filtered = gaussian_filter(img, sigma=sigma)
     center = np.unravel_index(np.argmax(filtered), shape=filtered.shape)
     val = img[center]
-    mask = img > (val*threshold)
+    mask = img > (val * threshold)
     mask = flood(mask, center)  # only the center
     mask = dilation(mask, footprint=disk(dilation_rad))
     return mask
 
-mask =auto_find_bf(img)
+
+mask = auto_find_bf(img)
 
 # %%
 # Create the Virtual Masks
