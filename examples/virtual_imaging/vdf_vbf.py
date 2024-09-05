@@ -32,7 +32,7 @@ import matplotlib.pyplot as plt
 
 client = Client()
 client.usingMmf = False  # True if on same machine as DE Server and a Windows machine
-client.connect(port=13240)  # connect to the running DE Server
+client.connect(port=13241)  # connect to the running DE Server
 
 # %%
 # Get A Single Diffraction Pattern
