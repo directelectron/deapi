@@ -6,7 +6,7 @@
 
 from enum import Enum
 from enum import IntEnum
-
+from warnings import warn
 
 class FrameType(Enum):
     NONE = 0
@@ -390,6 +390,10 @@ class VirtualMask:
         return full_img[item]
 
     def __setitem__(self, key, value):
+        string = f"Scan - Virtual Detector {self.index} Shape"
+        if not self.client[string] == "Arbitrary":
+            warn("Virtual mask shape is not set to Arbitrary. Setting to Arbitrary.")
+            self.client[string] = "Arbitrary"
         full_img = self.client.get_virtual_mask(self.index)
         if value > 3 or value < 0:
             raise ValueError(
@@ -424,3 +428,17 @@ class VirtualMask:
             fig, ax = plt.subplots()
         ax.imshow(self.client.get_virtual_mask(self.index), vmax=3, vmin=0, **kwargs)
         return ax
+
+    @property
+    def calculation(self):
+        """Calculation mode for the virtual mask
+        """
+        string = f"Scan - Virtual Detector {self.index} Calculation"
+        return self.client[string]
+
+    @calculation.setter
+    def calculation(self, value):
+        """Set the calculation mode for the virtual mask
+        """
+        string = f"Scan - Virtual Detector {self.index} Calculation"
+        self.client[string] = value
