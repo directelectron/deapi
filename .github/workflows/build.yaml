@@ -12,7 +12,7 @@ jobs:
   build-with-pip:
     name: ${{ matrix.os }}-py${{ matrix.python-version }}${{ matrix.LABEL }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 45
+    timeout-minutes: 5
     strategy:
       fail-fast: false
       matrix:
@@ -22,7 +22,7 @@ jobs:
           - os: ubuntu-latest
             python-version: 3.10
 
-            DEPENDENCIES: protobuf>= 5.0.0
+            DEPENDENCIES: protobuf==5.26.0
             LABEL: -oldest
     steps:
       - uses: actions/checkout@v3

@@ -27,14 +27,9 @@ class TestFakeServer:
         assert fake_server["image_size_x_pixels"] == "512"
 
     def test_set_virtual_image_calculation(self, fake_server):
-        assert fake_server["Scan - Virtual Detector 1 Calculation"] == 'Sum'
+        assert fake_server["Scan - Virtual Detector 1 Calculation"] == "Sum"
         fake_server["Scan - Virtual Detector 1 Calculation"] = "Susd"
-        assert fake_server["Scan - Virtual Detector 1 Calculation"] == 'Sum'
+        assert fake_server["Scan - Virtual Detector 1 Calculation"] == "Sum"
 
     def test_server_software_version(self, fake_server):
         assert fake_server["Server Software Version"] == "3.7.8893"
-
-
-
-
-

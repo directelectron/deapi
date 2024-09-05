@@ -12,7 +12,8 @@ from deapi.fake_data.grains import TiltGrains
 from skimage.transform import resize
 from sympy import parse_expr
 
-inp_file = resources.files(deapi) / 'prop_dump.json'
+inp_file = resources.files(deapi) / "prop_dump.json"
+
 
 def add_parameter(ack, value):
     """
@@ -37,8 +38,19 @@ def add_parameter(ack, value):
 
 
 class Property:
-    def __init__(self, name, value, data_type, category, value_type, options,
-                 set_expression=None, get_expression=None, set_also_expressions=None, server=None):
+    def __init__(
+        self,
+        name,
+        value,
+        data_type,
+        category,
+        value_type,
+        options,
+        set_expression=None,
+        get_expression=None,
+        set_also_expressions=None,
+        server=None,
+    ):
         self.name = name
         self.data_type = data_type
         self.category = category
@@ -49,8 +61,6 @@ class Property:
         self.set_expression = set_expression
         self.get_expression = get_expression
         self.set_also_expressions = set_also_expressions
-
-
 
     @property
     def value(self):
@@ -74,7 +84,7 @@ class Property:
             self._value = value
             return value
         elif self.category == "Server":
-                return getattr(self.server, self.name.replace(" ", "_").lower())
+            return getattr(self.server, self.name.replace(" ", "_").lower())
         else:
             return self._value
 
@@ -99,7 +109,10 @@ class Property:
                 warnings.warn(f"Value {value} not in range {range}")
                 value = self._value
         elif self.value_type == "Set" and self.options is not None:
-            op = [o.replace("*", "").replace("'", "").strip() for o in self.options.split(",")]
+            op = [
+                o.replace("*", "").replace("'", "").strip()
+                for o in self.options.split(",")
+            ]
             if str(value) not in op:
                 warnings.warn(f"Value {value} not in options {self.options}")
                 value = self._value
@@ -136,54 +149,61 @@ class FakeServer:
         self.fake_data = None
         self.socket = socket
 
-
         with open(inp_file) as f:
             values = json.load(f)
             property_dict = {}
             for v in values:
                 new_v = v.replace(" ", "_").lower().replace("(", "").replace(")", "")
-                property_dict[new_v] = Property(name=v,
-                                            value=values[v]["value"],
-                                            data_type=values[v]["data_type"],
-                                            category=values[v]["category"],
-                                            value_type=values[v]["value_type"],
-                                            options=values[v]["options"],
-                                            server=self,
-                                            set_expression=values[v].get("set", None),
-                                            get_expression=values[v].get("get", None),
-                                            set_also_expressions=values[v].get("set_also", None))
+                property_dict[new_v] = Property(
+                    name=v,
+                    value=values[v]["value"],
+                    data_type=values[v]["data_type"],
+                    category=values[v]["category"],
+                    value_type=values[v]["value_type"],
+                    options=values[v]["options"],
+                    server=self,
+                    set_expression=values[v].get("set", None),
+                    get_expression=values[v].get("get", None),
+                    set_also_expressions=values[v].get("set_also", None),
+                )
         self._values = property_dict
         self._number_of_frames_requested = 0
 
         self.current_socket_result = None
-        self._values["acquisition_status"] = Property(name="Acquisition Status",
-                                                        value="Idle",
-                                                        data_type="String",
-                                                        category="Server",
-                                                        value_type="Set",
-                                                        options=["Idle", "Acquiring"],
-                                                        server=self)
-        self._values['number_of_frames_requested'] = Property(name='Number of Frames Requested',
-                                                        value="Idle",
-                                                        data_type="Integer",
-                                                        category="Server",
-                                                        value_type="Read Only",
-                                                        options=None,
-                                                        server=self)
+        self._values["acquisition_status"] = Property(
+            name="Acquisition Status",
+            value="Idle",
+            data_type="String",
+            category="Server",
+            value_type="Set",
+            options=["Idle", "Acquiring"],
+            server=self,
+        )
+        self._values["number_of_frames_requested"] = Property(
+            name="Number of Frames Requested",
+            value="Idle",
+            data_type="Integer",
+            category="Server",
+            value_type="Read Only",
+            options=None,
+            server=self,
+        )
 
         self.virtual_masks = []
         for i in range(4):
-            self.virtual_masks.append(np.zeros(shape=(int(self["Image Size X (pixels)"]),
-                                                      int(self["Image Size Y (pixels)"])),
-                                               dtype=np.int8)
-                                      )
-
-
-
+            self.virtual_masks.append(
+                np.zeros(
+                    shape=(
+                        int(self["Image Size X (pixels)"]),
+                        int(self["Image Size Y (pixels)"]),
+                    ),
+                    dtype=np.int8,
+                )
+            )
 
     def __getitem__(self, item):
         if not isinstance(item, str):
-            item =str(item)
+            item = str(item)
         item = item.replace(" ", "_").lower().replace("(", "").replace(")", "")
         return self._values[item].value
 
@@ -214,11 +234,14 @@ class FakeServer:
         if self.fake_data is None:
             return ValueError("No fake data initialized")
         if self.acquisition_status == "Idle":
-            return tuple(np.array(self.fake_data.navigator.shape)-1)
+            return tuple(np.array(self.fake_data.navigator.shape) - 1)
         else:
-            index = np.unravel_index(int((time.time() - self.start_time) *
-                                 float(self["Frames Per Second"]),),
-                                 self.fake_data.navigator.shape)  # only works for raster scans
+            index = np.unravel_index(
+                int(
+                    (time.time() - self.start_time) * float(self["Frames Per Second"]),
+                ),
+                self.fake_data.navigator.shape,
+            )  # only works for raster scans
             return index
 
     def _respond_to_command(self, command=None):
@@ -228,26 +251,45 @@ class FakeServer:
             return self._fake_get_property(command)
         elif command.command[0].command_id == self.SET_PROPERTY + commandVersion * 100:
             return self._fake_set_property(command)
-        elif command.command[0].command_id == self.LIST_PROPERTIES + commandVersion * 100:
+        elif (
+            command.command[0].command_id == self.LIST_PROPERTIES + commandVersion * 100
+        ):
             return self._fake_list_properties(command)
-        elif command.command[0].command_id == self.LIST_ALLOWED_VALUES + commandVersion * 100:
+        elif (
+            command.command[0].command_id
+            == self.LIST_ALLOWED_VALUES + commandVersion * 100
+        ):
             return self._fake_list_allowed_values(command)
-        elif command.command[0].command_id == self.GET_MOVIE_BUFFER_INFO + commandVersion * 100:
+        elif (
+            command.command[0].command_id
+            == self.GET_MOVIE_BUFFER_INFO + commandVersion * 100
+        ):
             return self._fake_get_movie_buffer_info(command)
-        elif command.command[0].command_id == self.GET_MOVIE_BUFFER + commandVersion * 100:
+        elif (
+            command.command[0].command_id
+            == self.GET_MOVIE_BUFFER + commandVersion * 100
+        ):
             return self._fake_get_movie_buffer(command)
-        elif command.command[0].command_id == self.START_ACQUISITION + commandVersion * 100:
+        elif (
+            command.command[0].command_id
+            == self.START_ACQUISITION + commandVersion * 100
+        ):
             return self._fake_start_acquisition(command)
         elif command.command[0].command_id == self.GET_RESULT + commandVersion * 100:
             return self._fake_get_result(command)
         elif command.command[0].command_id == self.LIST_CAMERAS + commandVersion * 100:
             return self._fake_list_cameras(command)
-        elif command.command[0].command_id == self.SET_VIRTUAL_MASK + commandVersion * 100:
+        elif (
+            command.command[0].command_id
+            == self.SET_VIRTUAL_MASK + commandVersion * 100
+        ):
             return self._fake_set_virtual_mask(command)
         else:
-            raise NotImplementedError(f"Command {command.command[0].command_id} not implemented"
-                                      f" in the FakeServer. Please use the real DEServer for testing."
-                                      f" The commandVersion is {commandVersion}")
+            raise NotImplementedError(
+                f"Command {command.command[0].command_id} not implemented"
+                f" in the FakeServer. Please use the real DEServer for testing."
+                f" The commandVersion is {commandVersion}"
+            )
 
     def _fake_set_virtual_mask(self, command):
         acknowledge_return = pb.DEPacket()
@@ -259,7 +301,7 @@ class FakeServer:
         w = command.command[0].parameter[1].p_int
         h = command.command[0].parameter[2].p_int
 
-        total_bytes = w*h
+        total_bytes = w * h
         buffer = self.socket.recv(total_bytes)
         total_len = len(buffer)
         if total_len < total_bytes:
@@ -272,7 +314,7 @@ class FakeServer:
         buffer = buffer
         mask = np.frombuffer(buffer, dtype=np.int8).reshape((w, h))
         self.virtual_masks[mask_id] = mask
-        return (acknowledge_return, )
+        return (acknowledge_return,)
 
     def _fake_list_cameras(self, command):
         acknowledge_return = pb.DEPacket()
@@ -280,33 +322,40 @@ class FakeServer:
         ack1 = acknowledge_return.acknowledge.add()
         ack1.command_id = command.command[0].command_id
         add_parameter(ack1, "Fake Camera")
-        return (acknowledge_return, )
-
+        return (acknowledge_return,)
 
     def _initialize_data(self, scan_size_x, scan_size_y, kx_pixels, ky_pixels):
         if self.dataset == "grains":
-            self.fake_data = TiltGrains(x_pixels=scan_size_x,
-                                        y_pixels=scan_size_y,
-                                        kx_pixels=kx_pixels,
-                                        ky_pixels=ky_pixels,
-                                        server=self)
+            self.fake_data = TiltGrains(
+                x_pixels=scan_size_x,
+                y_pixels=scan_size_y,
+                kx_pixels=kx_pixels,
+                ky_pixels=ky_pixels,
+                server=self,
+            )
         else:
-            raise ValueError(f"Dataset {self.dataset} not recognized. Please use 'grains'")
+            raise ValueError(
+                f"Dataset {self.dataset} not recognized. Please use 'grains'"
+            )
 
     def _fake_start_acquisition(self, command):
         acknowledge_return = pb.DEPacket()
         num_acq = command.command[0].parameter[0].p_int
         if self["Scan - Enable"] == "On":
             frames = int(self["Scan - Size X"]) * int(self["Scan - Size Y"])
-            self._initialize_data(int(self["Scan - Size X"]),
-                                  int(self["Scan - Size Y"]),
-                                  int(self['Sensor Size X (pixels)']),
-                                  int(self['Sensor Size X (pixels)']))
+            self._initialize_data(
+                int(self["Scan - Size X"]),
+                int(self["Scan - Size Y"]),
+                int(self["Sensor Size X (pixels)"]),
+                int(self["Sensor Size X (pixels)"]),
+            )
         else:
-            self._initialize_data(int(4),
-                                  int(4),
-                                  int(self['Sensor Size X (pixels)']),
-                                  int(self['Sensor Size X (pixels)']))
+            self._initialize_data(
+                int(4),
+                int(4),
+                int(self["Sensor Size X (pixels)"]),
+                int(self["Sensor Size X (pixels)"]),
+            )
             frames = num_acq
             self.number_of_frames_requested = frames
         fps = float(self["Frames Per Second"])
@@ -320,7 +369,7 @@ class FakeServer:
         acknowledge_return.type = pb.DEPacket.P_ACKNOWLEDGE
         ack1 = acknowledge_return.acknowledge.add()
         ack1.command_id = command.command[0].command_id
-        return (acknowledge_return, )
+        return (acknowledge_return,)
 
     def _fake_list_allowed_values(self, command):
         acknowledge_return = pb.DEPacket()
@@ -328,12 +377,16 @@ class FakeServer:
         ack1 = acknowledge_return.acknowledge.add()
         ack1.command_id = command.command[0].command_id
         name = command.command[0].parameter[0].p_string
-        prop_dict = self._values[name.replace(" ", "_").lower().replace("(", "").replace(")", "")]
+        prop_dict = self._values[
+            name.replace(" ", "_").lower().replace("(", "").replace(")", "")
+        ]
 
-        str_mapping = {"value":"Value",
-                       "category":"Category",
-                       "data_type":"Data Type",
-                       "value_type":"Value Type", }
+        str_mapping = {
+            "value": "Value",
+            "category": "Category",
+            "data_type": "Data Type",
+            "value_type": "Value Type",
+        }
 
         for key, value in str_mapping.items():
             param = ack1.parameter.add()
@@ -350,7 +403,7 @@ class FakeServer:
                 param.type = pb.AnyParameter.P_STRING
                 param.p_string = prop_dict[key]
 
-        return (acknowledge_return, )
+        return (acknowledge_return,)
 
     def _fake_list_properties(self, command):
         acknowledge_return = pb.DEPacket()
@@ -361,7 +414,7 @@ class FakeServer:
             string_param = ack1.parameter.add()
             string_param.type = pb.AnyParameter.P_STRING
             string_param.p_string = self._values[key].name
-        return (acknowledge_return, )
+        return (acknowledge_return,)
 
     def _fake_set_property(self, command):
         acknowledge_return = pb.DEPacket()
@@ -380,7 +433,7 @@ class FakeServer:
             val = command.command[0].parameter[1].p_string
         name = name.replace(" ", "_").lower().replace("(", "").replace(")", "")
         self._values[name].value = val
-        return (acknowledge_return, )
+        return (acknowledge_return,)
 
     def _fake_get_property(self, command):
         acknowledge_return = pb.DEPacket()
@@ -391,14 +444,13 @@ class FakeServer:
         name = name.replace(" ", "_").lower().replace("(", "").replace(")", "")
         val = self._values[name]
 
-
         if val.data_type == "String":
             val = val.value
         elif val.data_type == "Integer":
             val = int(val.value)
-        elif val.data_type  == "Float":
+        elif val.data_type == "Float":
             val = float(val.value)
-        elif val.data_type  == "Boolean":
+        elif val.data_type == "Boolean":
             val = bool(val.value)
 
         if isinstance(val, bool):
@@ -417,7 +469,7 @@ class FakeServer:
             string_param = acknowledge_return.acknowledge[0].parameter.add()
             string_param.type = pb.AnyParameter.P_STRING
             string_param.p_string = val
-        return (acknowledge_return, )
+        return (acknowledge_return,)
 
     def _fake_get_movie_buffer_info(self, command):
         acknowledge_return = pb.DEPacket()
@@ -432,9 +484,12 @@ class FakeServer:
         int_param.type = pb.AnyParameter.P_INT
 
         # TODO: Figure out the right way to calculate this
-        int_param.p_int = (int(self["Crop Size X"]) *
-                           int(self["Crop Size Y"]) *
-                           int(self["Grab Buffer Size"])* 2)  # 16 bit
+        int_param.p_int = (
+            int(self["Crop Size X"])
+            * int(self["Crop Size Y"])
+            * int(self["Grab Buffer Size"])
+            * 2
+        )  # 16 bit
         # frame index start
         int_param = ack1.parameter.add()
         int_param.type = pb.AnyParameter.P_INT
@@ -458,14 +513,13 @@ class FakeServer:
         int_param = ack1.parameter.add()
         int_param.type = pb.AnyParameter.P_INT
         int_param.p_int = 5  # uint16
-        return (acknowledge_return, )
+        return (acknowledge_return,)
 
     def _fake_get_result(self, command):
         acknowledge_return = pb.DEPacket()
         acknowledge_return.type = pb.DEPacket.P_ACKNOWLEDGE
         ack1 = acknowledge_return.acknowledge.add()
         ack1.command_id = command.command[0].command_id
-
 
         frame_type = command.command[0].parameter[0].p_int
         pixel_format = command.command[0].parameter[1].p_int
@@ -487,17 +541,45 @@ class FakeServer:
         pixel_format_dict = {1: np.int8, 5: np.int16, 13: np.float32}
 
         if self.fake_data is None:
-            self._initialize_data(scan_size_x=1, scan_size_y=1,
-                                  kx_pixels=int(self['Sensor Size X (pixels)']),
-                                  ky_pixels=int(self['Sensor Size X (pixels)']))
+            self._initialize_data(
+                scan_size_x=1,
+                scan_size_y=1,
+                kx_pixels=int(self["Sensor Size X (pixels)"]),
+                ky_pixels=int(self["Sensor Size X (pixels)"]),
+            )
         curr = self.current_navigation_index
         flat_index = int(np.ravel_multi_index(curr, self.fake_data.navigator.shape))
 
         # map to right order...
-        response_mapping = [pixel_format, windowWidth, windowHeight, "Test",
-                            0, self.acquisition_status == "Acquiring",
-                            flat_index, 1, 0, 2**16, 100, 10, 0, 0, 0, 0,
-                            0, 0, 0, 0, 0, 0, 1, time.time(), 0, 0 ,0]
+        response_mapping = [
+            pixel_format,
+            windowWidth,
+            windowHeight,
+            "Test",
+            0,
+            self.acquisition_status == "Acquiring",
+            flat_index,
+            1,
+            0,
+            2**16,
+            100,
+            10,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            time.time(),
+            0,
+            0,
+            0,
+        ]
         for val in response_mapping:
             ack1 = add_parameter(ack1, val)
         ans = (acknowledge_return,)
@@ -506,27 +588,35 @@ class FakeServer:
         pack.type = pb.DEPacket.P_DATA_HEADER
 
         if 2 < frame_type < 8:
-            image = self.fake_data[self.current_navigation_index].astype(pixel_format_dict[pixel_format])
+            image = self.fake_data[self.current_navigation_index].astype(
+                pixel_format_dict[pixel_format]
+            )
             result = image.tobytes()
         elif frame_type == 10:
-            image = np.sum(self.fake_data.signal, axis=1).astype(pixel_format_dict[pixel_format])
+            image = np.sum(self.fake_data.signal, axis=1).astype(
+                pixel_format_dict[pixel_format]
+            )
             result = image.tobytes()
-        elif 11 < frame_type < 17: # virtual image
+        elif 11 < frame_type < 17:  # virtual image
             mask = self.virtual_masks[frame_type - 12]
             if mask.shape != (windowWidth, windowHeight):
-                mask = resize(mask, (windowWidth, windowHeight), preserve_range=True).astype(np.int8)
+                mask = resize(
+                    mask, (windowWidth, windowHeight), preserve_range=True
+                ).astype(np.int8)
             result = mask.tobytes()
         elif 17 <= frame_type < 22:
             mask = self.virtual_masks[frame_type - 17]
-            calculation_type = self[f"Scan - Virtual Detector {frame_type-17} Calculation"]
+            calculation_type = self[
+                f"Scan - Virtual Detector {frame_type-17} Calculation"
+            ]
             result = self.fake_data.get_virtual_image(mask, method=calculation_type)
             result = result.astype(pixel_format_dict[pixel_format]).tobytes()
 
         else:
             raise ValueError(f"Frame type {frame_type} not Supported in PythonDEServer")
         pack.data_header.bytesize = len(result)
-        ans += (pack, )
-        ans += (result, )
+        ans += (pack,)
+        ans += (result,)
 
         return ans
 
@@ -544,16 +634,17 @@ class FakeServer:
         # Frame size
         int_param = ack1.parameter.add()
         int_param.type = pb.AnyParameter.P_INT
-        int_param.p_int = (self["Grab Buffer Size"] *
-                           self["Crop Size X"] *
-                           self["Crop Size X"]*2)  # 16 bit
+        int_param.p_int = (
+            self["Grab Buffer Size"] * self["Crop Size X"] * self["Crop Size X"] * 2
+        )  # 16 bit
         # number of frames
         int_param = ack1.parameter.add()
         int_param.type = pb.AnyParameter.P_INT
         int_param.p_int = self["Grab Buffer Size"]
 
         self.current_stream_id = 0
-        return (acknowledge_return, )
+        return (acknowledge_return,)
+
     # command lists
     LIST_CAMERAS = 0
     LIST_PROPERTIES = 1
@@ -575,5 +666,3 @@ class FakeServer:
     SET_VIRTUAL_MASK = 23
     SAVE_FINAL_AFTER_ACQ = 24
     SET_ENG_MODE = 25
-
-
