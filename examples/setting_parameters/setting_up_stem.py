@@ -40,7 +40,3 @@ client["Frames Per Second"] = 1000
 
 # %%
 # Acquire a STEM image using a HAADF detector
-
-
-
-

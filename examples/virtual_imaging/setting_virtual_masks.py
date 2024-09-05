@@ -25,7 +25,7 @@ c = Client()
 c.usingMmf = False
 c.connect(port=13241)  # connect to the running DE Server
 
-c.virtual_masks[0][:] = 1 # Set everything to 1
+c.virtual_masks[0][:] = 1  # Set everything to 1
 c.virtual_masks[0].plot()  # plot the current v0 mask
 
 # %%
@@ -36,7 +36,7 @@ c.virtual_masks[0].plot()  # plot the current v0 mask
 # the array. For example we can set a portion of the mask to
 # be 2 (positive mask)
 
-c.virtual_masks[0][0:25] = 2 # first 25 pixels
+c.virtual_masks[0][0:25] = 2  # first 25 pixels
 c.virtual_masks[0].name = "Sum Virt Img"
 c.virtual_masks[0].plot()
 
@@ -56,12 +56,12 @@ c.virtual_masks[1].plot()
 # Creating a Virtual BrightField Image
 # ------------------------------------
 
-c.virtual_masks[2].calculation ="Sum"
-c.virtual_masks[2].name ="VBF"
+c.virtual_masks[2].calculation = "Sum"
+c.virtual_masks[2].name = "VBF"
 shape = c.virtual_masks[2][:].shape
-rr,cc = disk((shape[0]//2, shape[1]//2), 100)
-c.virtual_masks[2][:]=1
-c.virtual_masks[2][rr,cc]=2
+rr, cc = disk((shape[0] // 2, shape[1] // 2), 100)
+c.virtual_masks[2][:] = 1
+c.virtual_masks[2][rr, cc] = 2
 c.virtual_masks[2].plot()
 
 # %%
@@ -71,7 +71,7 @@ c.virtual_masks[2].plot()
 # We can also make a tableau of virtual images using the matplotlib.pyplot
 # package and passing an Axis to the plot function
 
-fig, axs = plt.subplots(1,2)
+fig, axs = plt.subplots(1, 2)
 for a, v in zip(axs, c.virtual_masks):
     v.plot(ax=a)
 
