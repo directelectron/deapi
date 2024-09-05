@@ -6,6 +6,7 @@ from deapi import Client
 import pytest
 from deapi.data_types import PropertySpec, VirtualMask
 
+
 class TestClient:
     def test_client_connection(self, client):
         assert client.connected
@@ -75,7 +76,6 @@ class TestClient:
         assert len(result) == 4
         assert result[0].shape == (1024, 1024)
 
-
     def test_binning_linked_parameters(self, client):
 
         client["Hardware Binning X"] = 2
@@ -109,7 +109,7 @@ class TestClient:
         client.virtual_masks[3][:] = 2
         np.testing.assert_allclose(client.virtual_masks[3][:], 2)
 
-    def test_resize_virtual_mask(self,client):
+    def test_resize_virtual_mask(self, client):
         client.virtual_masks[1][:] = 2
         client["Hardware ROI Offset X"] = 512
         client["Hardware ROI Offset Y"] = 512
@@ -130,28 +130,3 @@ class TestClient:
             time.sleep(1)
         result = client.get_result("virtual_image1")
         assert result[0].shape == (10, 10)
-
-
-
-
-
-
-
-
-
-
-        
-        
-
-
-
-
-
-
-
-
-    
-
-        
-    
-

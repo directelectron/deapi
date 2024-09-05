@@ -4,6 +4,8 @@ from deapi.client import Client
 
 import time
 import numpy as np
+
+
 @pytest.fixture(scope="module")
 def client(xprocess):
     port = np.random.randint(5000, 9999)
@@ -12,7 +14,7 @@ def client(xprocess):
     class Starter(ProcessStarter):
         timeout = 20
         pattern = "started"
-        args = [sys.executable,  curdir / 'simulated_server/initialize_server.py', port]
+        args = [sys.executable, curdir / "simulated_server/initialize_server.py", port]
 
     xprocess.ensure("server-%s" % port, Starter)
     c = Client()

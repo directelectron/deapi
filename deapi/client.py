@@ -44,8 +44,6 @@ from deapi.buffer_protocols import pb
 from deapi.version import version, commandVersion
 
 
-
-
 ## the commandInfo contains [VERSION_MAJOR.VERSION_MINOR.VERSION_PATCH.VERSION_REVISION]
 
 logLevel = logging.DEBUG
@@ -88,8 +86,8 @@ class Client:
 
     def gui(self):
         from IPython.display import display
-        display(self)
 
+        display(self)
 
     def __setitem__(self, key, value):
         self.set_property(key, value)
@@ -112,9 +110,11 @@ class Client:
         for collection in unique_collections:
             stripped = collection.lower().strip().replace(" ", "_")
             props = [p for p in all_properties if collection + " -" in p]
-            setattr(self, stripped, PropertyCollection(client=self,
-                                                         name=collection,
-                                                         properties=props))
+            setattr(
+                self,
+                stripped,
+                PropertyCollection(client=self, name=collection, properties=props),
+            )
 
     def connect(self, host: str = "127.0.0.1", port: int = 13240):
         """Connect to DE-Server
@@ -227,7 +227,12 @@ class Client:
         a = Attributes()
         a.windowWidth = self["Image Size X (pixels)"]
         a.windowHeight = self["Image Size Y (pixels)"]
-        res, _, _, _, = self.get_result(mask_name, DataType.DE8u, attributes=a)
+        (
+            res,
+            _,
+            _,
+            _,
+        ) = self.get_result(mask_name, DataType.DE8u, attributes=a)
         return res
 
     def get_current_camera(self) -> str:
@@ -663,7 +668,10 @@ class Client:
         return ret
 
     def start_acquisition(
-        self, numberOfAcquisitions: int = 1, requestMovieBuffer=False, update=True,
+        self,
+        numberOfAcquisitions: int = 1,
+        requestMovieBuffer=False,
+        update=True,
     ):
         """
         Start acquiring images. Make sure all of the properties are set to the desired values.
@@ -759,7 +767,13 @@ class Client:
 
         return b"Stopped" in respond
 
-    def get_result(self, frameType="singleframe_integrated", pixelFormat="UINT16", attributes="auto", histogram=None):
+    def get_result(
+        self,
+        frameType="singleframe_integrated",
+        pixelFormat="UINT16",
+        attributes="auto",
+        histogram=None,
+    ):
         """
         Get the specified type of frames in the desired pixel format and associated information.
 
@@ -878,7 +892,9 @@ class Client:
 
             if response != False:
                 values = self.__getParameters(response.acknowledge[0])
-                if type(values) is list and len(values) >= 20:  # This should be majorly simplified
+                if (
+                    type(values) is list and len(values) >= 20
+                ):  # This should be majorly simplified
                     i = 0
                     pixelFormat = PixelFormat(values[i])
                     i += 1
@@ -1000,8 +1016,12 @@ class Client:
                         bytesize = self.height * self.width * 2
                         image.shape = [self.height, self.width]
                     else:
-                        log.error("The size of the image does not match the expected size from "
-                                  "The header. Expected: %d, Received: %d", bytesize, len(packet))
+                        log.error(
+                            "The size of the image does not match the expected size from "
+                            "The header. Expected: %d, Received: %d",
+                            bytesize,
+                            len(packet),
+                        )
 
                 if logLevel == logging.DEBUG:
                     elapsed = self.GetTime() - step_time
@@ -1790,7 +1810,7 @@ class Client:
         chunkSize = 4096
         for i in range(0, len(buffer), chunkSize):
             try:
-                sock.send(buffer[i: min(len(buffer), i + chunkSize)])
+                sock.send(buffer[i : min(len(buffer), i + chunkSize)])
             except socket.timeout:
 
                 log.debug(

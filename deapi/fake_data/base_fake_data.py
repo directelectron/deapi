@@ -1,11 +1,13 @@
 import numpy as np
 
+
 class BaseFakeData:
     """
     The idea of this class is to provide a base class for fake data generation.
 
     Other classes will inherit from this class and then implement, or override certain methods.
     """
+
     def __init__(self, navigator=None, signal=None, server=None):
         """
         Data is generated from a given navigator and signal arrays. The navigator array should
@@ -30,14 +32,24 @@ class BaseFakeData:
         if self.server is None:
             return s
         else:
-            hw_roi = s[:,int(self.server["Hardware ROI Offset X"]):
-                       int(self.server["Hardware ROI Offset X"]) + int(self.server["Hardware ROI Size X"]),
-                       int(self.server["Hardware ROI Offset Y"]):
-                       int(self.server["Hardware ROI Offset Y"]) + int(self.server["Hardware ROI Size Y"])]
-            shape = (4, int(self.server["Hardware Binning X"]),
-                                        hw_roi.shape[1] // int(self.server["Hardware Binning X"]),
-                                        int(self.server["Hardware Binning Y"]),
-                                        hw_roi.shape[2] // int(self.server["Hardware Binning Y"]))
+            hw_roi = s[
+                :,
+                int(self.server["Hardware ROI Offset X"]) : int(
+                    self.server["Hardware ROI Offset X"]
+                )
+                + int(self.server["Hardware ROI Size X"]),
+                int(self.server["Hardware ROI Offset Y"]) : int(
+                    self.server["Hardware ROI Offset Y"]
+                )
+                + int(self.server["Hardware ROI Size Y"]),
+            ]
+            shape = (
+                4,
+                int(self.server["Hardware Binning X"]),
+                hw_roi.shape[1] // int(self.server["Hardware Binning X"]),
+                int(self.server["Hardware Binning Y"]),
+                hw_roi.shape[2] // int(self.server["Hardware Binning Y"]),
+            )
             binned_roi = hw_roi.reshape(shape).sum(axis=(1, 3))
 
             # handling both is a bit tricky
@@ -58,10 +70,9 @@ class BaseFakeData:
         labels = self.navigator[item].astype(int)
         dp = self.signal[labels]
 
-
         return dp
 
-    def get_virtual_image(self, virtual_mask, method='Sum'):
+    def get_virtual_image(self, virtual_mask, method="Sum"):
         """
         Get the virtual image at the given item in the navigator array.
         """
@@ -69,11 +80,14 @@ class BaseFakeData:
         negative = virtual_mask == 0
         s = self.signal
 
-        if method == 'Sum':
-            values = np.sum(s*positive[np.newaxis], axis=(1,2))
-        elif method == 'Difference':
-            values = (np.sum(s*positive[np.newaxis], axis=(1, 2)) -
-                      np.sum(s*negative[np.newaxis], axis=(1, 2)))
+        if method == "Sum":
+            values = np.sum(s * positive[np.newaxis], axis=(1, 2))
+        elif method == "Difference":
+            values = np.sum(s * positive[np.newaxis], axis=(1, 2)) - np.sum(
+                s * negative[np.newaxis], axis=(1, 2)
+            )
         else:
-            raise ValueError(f"Method {method} not recognized. Please use 'sum' or 'difference'")
+            raise ValueError(
+                f"Method {method} not recognized. Please use 'sum' or 'difference'"
+            )
         return values[self.navigator]

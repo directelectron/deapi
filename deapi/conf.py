@@ -72,7 +72,6 @@ intersphinx_mapping = {
 }
 
 
-
 _version = deapi.__version__
 version_match = "dev" if "dev" in _version else ".".join(_version.split(".")[:2])
 
@@ -175,13 +174,14 @@ autodoc_default_options = {
 
 autosummary_generate = True
 
+
 # This is the expected signature of the handler for this event, cf doc
 def autodoc_skip_member(app, what, name, obj, skip, options):
     # Basic approach; you might want a regex instead
     return False
 
+
 # Automatically called by sphinx at startup
 def setup(app):
     # Connect the autodoc-skip-member event from apidoc to the callback
-    app.connect('autodoc-skip-member', autodoc_skip_member)
-
+    app.connect("autodoc-skip-member", autodoc_skip_member)

@@ -6,462 +6,735 @@ from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
 from google.protobuf import reflection as _reflection
 from google.protobuf import symbol_database as _symbol_database
+
 # @@protoc_insertion_point(imports)
 
 _sym_db = _symbol_database.Default()
 
 
-
-
 DESCRIPTOR = _descriptor.FileDescriptor(
-  name='DEServer.proto',
-  package='DEMessaging',
-  syntax='proto2',
-  serialized_options=None,
-  serialized_pb=b'\n\x0e\x44\x45Server.proto\x12\x0b\x44\x45Messaging\"\xb1\x02\n\x08\x44\x45Packet\x12(\n\x04type\x18\x01 \x02(\x0e\x32\x1a.DEMessaging.DEPacket.Type\x12\x19\n\x11\x63\x61mera_identifier\x18\x02 \x01(\r\x12+\n\x07\x63ommand\x18\x03 \x03(\x0b\x32\x1a.DEMessaging.SingleCommand\x12\x33\n\x0b\x61\x63knowledge\x18\x04 \x03(\x0b\x32\x1e.DEMessaging.SingleAcknowledge\x12,\n\x0b\x64\x61ta_header\x18\x05 \x01(\x0b\x32\x17.DEMessaging.DataHeader\x12\x13\n\x0b\x63\x61mera_name\x18\x06 \x01(\t\";\n\x04Type\x12\r\n\tP_COMMAND\x10\x01\x12\x11\n\rP_ACKNOWLEDGE\x10\x02\x12\x11\n\rP_DATA_HEADER\x10\x03\"g\n\rSingleCommand\x12\x12\n\ncommand_id\x18\x01 \x01(\r\x12\x14\n\x0c\x63ommand_name\x18\x02 \x01(\t\x12,\n\tparameter\x18\x03 \x03(\x0b\x32\x19.DEMessaging.AnyParameter\"\xe4\x01\n\x0c\x41nyParameter\x12,\n\x04type\x18\x01 \x02(\x0e\x32\x1e.DEMessaging.AnyParameter.Type\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\r\n\x05p_int\x18\x03 \x01(\x11\x12\x0e\n\x06p_bool\x18\x04 \x01(\x08\x12\x10\n\x08p_string\x18\x05 \x01(\t\x12\x0f\n\x07p_float\x18\x06 \x01(\x02\x12\x0f\n\x07p_bytes\x18\x07 \x01(\x0c\"E\n\x04Type\x12\t\n\x05P_INT\x10\x01\x12\n\n\x06P_BOOL\x10\x02\x12\x0c\n\x08P_STRING\x10\x03\x12\x0b\n\x07P_FLOAT\x10\x04\x12\x0b\n\x07P_BYTES\x10\x05\"]\n\x0b\x41\x63knowledge\x12\x19\n\x11\x63\x61mera_identifier\x18\x01 \x01(\r\x12\x33\n\x0b\x61\x63knowledge\x18\x02 \x03(\x0b\x32\x1e.DEMessaging.SingleAcknowledge\"\x91\x01\n\x11SingleAcknowledge\x12\r\n\x05\x65rror\x18\x01 \x02(\x08\x12\x12\n\ncommand_id\x18\x02 \x01(\r\x12\x14\n\x0c\x63ommand_name\x18\x03 \x01(\t\x12\x15\n\rerror_message\x18\x04 \x01(\t\x12,\n\tparameter\x18\x05 \x03(\x0b\x32\x19.DEMessaging.AnyParameter\"2\n\nDataHeader\x12\x10\n\x08\x62ytesize\x18\x01 \x02(\x04\x12\x12\n\nidentifier\x18\x02 \x01(\t'
+    name="DEServer.proto",
+    package="DEMessaging",
+    syntax="proto2",
+    serialized_options=None,
+    serialized_pb=b'\n\x0e\x44\x45Server.proto\x12\x0b\x44\x45Messaging"\xb1\x02\n\x08\x44\x45Packet\x12(\n\x04type\x18\x01 \x02(\x0e\x32\x1a.DEMessaging.DEPacket.Type\x12\x19\n\x11\x63\x61mera_identifier\x18\x02 \x01(\r\x12+\n\x07\x63ommand\x18\x03 \x03(\x0b\x32\x1a.DEMessaging.SingleCommand\x12\x33\n\x0b\x61\x63knowledge\x18\x04 \x03(\x0b\x32\x1e.DEMessaging.SingleAcknowledge\x12,\n\x0b\x64\x61ta_header\x18\x05 \x01(\x0b\x32\x17.DEMessaging.DataHeader\x12\x13\n\x0b\x63\x61mera_name\x18\x06 \x01(\t";\n\x04Type\x12\r\n\tP_COMMAND\x10\x01\x12\x11\n\rP_ACKNOWLEDGE\x10\x02\x12\x11\n\rP_DATA_HEADER\x10\x03"g\n\rSingleCommand\x12\x12\n\ncommand_id\x18\x01 \x01(\r\x12\x14\n\x0c\x63ommand_name\x18\x02 \x01(\t\x12,\n\tparameter\x18\x03 \x03(\x0b\x32\x19.DEMessaging.AnyParameter"\xe4\x01\n\x0c\x41nyParameter\x12,\n\x04type\x18\x01 \x02(\x0e\x32\x1e.DEMessaging.AnyParameter.Type\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\r\n\x05p_int\x18\x03 \x01(\x11\x12\x0e\n\x06p_bool\x18\x04 \x01(\x08\x12\x10\n\x08p_string\x18\x05 \x01(\t\x12\x0f\n\x07p_float\x18\x06 \x01(\x02\x12\x0f\n\x07p_bytes\x18\x07 \x01(\x0c"E\n\x04Type\x12\t\n\x05P_INT\x10\x01\x12\n\n\x06P_BOOL\x10\x02\x12\x0c\n\x08P_STRING\x10\x03\x12\x0b\n\x07P_FLOAT\x10\x04\x12\x0b\n\x07P_BYTES\x10\x05"]\n\x0b\x41\x63knowledge\x12\x19\n\x11\x63\x61mera_identifier\x18\x01 \x01(\r\x12\x33\n\x0b\x61\x63knowledge\x18\x02 \x03(\x0b\x32\x1e.DEMessaging.SingleAcknowledge"\x91\x01\n\x11SingleAcknowledge\x12\r\n\x05\x65rror\x18\x01 \x02(\x08\x12\x12\n\ncommand_id\x18\x02 \x01(\r\x12\x14\n\x0c\x63ommand_name\x18\x03 \x01(\t\x12\x15\n\rerror_message\x18\x04 \x01(\t\x12,\n\tparameter\x18\x05 \x03(\x0b\x32\x19.DEMessaging.AnyParameter"2\n\nDataHeader\x12\x10\n\x08\x62ytesize\x18\x01 \x02(\x04\x12\x12\n\nidentifier\x18\x02 \x01(\t',
 )
 
 
-
 _DEPACKET_TYPE = _descriptor.EnumDescriptor(
-  name='Type',
-  full_name='DEMessaging.DEPacket.Type',
-  filename=None,
-  file=DESCRIPTOR,
-  values=[
-    _descriptor.EnumValueDescriptor(
-      name='P_COMMAND', index=0, number=1,
-      serialized_options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='P_ACKNOWLEDGE', index=1, number=2,
-      serialized_options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='P_DATA_HEADER', index=2, number=3,
-      serialized_options=None,
-      type=None),
-  ],
-  containing_type=None,
-  serialized_options=None,
-  serialized_start=278,
-  serialized_end=337,
+    name="Type",
+    full_name="DEMessaging.DEPacket.Type",
+    filename=None,
+    file=DESCRIPTOR,
+    values=[
+        _descriptor.EnumValueDescriptor(
+            name="P_COMMAND", index=0, number=1, serialized_options=None, type=None
+        ),
+        _descriptor.EnumValueDescriptor(
+            name="P_ACKNOWLEDGE", index=1, number=2, serialized_options=None, type=None
+        ),
+        _descriptor.EnumValueDescriptor(
+            name="P_DATA_HEADER", index=2, number=3, serialized_options=None, type=None
+        ),
+    ],
+    containing_type=None,
+    serialized_options=None,
+    serialized_start=278,
+    serialized_end=337,
 )
 _sym_db.RegisterEnumDescriptor(_DEPACKET_TYPE)
 
 _ANYPARAMETER_TYPE = _descriptor.EnumDescriptor(
-  name='Type',
-  full_name='DEMessaging.AnyParameter.Type',
-  filename=None,
-  file=DESCRIPTOR,
-  values=[
-    _descriptor.EnumValueDescriptor(
-      name='P_INT', index=0, number=1,
-      serialized_options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='P_BOOL', index=1, number=2,
-      serialized_options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='P_STRING', index=2, number=3,
-      serialized_options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='P_FLOAT', index=3, number=4,
-      serialized_options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='P_BYTES', index=4, number=5,
-      serialized_options=None,
-      type=None),
-  ],
-  containing_type=None,
-  serialized_options=None,
-  serialized_start=604,
-  serialized_end=673,
+    name="Type",
+    full_name="DEMessaging.AnyParameter.Type",
+    filename=None,
+    file=DESCRIPTOR,
+    values=[
+        _descriptor.EnumValueDescriptor(
+            name="P_INT", index=0, number=1, serialized_options=None, type=None
+        ),
+        _descriptor.EnumValueDescriptor(
+            name="P_BOOL", index=1, number=2, serialized_options=None, type=None
+        ),
+        _descriptor.EnumValueDescriptor(
+            name="P_STRING", index=2, number=3, serialized_options=None, type=None
+        ),
+        _descriptor.EnumValueDescriptor(
+            name="P_FLOAT", index=3, number=4, serialized_options=None, type=None
+        ),
+        _descriptor.EnumValueDescriptor(
+            name="P_BYTES", index=4, number=5, serialized_options=None, type=None
+        ),
+    ],
+    containing_type=None,
+    serialized_options=None,
+    serialized_start=604,
+    serialized_end=673,
 )
 _sym_db.RegisterEnumDescriptor(_ANYPARAMETER_TYPE)
 
 
 _DEPACKET = _descriptor.Descriptor(
-  name='DEPacket',
-  full_name='DEMessaging.DEPacket',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='type', full_name='DEMessaging.DEPacket.type', index=0,
-      number=1, type=14, cpp_type=8, label=2,
-      has_default_value=False, default_value=1,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='camera_identifier', full_name='DEMessaging.DEPacket.camera_identifier', index=1,
-      number=2, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='command', full_name='DEMessaging.DEPacket.command', index=2,
-      number=3, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='acknowledge', full_name='DEMessaging.DEPacket.acknowledge', index=3,
-      number=4, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='data_header', full_name='DEMessaging.DEPacket.data_header', index=4,
-      number=5, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='camera_name', full_name='DEMessaging.DEPacket.camera_name', index=5,
-      number=6, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-    _DEPACKET_TYPE,
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto2',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=32,
-  serialized_end=337,
+    name="DEPacket",
+    full_name="DEMessaging.DEPacket",
+    filename=None,
+    file=DESCRIPTOR,
+    containing_type=None,
+    fields=[
+        _descriptor.FieldDescriptor(
+            name="type",
+            full_name="DEMessaging.DEPacket.type",
+            index=0,
+            number=1,
+            type=14,
+            cpp_type=8,
+            label=2,
+            has_default_value=False,
+            default_value=1,
+            message_type=None,
+            enum_type=None,
+            containing_type=None,
+            is_extension=False,
+            extension_scope=None,
+            serialized_options=None,
+            file=DESCRIPTOR,
+        ),
+        _descriptor.FieldDescriptor(
+            name="camera_identifier",
+            full_name="DEMessaging.DEPacket.camera_identifier",
+            index=1,
+            number=2,
+            type=13,
+            cpp_type=3,
+            label=1,
+            has_default_value=False,
+            default_value=0,
+            message_type=None,
+            enum_type=None,
+            containing_type=None,
+            is_extension=False,
+            extension_scope=None,
+            serialized_options=None,
+            file=DESCRIPTOR,
+        ),
+        _descriptor.FieldDescriptor(
+            name="command",
+            full_name="DEMessaging.DEPacket.command",
+            index=2,
+            number=3,
+            type=11,
+            cpp_type=10,
+            label=3,
+            has_default_value=False,
+            default_value=[],
+            message_type=None,
+            enum_type=None,
+            containing_type=None,
+            is_extension=False,
+            extension_scope=None,
+            serialized_options=None,
+            file=DESCRIPTOR,
+        ),
+        _descriptor.FieldDescriptor(
+            name="acknowledge",
+            full_name="DEMessaging.DEPacket.acknowledge",
+            index=3,
+            number=4,
+            type=11,
+            cpp_type=10,
+            label=3,
+            has_default_value=False,
+            default_value=[],
+            message_type=None,
+            enum_type=None,
+            containing_type=None,
+            is_extension=False,
+            extension_scope=None,
+            serialized_options=None,
+            file=DESCRIPTOR,
+        ),
+        _descriptor.FieldDescriptor(
+            name="data_header",
+            full_name="DEMessaging.DEPacket.data_header",
+            index=4,
+            number=5,
+            type=11,
+            cpp_type=10,
+            label=1,
+            has_default_value=False,
+            default_value=None,
+            message_type=None,
+            enum_type=None,
+            containing_type=None,
+            is_extension=False,
+            extension_scope=None,
+            serialized_options=None,
+            file=DESCRIPTOR,
+        ),
+        _descriptor.FieldDescriptor(
+            name="camera_name",
+            full_name="DEMessaging.DEPacket.camera_name",
+            index=5,
+            number=6,
+            type=9,
+            cpp_type=9,
+            label=1,
+            has_default_value=False,
+            default_value=b"".decode("utf-8"),
+            message_type=None,
+            enum_type=None,
+            containing_type=None,
+            is_extension=False,
+            extension_scope=None,
+            serialized_options=None,
+            file=DESCRIPTOR,
+        ),
+    ],
+    extensions=[],
+    nested_types=[],
+    enum_types=[
+        _DEPACKET_TYPE,
+    ],
+    serialized_options=None,
+    is_extendable=False,
+    syntax="proto2",
+    extension_ranges=[],
+    oneofs=[],
+    serialized_start=32,
+    serialized_end=337,
 )
 
 
 _SINGLECOMMAND = _descriptor.Descriptor(
-  name='SingleCommand',
-  full_name='DEMessaging.SingleCommand',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='command_id', full_name='DEMessaging.SingleCommand.command_id', index=0,
-      number=1, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='command_name', full_name='DEMessaging.SingleCommand.command_name', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='parameter', full_name='DEMessaging.SingleCommand.parameter', index=2,
-      number=3, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto2',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=339,
-  serialized_end=442,
+    name="SingleCommand",
+    full_name="DEMessaging.SingleCommand",
+    filename=None,
+    file=DESCRIPTOR,
+    containing_type=None,
+    fields=[
+        _descriptor.FieldDescriptor(
+            name="command_id",
+            full_name="DEMessaging.SingleCommand.command_id",
+            index=0,
+            number=1,
+            type=13,
+            cpp_type=3,
+            label=1,
+            has_default_value=False,
+            default_value=0,
+            message_type=None,
+            enum_type=None,
+            containing_type=None,
+            is_extension=False,
+            extension_scope=None,
+            serialized_options=None,
+            file=DESCRIPTOR,
+        ),
+        _descriptor.FieldDescriptor(
+            name="command_name",
+            full_name="DEMessaging.SingleCommand.command_name",
+            index=1,
+            number=2,
+            type=9,
+            cpp_type=9,
+            label=1,
+            has_default_value=False,
+            default_value=b"".decode("utf-8"),
+            message_type=None,
+            enum_type=None,
+            containing_type=None,
+            is_extension=False,
+            extension_scope=None,
+            serialized_options=None,
+            file=DESCRIPTOR,
+        ),
+        _descriptor.FieldDescriptor(
+            name="parameter",
+            full_name="DEMessaging.SingleCommand.parameter",
+            index=2,
+            number=3,
+            type=11,
+            cpp_type=10,
+            label=3,
+            has_default_value=False,
+            default_value=[],
+            message_type=None,
+            enum_type=None,
+            containing_type=None,
+            is_extension=False,
+            extension_scope=None,
+            serialized_options=None,
+            file=DESCRIPTOR,
+        ),
+    ],
+    extensions=[],
+    nested_types=[],
+    enum_types=[],
+    serialized_options=None,
+    is_extendable=False,
+    syntax="proto2",
+    extension_ranges=[],
+    oneofs=[],
+    serialized_start=339,
+    serialized_end=442,
 )
 
 
 _ANYPARAMETER = _descriptor.Descriptor(
-  name='AnyParameter',
-  full_name='DEMessaging.AnyParameter',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='type', full_name='DEMessaging.AnyParameter.type', index=0,
-      number=1, type=14, cpp_type=8, label=2,
-      has_default_value=False, default_value=1,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='name', full_name='DEMessaging.AnyParameter.name', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='p_int', full_name='DEMessaging.AnyParameter.p_int', index=2,
-      number=3, type=17, cpp_type=1, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='p_bool', full_name='DEMessaging.AnyParameter.p_bool', index=3,
-      number=4, type=8, cpp_type=7, label=1,
-      has_default_value=False, default_value=False,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='p_string', full_name='DEMessaging.AnyParameter.p_string', index=4,
-      number=5, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='p_float', full_name='DEMessaging.AnyParameter.p_float', index=5,
-      number=6, type=2, cpp_type=6, label=1,
-      has_default_value=False, default_value=float(0),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='p_bytes', full_name='DEMessaging.AnyParameter.p_bytes', index=6,
-      number=7, type=12, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"",
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-    _ANYPARAMETER_TYPE,
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto2',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=445,
-  serialized_end=673,
+    name="AnyParameter",
+    full_name="DEMessaging.AnyParameter",
+    filename=None,
+    file=DESCRIPTOR,
+    containing_type=None,
+    fields=[
+        _descriptor.FieldDescriptor(
+            name="type",
+            full_name="DEMessaging.AnyParameter.type",
+            index=0,
+            number=1,
+            type=14,
+            cpp_type=8,
+            label=2,
+            has_default_value=False,
+            default_value=1,
+            message_type=None,
+            enum_type=None,
+            containing_type=None,
+            is_extension=False,
+            extension_scope=None,
+            serialized_options=None,
+            file=DESCRIPTOR,
+        ),
+        _descriptor.FieldDescriptor(
+            name="name",
+            full_name="DEMessaging.AnyParameter.name",
+            index=1,
+            number=2,
+            type=9,
+            cpp_type=9,
+            label=1,
+            has_default_value=False,
+            default_value=b"".decode("utf-8"),
+            message_type=None,
+            enum_type=None,
+            containing_type=None,
+            is_extension=False,
+            extension_scope=None,
+            serialized_options=None,
+            file=DESCRIPTOR,
+        ),
+        _descriptor.FieldDescriptor(
+            name="p_int",
+            full_name="DEMessaging.AnyParameter.p_int",
+            index=2,
+            number=3,
+            type=17,
+            cpp_type=1,
+            label=1,
+            has_default_value=False,
+            default_value=0,
+            message_type=None,
+            enum_type=None,
+            containing_type=None,
+            is_extension=False,
+            extension_scope=None,
+            serialized_options=None,
+            file=DESCRIPTOR,
+        ),
+        _descriptor.FieldDescriptor(
+            name="p_bool",
+            full_name="DEMessaging.AnyParameter.p_bool",
+            index=3,
+            number=4,
+            type=8,
+            cpp_type=7,
+            label=1,
+            has_default_value=False,
+            default_value=False,
+            message_type=None,
+            enum_type=None,
+            containing_type=None,
+            is_extension=False,
+            extension_scope=None,
+            serialized_options=None,
+            file=DESCRIPTOR,
+        ),
+        _descriptor.FieldDescriptor(
+            name="p_string",
+            full_name="DEMessaging.AnyParameter.p_string",
+            index=4,
+            number=5,
+            type=9,
+            cpp_type=9,
+            label=1,
+            has_default_value=False,
+            default_value=b"".decode("utf-8"),
+            message_type=None,
+            enum_type=None,
+            containing_type=None,
+            is_extension=False,
+            extension_scope=None,
+            serialized_options=None,
+            file=DESCRIPTOR,
+        ),
+        _descriptor.FieldDescriptor(
+            name="p_float",
+            full_name="DEMessaging.AnyParameter.p_float",
+            index=5,
+            number=6,
+            type=2,
+            cpp_type=6,
+            label=1,
+            has_default_value=False,
+            default_value=float(0),
+            message_type=None,
+            enum_type=None,
+            containing_type=None,
+            is_extension=False,
+            extension_scope=None,
+            serialized_options=None,
+            file=DESCRIPTOR,
+        ),
+        _descriptor.FieldDescriptor(
+            name="p_bytes",
+            full_name="DEMessaging.AnyParameter.p_bytes",
+            index=6,
+            number=7,
+            type=12,
+            cpp_type=9,
+            label=1,
+            has_default_value=False,
+            default_value=b"",
+            message_type=None,
+            enum_type=None,
+            containing_type=None,
+            is_extension=False,
+            extension_scope=None,
+            serialized_options=None,
+            file=DESCRIPTOR,
+        ),
+    ],
+    extensions=[],
+    nested_types=[],
+    enum_types=[
+        _ANYPARAMETER_TYPE,
+    ],
+    serialized_options=None,
+    is_extendable=False,
+    syntax="proto2",
+    extension_ranges=[],
+    oneofs=[],
+    serialized_start=445,
+    serialized_end=673,
 )
 
 
 _ACKNOWLEDGE = _descriptor.Descriptor(
-  name='Acknowledge',
-  full_name='DEMessaging.Acknowledge',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='camera_identifier', full_name='DEMessaging.Acknowledge.camera_identifier', index=0,
-      number=1, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='acknowledge', full_name='DEMessaging.Acknowledge.acknowledge', index=1,
-      number=2, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto2',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=675,
-  serialized_end=768,
+    name="Acknowledge",
+    full_name="DEMessaging.Acknowledge",
+    filename=None,
+    file=DESCRIPTOR,
+    containing_type=None,
+    fields=[
+        _descriptor.FieldDescriptor(
+            name="camera_identifier",
+            full_name="DEMessaging.Acknowledge.camera_identifier",
+            index=0,
+            number=1,
+            type=13,
+            cpp_type=3,
+            label=1,
+            has_default_value=False,
+            default_value=0,
+            message_type=None,
+            enum_type=None,
+            containing_type=None,
+            is_extension=False,
+            extension_scope=None,
+            serialized_options=None,
+            file=DESCRIPTOR,
+        ),
+        _descriptor.FieldDescriptor(
+            name="acknowledge",
+            full_name="DEMessaging.Acknowledge.acknowledge",
+            index=1,
+            number=2,
+            type=11,
+            cpp_type=10,
+            label=3,
+            has_default_value=False,
+            default_value=[],
+            message_type=None,
+            enum_type=None,
+            containing_type=None,
+            is_extension=False,
+            extension_scope=None,
+            serialized_options=None,
+            file=DESCRIPTOR,
+        ),
+    ],
+    extensions=[],
+    nested_types=[],
+    enum_types=[],
+    serialized_options=None,
+    is_extendable=False,
+    syntax="proto2",
+    extension_ranges=[],
+    oneofs=[],
+    serialized_start=675,
+    serialized_end=768,
 )
 
 
 _SINGLEACKNOWLEDGE = _descriptor.Descriptor(
-  name='SingleAcknowledge',
-  full_name='DEMessaging.SingleAcknowledge',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='error', full_name='DEMessaging.SingleAcknowledge.error', index=0,
-      number=1, type=8, cpp_type=7, label=2,
-      has_default_value=False, default_value=False,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='command_id', full_name='DEMessaging.SingleAcknowledge.command_id', index=1,
-      number=2, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='command_name', full_name='DEMessaging.SingleAcknowledge.command_name', index=2,
-      number=3, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='error_message', full_name='DEMessaging.SingleAcknowledge.error_message', index=3,
-      number=4, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='parameter', full_name='DEMessaging.SingleAcknowledge.parameter', index=4,
-      number=5, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto2',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=771,
-  serialized_end=916,
+    name="SingleAcknowledge",
+    full_name="DEMessaging.SingleAcknowledge",
+    filename=None,
+    file=DESCRIPTOR,
+    containing_type=None,
+    fields=[
+        _descriptor.FieldDescriptor(
+            name="error",
+            full_name="DEMessaging.SingleAcknowledge.error",
+            index=0,
+            number=1,
+            type=8,
+            cpp_type=7,
+            label=2,
+            has_default_value=False,
+            default_value=False,
+            message_type=None,
+            enum_type=None,
+            containing_type=None,
+            is_extension=False,
+            extension_scope=None,
+            serialized_options=None,
+            file=DESCRIPTOR,
+        ),
+        _descriptor.FieldDescriptor(
+            name="command_id",
+            full_name="DEMessaging.SingleAcknowledge.command_id",
+            index=1,
+            number=2,
+            type=13,
+            cpp_type=3,
+            label=1,
+            has_default_value=False,
+            default_value=0,
+            message_type=None,
+            enum_type=None,
+            containing_type=None,
+            is_extension=False,
+            extension_scope=None,
+            serialized_options=None,
+            file=DESCRIPTOR,
+        ),
+        _descriptor.FieldDescriptor(
+            name="command_name",
+            full_name="DEMessaging.SingleAcknowledge.command_name",
+            index=2,
+            number=3,
+            type=9,
+            cpp_type=9,
+            label=1,
+            has_default_value=False,
+            default_value=b"".decode("utf-8"),
+            message_type=None,
+            enum_type=None,
+            containing_type=None,
+            is_extension=False,
+            extension_scope=None,
+            serialized_options=None,
+            file=DESCRIPTOR,
+        ),
+        _descriptor.FieldDescriptor(
+            name="error_message",
+            full_name="DEMessaging.SingleAcknowledge.error_message",
+            index=3,
+            number=4,
+            type=9,
+            cpp_type=9,
+            label=1,
+            has_default_value=False,
+            default_value=b"".decode("utf-8"),
+            message_type=None,
+            enum_type=None,
+            containing_type=None,
+            is_extension=False,
+            extension_scope=None,
+            serialized_options=None,
+            file=DESCRIPTOR,
+        ),
+        _descriptor.FieldDescriptor(
+            name="parameter",
+            full_name="DEMessaging.SingleAcknowledge.parameter",
+            index=4,
+            number=5,
+            type=11,
+            cpp_type=10,
+            label=3,
+            has_default_value=False,
+            default_value=[],
+            message_type=None,
+            enum_type=None,
+            containing_type=None,
+            is_extension=False,
+            extension_scope=None,
+            serialized_options=None,
+            file=DESCRIPTOR,
+        ),
+    ],
+    extensions=[],
+    nested_types=[],
+    enum_types=[],
+    serialized_options=None,
+    is_extendable=False,
+    syntax="proto2",
+    extension_ranges=[],
+    oneofs=[],
+    serialized_start=771,
+    serialized_end=916,
 )
 
 
 _DATAHEADER = _descriptor.Descriptor(
-  name='DataHeader',
-  full_name='DEMessaging.DataHeader',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='bytesize', full_name='DEMessaging.DataHeader.bytesize', index=0,
-      number=1, type=4, cpp_type=4, label=2,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='identifier', full_name='DEMessaging.DataHeader.identifier', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto2',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=918,
-  serialized_end=968,
+    name="DataHeader",
+    full_name="DEMessaging.DataHeader",
+    filename=None,
+    file=DESCRIPTOR,
+    containing_type=None,
+    fields=[
+        _descriptor.FieldDescriptor(
+            name="bytesize",
+            full_name="DEMessaging.DataHeader.bytesize",
+            index=0,
+            number=1,
+            type=4,
+            cpp_type=4,
+            label=2,
+            has_default_value=False,
+            default_value=0,
+            message_type=None,
+            enum_type=None,
+            containing_type=None,
+            is_extension=False,
+            extension_scope=None,
+            serialized_options=None,
+            file=DESCRIPTOR,
+        ),
+        _descriptor.FieldDescriptor(
+            name="identifier",
+            full_name="DEMessaging.DataHeader.identifier",
+            index=1,
+            number=2,
+            type=9,
+            cpp_type=9,
+            label=1,
+            has_default_value=False,
+            default_value=b"".decode("utf-8"),
+            message_type=None,
+            enum_type=None,
+            containing_type=None,
+            is_extension=False,
+            extension_scope=None,
+            serialized_options=None,
+            file=DESCRIPTOR,
+        ),
+    ],
+    extensions=[],
+    nested_types=[],
+    enum_types=[],
+    serialized_options=None,
+    is_extendable=False,
+    syntax="proto2",
+    extension_ranges=[],
+    oneofs=[],
+    serialized_start=918,
+    serialized_end=968,
 )
 
-_DEPACKET.fields_by_name['type'].enum_type = _DEPACKET_TYPE
-_DEPACKET.fields_by_name['command'].message_type = _SINGLECOMMAND
-_DEPACKET.fields_by_name['acknowledge'].message_type = _SINGLEACKNOWLEDGE
-_DEPACKET.fields_by_name['data_header'].message_type = _DATAHEADER
+_DEPACKET.fields_by_name["type"].enum_type = _DEPACKET_TYPE
+_DEPACKET.fields_by_name["command"].message_type = _SINGLECOMMAND
+_DEPACKET.fields_by_name["acknowledge"].message_type = _SINGLEACKNOWLEDGE
+_DEPACKET.fields_by_name["data_header"].message_type = _DATAHEADER
 _DEPACKET_TYPE.containing_type = _DEPACKET
-_SINGLECOMMAND.fields_by_name['parameter'].message_type = _ANYPARAMETER
-_ANYPARAMETER.fields_by_name['type'].enum_type = _ANYPARAMETER_TYPE
+_SINGLECOMMAND.fields_by_name["parameter"].message_type = _ANYPARAMETER
+_ANYPARAMETER.fields_by_name["type"].enum_type = _ANYPARAMETER_TYPE
 _ANYPARAMETER_TYPE.containing_type = _ANYPARAMETER
-_ACKNOWLEDGE.fields_by_name['acknowledge'].message_type = _SINGLEACKNOWLEDGE
-_SINGLEACKNOWLEDGE.fields_by_name['parameter'].message_type = _ANYPARAMETER
-DESCRIPTOR.message_types_by_name['DEPacket'] = _DEPACKET
-DESCRIPTOR.message_types_by_name['SingleCommand'] = _SINGLECOMMAND
-DESCRIPTOR.message_types_by_name['AnyParameter'] = _ANYPARAMETER
-DESCRIPTOR.message_types_by_name['Acknowledge'] = _ACKNOWLEDGE
-DESCRIPTOR.message_types_by_name['SingleAcknowledge'] = _SINGLEACKNOWLEDGE
-DESCRIPTOR.message_types_by_name['DataHeader'] = _DATAHEADER
+_ACKNOWLEDGE.fields_by_name["acknowledge"].message_type = _SINGLEACKNOWLEDGE
+_SINGLEACKNOWLEDGE.fields_by_name["parameter"].message_type = _ANYPARAMETER
+DESCRIPTOR.message_types_by_name["DEPacket"] = _DEPACKET
+DESCRIPTOR.message_types_by_name["SingleCommand"] = _SINGLECOMMAND
+DESCRIPTOR.message_types_by_name["AnyParameter"] = _ANYPARAMETER
+DESCRIPTOR.message_types_by_name["Acknowledge"] = _ACKNOWLEDGE
+DESCRIPTOR.message_types_by_name["SingleAcknowledge"] = _SINGLEACKNOWLEDGE
+DESCRIPTOR.message_types_by_name["DataHeader"] = _DATAHEADER
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
-DEPacket = _reflection.GeneratedProtocolMessageType('DEPacket', (_message.Message,), {
-  'DESCRIPTOR' : _DEPACKET,
-  '__module__' : 'DEServer_pb2'
-  # @@protoc_insertion_point(class_scope:DEMessaging.DEPacket)
-  })
+DEPacket = _reflection.GeneratedProtocolMessageType(
+    "DEPacket",
+    (_message.Message,),
+    {
+        "DESCRIPTOR": _DEPACKET,
+        "__module__": "DEServer_pb2",
+        # @@protoc_insertion_point(class_scope:DEMessaging.DEPacket)
+    },
+)
 _sym_db.RegisterMessage(DEPacket)
 
-SingleCommand = _reflection.GeneratedProtocolMessageType('SingleCommand', (_message.Message,), {
-  'DESCRIPTOR' : _SINGLECOMMAND,
-  '__module__' : 'DEServer_pb2'
-  # @@protoc_insertion_point(class_scope:DEMessaging.SingleCommand)
-  })
+SingleCommand = _reflection.GeneratedProtocolMessageType(
+    "SingleCommand",
+    (_message.Message,),
+    {
+        "DESCRIPTOR": _SINGLECOMMAND,
+        "__module__": "DEServer_pb2",
+        # @@protoc_insertion_point(class_scope:DEMessaging.SingleCommand)
+    },
+)
 _sym_db.RegisterMessage(SingleCommand)
 
-AnyParameter = _reflection.GeneratedProtocolMessageType('AnyParameter', (_message.Message,), {
-  'DESCRIPTOR' : _ANYPARAMETER,
-  '__module__' : 'DEServer_pb2'
-  # @@protoc_insertion_point(class_scope:DEMessaging.AnyParameter)
-  })
+AnyParameter = _reflection.GeneratedProtocolMessageType(
+    "AnyParameter",
+    (_message.Message,),
+    {
+        "DESCRIPTOR": _ANYPARAMETER,
+        "__module__": "DEServer_pb2",
+        # @@protoc_insertion_point(class_scope:DEMessaging.AnyParameter)
+    },
+)
 _sym_db.RegisterMessage(AnyParameter)
 
-Acknowledge = _reflection.GeneratedProtocolMessageType('Acknowledge', (_message.Message,), {
-  'DESCRIPTOR' : _ACKNOWLEDGE,
-  '__module__' : 'DEServer_pb2'
-  # @@protoc_insertion_point(class_scope:DEMessaging.Acknowledge)
-  })
+Acknowledge = _reflection.GeneratedProtocolMessageType(
+    "Acknowledge",
+    (_message.Message,),
+    {
+        "DESCRIPTOR": _ACKNOWLEDGE,
+        "__module__": "DEServer_pb2",
+        # @@protoc_insertion_point(class_scope:DEMessaging.Acknowledge)
+    },
+)
 _sym_db.RegisterMessage(Acknowledge)
 
-SingleAcknowledge = _reflection.GeneratedProtocolMessageType('SingleAcknowledge', (_message.Message,), {
-  'DESCRIPTOR' : _SINGLEACKNOWLEDGE,
-  '__module__' : 'DEServer_pb2'
-  # @@protoc_insertion_point(class_scope:DEMessaging.SingleAcknowledge)
-  })
+SingleAcknowledge = _reflection.GeneratedProtocolMessageType(
+    "SingleAcknowledge",
+    (_message.Message,),
+    {
+        "DESCRIPTOR": _SINGLEACKNOWLEDGE,
+        "__module__": "DEServer_pb2",
+        # @@protoc_insertion_point(class_scope:DEMessaging.SingleAcknowledge)
+    },
+)
 _sym_db.RegisterMessage(SingleAcknowledge)
 
-DataHeader = _reflection.GeneratedProtocolMessageType('DataHeader', (_message.Message,), {
-  'DESCRIPTOR' : _DATAHEADER,
-  '__module__' : 'DEServer_pb2'
-  # @@protoc_insertion_point(class_scope:DEMessaging.DataHeader)
-  })
+DataHeader = _reflection.GeneratedProtocolMessageType(
+    "DataHeader",
+    (_message.Message,),
+    {
+        "DESCRIPTOR": _DATAHEADER,
+        "__module__": "DEServer_pb2",
+        # @@protoc_insertion_point(class_scope:DEMessaging.DataHeader)
+    },
+)
 _sym_db.RegisterMessage(DataHeader)
 
 

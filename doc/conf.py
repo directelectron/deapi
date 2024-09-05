@@ -16,8 +16,8 @@ release = '0.1.0'
 
 extensions = ['sphinx.ext.autodoc',
               "sphinx.ext.autosummary",
-                "sphinx.ext.intersphinx",
-                "sphinx.ext.napoleon",
+              "sphinx.ext.intersphinx",
+              "sphinx.ext.napoleon",
               'sphinx_gallery.gen_gallery',
               ]
 templates_path = ['_templates']

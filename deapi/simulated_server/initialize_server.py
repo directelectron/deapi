@@ -8,6 +8,7 @@ import logging
 import sys
 import time
 
+
 # Defining main function
 def main(port=13241):
 
@@ -25,7 +26,7 @@ def main(port=13241):
             while connected:
                 try:
                     totallen = conn.recv(4)
-                    totallenRecv = struct.unpack('I', totallen)[0]
+                    totallenRecv = struct.unpack("I", totallen)[0]
                     message = conn.recv(totallenRecv)
                     message_packet = pb.DEPacket()
                     message_packet.ParseFromString(message)
@@ -33,7 +34,9 @@ def main(port=13241):
 
                     for r in response:
                         if isinstance(r, pb.DEPacket):
-                            packet = struct.pack("I", r.ByteSize()) + r.SerializeToString()
+                            packet = (
+                                struct.pack("I", r.ByteSize()) + r.SerializeToString()
+                            )
                             conn.send(packet)
                         else:
                             conn.sendall(r)
@@ -41,10 +44,9 @@ def main(port=13241):
                     connected = False
 
 
-
 # Using the special variable
 # __name__
-if __name__=="__main__":
+if __name__ == "__main__":
     if len(sys.argv) > 1:
         main(int(sys.argv[1]))
     else:
