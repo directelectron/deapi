@@ -75,6 +75,8 @@ class TestClient:
         assert isinstance(result, tuple)
         assert len(result) == 4
         assert result[0].shape == (1024, 1024)
+        while client.acquiring:
+            time.sleep(1)
 
     def test_binning_linked_parameters(self, client):
 
@@ -116,6 +118,8 @@ class TestClient:
         assert client.virtual_masks[2][:].shape == (512, 512)
 
     def test_virtual_mask_calculation(self, client):
+
+        client.scan(size_x=10, size_y=10, enable="On")
         client.virtual_masks[2][:] = 2
         client.virtual_masks[2].calculation = "Difference"
         client.virtual_masks[2][1::2] = 0
@@ -123,11 +127,9 @@ class TestClient:
         assert client.virtual_masks[2].calculation == "Difference"
         assert client["Scan - Virtual Detector 2 Calculation"] == "Difference"
         np.testing.assert_allclose(client.virtual_masks[2][::2], 2)
-        client["Frames Per Second"] = 1000
-
-        client.scan(size_x=10, size_y=10, enable="On")
         client.start_acquisition(1)
         while client.acquiring:
             time.sleep(1)
-        result = client.get_result("virtual_image0")
+        result = client.get_result("virtual_image3")
+        assert result is not None
         assert result[0].shape == (10, 10)
