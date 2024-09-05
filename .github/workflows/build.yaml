@@ -22,7 +22,7 @@ jobs:
           - os: ubuntu-latest
             python-version: 3.10
 
-            DEPENDENCIES: protobuf>= 5.0.0
+            DEPENDENCIES: protobuf>= 5.26.0
             LABEL: -oldest
     steps:
       - uses: actions/checkout@v3
