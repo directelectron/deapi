@@ -121,11 +121,13 @@ class TestClient:
         client.virtual_masks[2][1::2] = 0
         client.virtual_masks[2][::2] = 2
         assert client.virtual_masks[2].calculation == "Difference"
-        assert client["Scan - Virtual Mask 3 Calculation"] == "Difference"
+        assert client["Scan - Virtual Detector 2 Calculation"] == "Difference"
         np.testing.assert_allclose(client.virtual_masks[2][::2], 2)
+        client["Frames Per Second"] = 1000
+
         client.scan(size_x=10, size_y=10, enable="On")
         client.start_acquisition(1)
         while client.acquiring:
             time.sleep(1)
-        result = client.get_result("virtual_image1")
+        result = client.get_result("virtual_image0")
         assert result[0].shape == (10, 10)
