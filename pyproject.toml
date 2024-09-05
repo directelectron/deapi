@@ -57,7 +57,9 @@ tests = [
 ]
 doc = [
     "sphinx",
-    "pydata_sphinx_theme"
+    "pydata_sphinx_theme",
+    "sphinx-gallery",
+
 ]
 
 [project.urls]
