@@ -50,7 +50,7 @@ class TestClient:
     def test_start_acquisition_scan_disabled(self, client):
         client["Frames Per Second"] = 1000
         client.scan(enable="Off")
-        client.start_acquisition(1)
+        client.start_acquisition(10)
         assert client.acquiring
         while client.acquiring:
             time.sleep(1)
