@@ -1,4 +1,5 @@
-# File containing the data types used in the DE API
+"""File containing the data types used in the DE API"""
+
 #
 # Last update: 2024-08-07
 # cfrancis@directelectron.com
@@ -6,9 +7,12 @@
 
 from enum import Enum
 from enum import IntEnum
-from warnings import warn
+import warnings
+
 
 class FrameType(Enum):
+    """An Enum of the different frame types that can be returned by the DE API"""
+
     NONE = 0
     AUTO = 1
     CRUDEFRAME = 2
@@ -90,6 +94,8 @@ class FrameType(Enum):
 
 
 class PixelFormat(Enum):
+    """An Enum describing the pixel format of the image data returned by the DE API"""
+
     UINT8 = 1  # 8-bit integer
     UINT16 = 5  # 16-bit integer
     FLOAT32 = 13  # 32-bit float
@@ -97,6 +103,8 @@ class PixelFormat(Enum):
 
 
 class DataType(Enum):
+    """An Enum describing the data type of the image data returned by the DE API"""
+
     DEUndef = -1
     DE8u = 1
     DE16u = 5
@@ -105,6 +113,8 @@ class DataType(Enum):
 
 
 class MovieBufferStatus(Enum):
+    """An Enum describing the status of the movie buffer in the DE API"""
+
     UNKNOWN = 0
     FAILED = 1
     TIMEOUT = 3
@@ -113,6 +123,8 @@ class MovieBufferStatus(Enum):
 
 
 class ContrastStretchType(IntEnum):
+    """An Enum describing the different types of contrast stretching that can be applied to an image"""
+
     NONE = 0
     MANUAL = 1
     LINEAR = 2
@@ -124,68 +136,158 @@ class ContrastStretchType(IntEnum):
 
 
 class Attributes:
-    centerX = 0  # In:  x coordinate of the center of the original image to pan to
-    centerY = 0  # In:  y coordinate of the center of the original image to pan to
-    zoom = 1.0  # In:  zoom level on the returned image
-    windowWidth = 0  # In:  Width of the returned image in pixels
-    windowHeight = 0  # In:  Height of the returned image in pixels
-    fft = False  # In:  request to return the FFT of the image
-    linearStretch = False
-    stretchType = (
-        ContrastStretchType.LINEAR
-    )  # In: Contrast Stretch type. It is Linear by default TODO: enum
-    manualStretchMin = 0.0  # In: Manual Stretch Minimum is adjusted by the user when the contrast stretch type is Manual.
-    manualStretchMax = 0.0  # In: Manual Stretch Maximum is adjusted by the user when the contrast stretch type is Manual.
-    manualStretchGamma = 1.0  # In: Manual Stretch Gamma is adjusted by the user when the contrast stretch type is Manual.
-    outlierPercentage = 2.0  # In:  Percentage of outlier pixels at each end of the image histogram to ignore during contrast stretching if linearStretch is true.
-    buffered = False  # In:  Deprecated attribute, please use GetMovieBuffer to get all movie frames
-    timeoutMsec = -1  # In:  Timeout in milliseconds for GetResult call.
-    frameWidth = 0  # Out: Width of the processed image in pixels before panning and zooming. This matches the size of the saved images.
-    frameHeight = 0  # Out: Height of the processed image in pixels before panning and zooming. This matches the size of the saved images.
-    datasetName = None  # Out: Data set name that the retrieved frame belongs to. Each repeat of acquisition has its own unique dataset name. e.g. 20210902_00081
-    acqIndex = 0  # Out: Zero-based acquisition index. Incremented after each repeat of acquisition, up to one less of the numberOfAcquisitions parameter of the StartAcquisition call
-    acqFinished = False  # Out: Indicates whether the current acquisition is finished.
-    imageIndex = 0  # Out: Zero-based index within the acquisition that the retrieved frame belongs to
-    frameCount = 0  # Out: Number of frames summed up to make the returned image
-    imageMin = 0  # Out: Minimum pixel value of the retrieved image.
-    imageMax = 0  # Out: Maximum pixel value of the retrieved image.
-    imageMean = 0  # Out: Mean pixel values of the retrieved image.
-    imageStd = 0  # Out: Standard deviation of pixel values of the retrieved image.
-    eppix = 0  # Out: The mean total electrons per pixel calculated for the acquisition.
-    eps = 0  # Out: The mean total electrons per second over the entire readout area for the acquisition.
-    eppixps = 0  # Out: The mean electrons per pixel per second calculated for the acquisition.
-    epa2 = 0  # Out: The mean total electrons per square Angstrom calculated for the acquisition.
-    eppixpf = (
-        0  # Out: The mean electrons per pixel per frame calculated for the acquisition.
-    )
-    eppix_incident = 0  # Out: The incident mean total electrons per pixel calculated for the acquisition.
-    eps_incident = 0  # Out: The incident mean total electrons per second over the entire readout area for the acquisition.
-    eppixps_incident = 0  # Out: The incident mean electrons per pixel per second calculated for the acquisition.
-    epa2_incident = 0  # Out: The incident mean total electrons per square Angstrom calculated for the acquisition.
-    eppixpf_incident = 0  # Out: The incident mean electrons per pixel per frame calculated for the acquisition.
-    underExposureRate = 0  # Out: Percentage of pixels under the Statistics - Underexposure Mark (percentage) property value.
-    overExposureRate = 0  # Out: Percentage of pixels over the Statistics - Overexposure Mark (percentage) property value.
-    timestamp = 0  # Out: Timestamp in seconds since the Unix epoch time when the frame arrived at the computer.
-    autoStretchMin = (
-        0.0  # Out: Auto Stretch Minimum is returned by getAsyncOutput in server.
-    )
-    autoStretchMax = (
-        0.0  # Out: Auto Stretch Maximum is returned by getAsyncOutput in server.
-    )
-    autoStretchGamma = (
-        1.0  # Out: Auto Stretch Gamma is returned by getAsyncOutput in server.
-    )
-    saturation = 0.0
+    """Class to hold attributes for getting the result of an image acquisition
+
+    Parameters
+    ----------
+    center_x : float, optional
+        Center x coordinate of the image
+    center_y : float, optional
+        Center y coordinate of the image
+    zoom : float, optional
+        Zoom level of the image
+    window_width : int, optional
+        Width of the window in pixels
+    window_height : int, optional
+        Height of the window in pixels
+    fft : bool, optional
+        Whether the image is in Fourier space
+    linear_stretch : bool, optional
+        Whether to apply linear stretching to the image
+    stretch_type : int, optional
+        Type of contrast stretching to apply
+    manual_stretch_min : float, optional
+        Minimum value for manual contrast stretching
+    manual_stretch_max : float, optional
+        Maximum value for manual contrast stretching
+    manual_stretch_gamma : float, optional
+        Gamma value for manual contrast stretching
+
+
+    """
+
+    def __init__(
+        self,
+        center_x: int = 0,
+        center_y: int = 0,
+        zoom: float = 1.0,
+        window_width: int = 0,
+        window_height: int = 0,
+        fft: bool = False,
+        linear_stretch: bool = False,
+        stretch_type: int = ContrastStretchType.LINEAR,
+        manual_stretch_min: float = 0.0,
+        manual_stretch_max: float = 0.0,
+        manual_stretch_gamma: float = 1.0,
+        outlier_percentage: float = 2.0,
+        buffered: bool = False,
+        timeout_msec: float = -1,
+        frame_width: int = 0,
+        frame_height: int = 0,
+        dataset_name: str = None,
+        acq_index: int = 0,
+        acq_finished: bool = False,
+        image_index: int = 0,
+        frame_count: int = 0,
+        image_min: float = 0,
+        image_max: float = 0,
+        image_mean: float = 0,
+        image_std: float = 0,
+        eppix: float = 0,
+        eps: float = 0,
+        eppixps: float = 0,
+        epa2: float = 0,
+        eppixpf=0,
+        eppix_incident=0,
+        eps_incident=0,
+        eppixps_incident=0,
+        epa2_incident=0,
+        eppixpf_incident=0,
+        under_exposure_rate=0,
+        over_exposure_rate=0,
+        timestamp=0,
+        auto_stretch_min=0.0,
+        auto_stretch_max=0.0,
+        auto_stretch_gamma=1.0,
+        saturation=0.0,
+    ):
+
+        self.centerX = center_x
+        self.centerY = center_y
+        self.zoom = zoom
+        self.windowWidth = window_width
+        self.windowHeight = window_height
+        self.fft = fft
+        self.linearStretch = linear_stretch
+        self.stretchType = stretch_type
+        self.manualStretchMin = manual_stretch_min
+        self.manualStretchMax = manual_stretch_max
+        self.manualStretchGamma = manual_stretch_gamma
+        self.outlierPercentage = outlier_percentage
+        self.buffered = buffered
+        self.timeoutMsec = timeout_msec
+        self.frameWidth = frame_width
+        self.frameHeight = frame_height
+        self.datasetName = dataset_name
+        self.acqIndex = acq_index
+        self.acqFinished = acq_finished
+        self.imageIndex = image_index
+        self.frameCount = frame_count
+        self.imageMin = image_min
+        self.imageMax = image_max
+        self.imageMean = image_mean
+        self.imageStd = image_std
+        self.eppix = eppix
+        self.eps = eps
+        self.eppixps = eppixps
+        self.epa2 = epa2
+        self.eppixpf = eppixpf
+        self.eppix_incident = eppix_incident
+        self.eps_incident = eps_incident
+        self.eppixps_incident = eppixps_incident
+        self.epa2_incident = epa2_incident
+        self.eppixpf_incident = eppixpf_incident
+        self.underExposureRate = under_exposure_rate
+        self.overExposureRate = over_exposure_rate
+        self.timestamp = timestamp
+        self.autoStretchMin = auto_stretch_min
+        self.autoStretchMax = auto_stretch_max
+        self.autoStretchGamma = auto_stretch_gamma
+        self.saturation = saturation
 
 
 class Histogram:
-    min = 0.0  # In/Out: minimum histogram value, if min and max is set to the same value, or in trial of gain acquisition mode, the server will determine this value.
-    max = 0.0  # In/Out: maximum histogram value, if min and max is set to the same value, or in trial of gain acquisition mode, the server will determine this value.
-    upperMostLocalMaxima = 0  # In/Out: upper local max histogram value
-    bins = (
-        256  # In:     number of bins requested, 0 means histogram data is not requested
-    )
-    data = None  # Out:    buffer containing histogram data
+    """Class to hold the histogram data from an image acquisition
+
+    Parameters
+    ----------
+    min : float, optional
+        minimum histogram value, if min and max is set to the same value, or in trial of gain acquisition mode,
+        the server will determine this value.
+    max : float, optional
+        maximum histogram value, if min and max is set to the same value, or in trial of gain acquisition mode,
+        the server will determine this value.
+    upper_most_local_maxima : int, optional
+        upper local max histogram value
+    bins : int, optional
+        number of bins requested, 0 means histogram data is not requested
+    data : list, optional
+        buffer containing histogram data
+    """
+
+    def __init__(
+        self,
+        min: float = 0.0,
+        max: float = 0.0,
+        upper_most_local_maxima: int = 0,
+        bins: int = 256,
+        data=None,
+    ):
+        self.min = min
+        self.max = max
+        self.upperMostLocalMaxima = upper_most_local_maxima
+        self.bins = bins
+        self.data = data
 
 
 class MovieBufferInfo:
@@ -211,14 +313,18 @@ class MovieBufferInfo:
     imageDataType : int
         Data type of the image
     """
-    def __init__(self, headerBytes: int=0,
-                 imageBufferBytes: int=0,
-                 frameIndexStartPos: int=0,
-                 imageStartPos: int=0,
-                 imageW: int=0,
-                 imageH: int=0,
-                 framesInBuffer: int=0,
-                 imageDataType: int = DataType.DEUndef):
+
+    def __init__(
+        self,
+        headerBytes: int = 0,
+        imageBufferBytes: int = 0,
+        frameIndexStartPos: int = 0,
+        imageStartPos: int = 0,
+        imageW: int = 0,
+        imageH: int = 0,
+        framesInBuffer: int = 0,
+        imageDataType: int = DataType.DEUndef,
+    ):
 
         self.headerBytes = headerBytes
         self.imageBufferBytes = imageBufferBytes
@@ -238,6 +344,40 @@ class MovieBufferInfo:
 
 
 class PropertySpec:
+    """Class to hold the specification of a property in the DE API
+
+    Parameters
+    ----------
+    data_type : str, optional
+        Data type of the property
+    value_type : str, optional
+        Value type of the property
+    category : str, optional
+        Category of the property
+    options : list, optional
+        List of options for the property
+    default_value : str, optional
+        Default value of the property
+    current_value : str, optional
+        Current value of the property
+    """
+
+    def __init__(
+        self,
+        data_type: str = None,
+        value_type: str = None,
+        category: str = None,
+        options: list = None,
+        default_value=None,
+        current_value=None,
+    ):
+        self.dataType = data_type
+        self.valueType = value_type
+        self.category = category
+        self.options = options
+        self.defaultValue = default_value
+        self.currentValue = current_value
+
     dataType = None  # "String"   | "Integer"  | "Float"
     valueType = None  # "ReadOnly" | "Set"      | "Range"       | "AllowAll"
     category = (
@@ -267,6 +407,7 @@ class PropertyCollection:
     names that start with the same string. For example, the properties "Group - Property 1"
     would allow access to the property using client.group["Property 1"]
     """
+
     def __init__(self, client, name, properties):
         self.properties = {}
         self.client = client
@@ -381,6 +522,7 @@ class VirtualMask:
     This class is mostly used via the client.virtual_masks property which is a list
     of VirtualMask objects.
     """
+
     def __init__(self, client, index):
         self.client = client
         self.index = index
@@ -392,7 +534,9 @@ class VirtualMask:
     def __setitem__(self, key, value):
         string = f"Scan - Virtual Detector {self.index} Shape"
         if not self.client[string] == "Arbitrary":
-            warn("Virtual mask shape is not set to Arbitrary. Setting to Arbitrary.")
+            warnings.warn(
+                "Virtual mask shape is not set to Arbitrary. Setting to Arbitrary."
+            )
             self.client[string] = "Arbitrary"
         full_img = self.client.get_virtual_mask(self.index)
         if value > 3 or value < 0:
@@ -431,14 +575,12 @@ class VirtualMask:
 
     @property
     def calculation(self):
-        """Calculation mode for the virtual mask
-        """
+        """Calculation mode for the virtual mask"""
         string = f"Scan - Virtual Detector {self.index} Calculation"
         return self.client[string]
 
     @calculation.setter
     def calculation(self, value):
-        """Set the calculation mode for the virtual mask
-        """
+        """Set the calculation mode for the virtual mask"""
         string = f"Scan - Virtual Detector {self.index} Calculation"
         self.client[string] = value

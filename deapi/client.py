@@ -58,6 +58,18 @@ log.info("logLevel  : " + str(logging.getLevelName(logLevel)))
 
 
 class Client:
+    """A class for connecting to the DE-Server
+
+    Examples
+    --------
+    >>> client = Client()
+    >>> client.connect()
+    >>> client["Exposure Time (seconds)"]
+    """
+
+    def __init__(self):
+        pass
+
     def __str__(self):
         return f"Client(host={self.host}, port={self.port}, camera={self.get_current_camera()})"
 
@@ -399,6 +411,7 @@ class Client:
 
     @property
     def acquiring(self):
+        """Check if the camera is currently acquiring images. (bool)"""
         return self.get_property("Acquisition Status") == "Acquiring"
 
     # Set the value of a property of the current camera on DE-Server

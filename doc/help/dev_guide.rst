@@ -11,16 +11,16 @@ Formatting:
 -----------
 
 - The `deapi` uses the `numpydoc <https://numpydoc.readthedocs.io/en/latest/format.html>`_ style for docstrings.
-This is a standardized format that is used in the scientific Python community.  In order to render the documentation
-correctly, it is important to follow this style.
-
+  This is a standardized format that is used in the scientific Python community.  In order to render the documentation
+  correctly, it is important to follow this style.
 - The `deapi` uses the `black <https://black.readthedocs.io/en/stable/>`_ code formatter.  The best way to ensure that
-your code is formatted correctly is to use pre-commit hooks.  This can be done by installing the pre-commit package
-and running the following command in the root directory of the `deapi` repository:
+  your code is formatted correctly is to use pre-commit hooks.  This can be done by installing the pre-commit package
+  and running the following command in the root directory of the `deapi` repository:
 
-  .. code-block::
 
-      pre-commit install
+.. code-block::
+
+    pre-commit install
 
 Then every time you commit changes to the repository, the pre-commit hooks will run and format the code for you. If
 you are having trouble with the pre-commit hooks, GitHub actions will also run the pre-commit hooks for you and
@@ -40,20 +40,23 @@ The General Workflow is as follows:
     the forked repository to your local machine.
 3. Create a new branch for your changes using the following command:
 
-   .. code-block::
+.. code-block::
 
-       git checkout -b <branch-name>
+    git checkout -b <branch-name>
+
 4. Make your changes to the code.
 5. Commit your changes to the branch using the following command:
 
-   .. code-block::
+.. code-block::
 
-       git commit -m "A message describing the changes"
+    git commit -m "A message describing the changes"
+
 6. Push the changes to the forked repository using the following command:
 
-   .. code-block::
+.. code-block::
 
-       git push origin <branch-name>
+    git push origin <branch-name>
+
 7. Create a `pull request <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request>`_
 8. The changes will be reviewed by the maintainers and merged into the repository. Note feel free to make a PR early
    if you are unsure about the direction of your changes.  We are happy to help guide you in the right direction!
