@@ -12,7 +12,7 @@ jobs:
   build-with-pip:
     name: ${{ matrix.os }}-py${{ matrix.python-version }}${{ matrix.LABEL }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 45
+    timeout-minutes: 5
     strategy:
       fail-fast: false
       matrix:
