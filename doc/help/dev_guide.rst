@@ -86,3 +86,5 @@ default port and host. You can also specify the host and port using the followin
 
     pytest tests/ --server --host <host> --port <port>
 
+This will also run a subset of the tests that require a full DEServer to be running. These tests are marked with the
+`@pytest.mark.server` decorator.
