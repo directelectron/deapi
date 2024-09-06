@@ -77,7 +77,12 @@ If you have a real DEServer running on a different machine, you can run the test
 
 .. code-block::
 
-    pytest tests/ --server <address> --port <port>
+    pytest tests/ --server
 
-This will run the tests using the DEServer at the specified address and port for the tests.
+This will run the tests using the DEServer at the specified address and port for the tests using the
+default port and host. You can also specify the host and port using the following command:
+
+.. code-block::
+
+    pytest tests/ --server --host <host> --port <port>
 
