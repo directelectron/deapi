@@ -9,12 +9,15 @@ import argparse
 
 
 # Defining main function
-def main(port=13240):
+def main(port=13241):
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", type=int, help="Port to listen on")
-    args = parser.parse_args()
-    if args.port:
-        port = args.port
+    try:
+        args = parser.parse_args()
+        if args.port:
+            port = args.port
+    except:
+        pass
 
     HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
     PORT = port  # Port to listen on (non-privileged ports are > 1023)
