@@ -209,9 +209,6 @@ class Client:
         self.image_sizex = self["Image Size X (pixels)"]
         self.image_sizey = self["Image Size Y (pixels)"]
 
-    def plot_virtual_masks(self):
-        pass
-
     def disconnect(self):
         """
         Disconnects from the server.
@@ -1219,10 +1216,12 @@ class Client:
 
         return filePath
 
-    def print_server_info(self, camera):
+    def print_server_info(self, camera=None):
         """
         Print out the server information
         """
+        if camera is None:
+            camera = self["Camera Name"]
         print("Time        : " + datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
         print("Computer    : " + socket.gethostname())
         print("DE-Server   : " + self.GetProperty("Server Software Version"))

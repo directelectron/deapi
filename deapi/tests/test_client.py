@@ -133,3 +133,10 @@ class TestClient:
         result = client.get_result("virtual_image3")
         assert result is not None
         assert result[0].shape == (10, 10)
+
+    def test_property_spec_set(self, client):
+        client.set_property("Binning Y", 2)
+        sp = client.get_property_spec("Binning Y")
+        assert isinstance(sp, PropertySpec)
+        assert sp.currentValue == "2"
+        assert sp.options == ["1", "2", "4", "8"]
