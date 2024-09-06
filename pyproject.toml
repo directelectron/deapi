@@ -69,3 +69,6 @@ Conda-forge = "https://anaconda.org/conda-forge/hyperspy"
 Homepage = "https://hyperspy.org"
 Support = "https://gitter.im/hyperspy/hyperspy"
 Source = "https://github.com/hyperspy/hyperspy"
+
+[project.scripts]
+pydeserver = "deapi.simulated_server.initialize_server:main"
