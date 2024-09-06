@@ -10,7 +10,7 @@ import time
 
 
 # Defining main function
-def main(port=13241):
+def main(port=13240):
 
     HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
     PORT = port  # Port to listen on (non-privileged ports are > 1023)

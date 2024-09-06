@@ -413,5 +413,13 @@
     "category":"Basic",
     "options":"0.0, 1000000.0, '0.0 - 1000000.0'",
     "default_value":"1000"
+  },
+  "Camera Name":{
+    "value":"TestCamera",
+    "data_type":"String",
+    "value_type":"AllowAll",
+    "category":"Basic",
+    "options":"",
+    "default_value":"Camera"
   }
 }

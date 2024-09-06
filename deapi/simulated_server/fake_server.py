@@ -46,6 +46,7 @@ class Property:
         category,
         value_type,
         options,
+        default_value=None,
         set_expression=None,
         get_expression=None,
         set_also_expressions=None,
@@ -58,6 +59,7 @@ class Property:
         self.options = options
         self.server = server
         self._value = value
+        self.default_value = default_value
         self.set_expression = set_expression
         self.get_expression = get_expression
         self.set_also_expressions = set_also_expressions
@@ -161,6 +163,7 @@ class FakeServer:
                     category=values[v]["category"],
                     value_type=values[v]["value_type"],
                     options=values[v]["options"],
+                    default_value=values[v]["default_value"],
                     server=self,
                     set_expression=values[v].get("set", None),
                     get_expression=values[v].get("get", None),
@@ -381,27 +384,29 @@ class FakeServer:
             name.replace(" ", "_").lower().replace("(", "").replace(")", "")
         ]
 
-        str_mapping = {
-            "value": "Value",
-            "category": "Category",
-            "data_type": "Data Type",
-            "value_type": "Value Type",
-        }
+        list_props = [
+            "data_type",
+            "value_type",
+            "category",
+            "options",
+            "default_value",
+            "value",
+        ]
 
-        for key, value in str_mapping.items():
+        for key in list_props:
             param = ack1.parameter.add()
-            if isinstance(prop_dict[key], bool):
+            if isinstance(getattr(prop_dict, key), bool):
                 param.type = pb.AnyParameter.P_BOOL
-                param.p_bool = prop_dict[key]
-            elif isinstance(prop_dict[key], int):
+                param.p_bool = getattr(prop_dict, key)
+            elif isinstance(getattr(prop_dict, key), int):
                 param.type = pb.AnyParameter.P_INT
-                param.p_int = prop_dict[key]
-            elif isinstance(prop_dict[key], float):
+                param.p_int = getattr(prop_dict, key)
+            elif isinstance(getattr(prop_dict, key), float):
                 param.type = pb.AnyParameter.P_FLOAT
-                param.p_float = prop_dict[key]
+                param.p_float = getattr(prop_dict, key)
             else:
                 param.type = pb.AnyParameter.P_STRING
-                param.p_string = prop_dict[key]
+                param.p_string = getattr(prop_dict, key)
 
         return (acknowledge_return,)
 
