@@ -67,13 +67,3 @@ jobs:
         uses: codecov/codecov-action@v4
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
-
-  coveralls-finish:
-    needs: build-with-pip
-    runs-on: ubuntu-latest
-    steps:
-      - name: Coveralls finished
-        uses: AndreMiras/coveralls-python-action@develop
-        with:
-          parallel-finished: true
