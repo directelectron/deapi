@@ -9,6 +9,7 @@ import numpy as np
 from deapi.client import Client
 
 
+# Modifying pytest run options
 def pytest_addoption(parser):
     parser.addoption(
         "--server",
@@ -20,6 +21,23 @@ def pytest_addoption(parser):
         "--host", action="store", default="127.0.0.1", help="host to connect to"
     )
     parser.addoption("--port", action="store", default=13240, help="port to connect to")
+
+
+def pytest_configure(config):
+    config.addinivalue_line(
+        "markers", "server: mark tests that require the full DEServer"
+    )
+
+
+def pytest_collection_modifyitems(config, items):
+    if config.getoption("--server"):
+        # Do not skip server tests
+        return
+    else:  # pragma: no cover
+        skip_server = pytest.mark.skip(reason="need --server option to run")
+        for item in items:
+            if "server" in item.keywords:
+                item.add_marker(skip_server)
 
 
 @pytest.fixture(scope="module")

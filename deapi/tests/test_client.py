@@ -134,6 +134,7 @@ class TestClient:
         assert result is not None
         assert result[0].shape == (10, 10)
 
+    @pytest.mark.server
     def test_property_spec_set(self, client):
         client.set_property("Binning Y", 2)
         sp = client.get_property_spec("Binning Y")
