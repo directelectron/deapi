@@ -21,7 +21,7 @@ def main(port=13240):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
         server_socket.bind((HOST, PORT))
         server_socket.listen()
-        sys.stderr.write("Server started.... \n\n")
+        sys.stderr.write("started .... \n\n")
         sys.stderr.flush()
         sys.stderr.write(
             "Waiting for a Connection to: \n"
