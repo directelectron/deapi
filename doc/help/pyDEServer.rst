@@ -10,7 +10,7 @@ The pyDEServer can be started by running the following command:
 
 .. code-block::
 
-    pyDEServer --port 13241
+    pydeserver --port 13241
 
 Motivation
 ----------
