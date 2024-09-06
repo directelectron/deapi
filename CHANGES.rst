@@ -15,3 +15,4 @@ Unreleased
 - Added a python based DEServer for testing purposes
 - Update the Testing to allow for a real DEServer to be used for testing (#7)
 - Add support for `@pytest.mark.server` decorator for tests that require a full DEServer to be running (#7)
+- Add a commandline interface for the pydeserver. (#8) Running `pydeserver --port 13241` will start the server on port 13241
