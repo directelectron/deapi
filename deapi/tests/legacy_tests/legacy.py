@@ -47,6 +47,8 @@ class TestFPS01:
         assert frameCount == fps * exposure
     """
 
+class
+
 
 class TestReferences07:
     @pytest.mark.server
