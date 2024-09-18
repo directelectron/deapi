@@ -1,4 +1,6 @@
 import sys
+import time
+
 import pytest
 import pathlib
 from xprocess import ProcessStarter
@@ -51,6 +53,7 @@ def client(xprocess, request):
             port=request.config.getoption("--port"),
         )
         yield c
+        time.sleep(4)
         c.disconnect()
         return
     else:
