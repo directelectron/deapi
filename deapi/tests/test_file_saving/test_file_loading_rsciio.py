@@ -38,9 +38,3 @@ class TestSavingHyperSpy:
             assert s.data.shape == (64, 1024, 1024)
         else:
             assert s.data.shape == (1024, 1024, 8,8)
-
-
-
-
-
-
