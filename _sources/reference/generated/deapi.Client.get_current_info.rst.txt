@@ -1,0 +1,6 @@
+get\_current\_info
+==================
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.get_current_info

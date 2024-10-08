@@ -1,0 +1,6 @@
+print\_acquisition\_info
+========================
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.print_acquisition_info

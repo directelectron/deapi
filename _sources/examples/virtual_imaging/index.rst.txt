@@ -1,0 +1,62 @@
+
+
+.. _sphx_glr_examples_virtual_imaging:
+
+Virtual Imaging
+===============
+These examples demonstrate how to do live virtual imaging in the deapi
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Virtual images are easily created from a series of (currently) 4 seperate masks. These masks are 8 bit images with values:">
+
+.. only:: html
+
+  .. image:: /examples/virtual_imaging/images/thumb/sphx_glr_setting_virtual_masks_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_virtual_imaging_setting_virtual_masks.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Creating a Custom Virtual Mask</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The virtual images are created by summing or subtracting the pixel values of the input image based on the values of the virtual masks. The virtual masks are 8-bit images with values: - 0: Negative Mask, pixel values subtracted - 1: Default value, pixels not accounted for - 2: Positive Mask, pixel values added">
+
+.. only:: html
+
+  .. image:: /examples/virtual_imaging/images/thumb/sphx_glr_vdf_vbf_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_virtual_imaging_vdf_vbf.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Virtual Dark/Bright Field (VDF/VBF) Imaging</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/virtual_imaging/setting_virtual_masks
+   /examples/virtual_imaging/vdf_vbf
+

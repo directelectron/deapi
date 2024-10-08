@@ -1,0 +1,9 @@
+width
+=====
+
+.. currentmodule:: deapi
+
+.. autoproperty:: Client.width
+
+.. minigallery:: deapi.Client.width
+    :add-heading: Examples using ``Client.width``

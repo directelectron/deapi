@@ -1,0 +1,6 @@
+property\_valid\_values
+=======================
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.property_valid_values

@@ -1,0 +1,6 @@
+start\_acquisition
+==================
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.start_acquisition

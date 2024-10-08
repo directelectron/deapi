@@ -1,0 +1,38 @@
+﻿VirtualMask
+===========
+
+.. currentmodule:: deapi
+
+.. autoclass:: VirtualMask
+
+    
+    
+    .. rubric:: Attributes
+
+    .. autosummary::
+        :toctree:
+        :template: custom-attribute-template.rst
+        
+        
+        VirtualMask.calculation
+        
+    
+    
+
+    
+    
+    .. rubric:: Methods
+
+    .. autosummary::
+        :toctree:
+        :template: custom-method-template.rst
+        
+        
+        
+        VirtualMask.plot
+        
+    
+    
+
+.. minigallery:: deapi.VirtualMask
+    :add-heading: Examples using ``VirtualMask``

@@ -1,0 +1,9 @@
+signal
+======
+
+.. currentmodule:: deapi.fake_data
+
+.. autoproperty:: BaseFakeData.signal
+
+.. minigallery:: deapi.fake_data.BaseFakeData.signal
+    :add-heading: Examples using ``BaseFakeData.signal``

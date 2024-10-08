@@ -1,0 +1,38 @@
+BaseFakeData
+============
+
+.. currentmodule:: deapi.fake_data
+
+.. autoclass:: BaseFakeData
+
+    
+    
+    .. rubric:: Attributes
+
+    .. autosummary::
+        :toctree:
+        :template: custom-attribute-template.rst
+        
+        
+        BaseFakeData.signal
+        
+    
+    
+
+    
+    
+    .. rubric:: Methods
+
+    .. autosummary::
+        :toctree:
+        :template: custom-method-template.rst
+        
+        
+        
+        BaseFakeData.get_virtual_image
+        
+    
+    
+
+.. minigallery:: deapi.fake_data.BaseFakeData
+    :add-heading: Examples using ``BaseFakeData``

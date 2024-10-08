@@ -1,0 +1,25 @@
+﻿Histogram
+=========
+
+.. currentmodule:: deapi
+
+.. autoclass:: Histogram
+
+    
+    
+    
+
+    
+    
+    .. rubric:: Methods
+
+    .. autosummary::
+        :toctree:
+        :template: custom-method-template.rst
+        
+        
+    
+    
+
+.. minigallery:: deapi.Histogram
+    :add-heading: Examples using ``Histogram``

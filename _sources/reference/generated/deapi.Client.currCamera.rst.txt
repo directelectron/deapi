@@ -1,0 +1,9 @@
+currCamera
+==========
+
+.. currentmodule:: deapi
+
+.. autoproperty:: Client.currCamera
+
+.. minigallery:: deapi.Client.currCamera
+    :add-heading: Examples using ``Client.currCamera``

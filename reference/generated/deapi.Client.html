@@ -1,0 +1,807 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Client &#8212; deapi 0.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'reference/generated/deapi.Client';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="acquiring" href="deapi.Client.acquiring.html" />
+    <link rel="prev" title="Reference" href="../index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/de_api_icon.svg" class="logo__image only-light" alt="deapi 0.1.0 documentation - Home"/>
+    <script>document.write(`<img src="../../_static/de_api_icon.svg" class="logo__image only-dark" alt="deapi 0.1.0 documentation - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../intro.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../changes.html">
+    Changes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../help/index.html">
+    Get Help
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../intro.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../changes.html">
+    Changes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../help/index.html">
+    Get Help
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">Client</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.acquiring.html">acquiring</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.cameras.html">cameras</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.connected.html">connected</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.currCamera.html">currCamera</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.debugImagesFolder.html">debugImagesFolder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.exposureTime.html">exposureTime</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.height.html">height</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.host.html">host</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.mmf.html">mmf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.port.html">port</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.refreshProperties.html">refreshProperties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.usingMmf.html">usingMmf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.width.html">width</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.connect.html">connect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.disconnect.html">disconnect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.getProperty.html">getProperty</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.get_current_camera.html">get_current_camera</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.get_current_info.html">get_current_info</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.get_image.html">get_image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.get_movie_buffer.html">get_movie_buffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.get_movie_buffer_info.html">get_movie_buffer_info</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.get_properties.html">get_properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.get_property.html">get_property</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.get_property_spec.html">get_property_spec</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.get_result.html">get_result</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.get_time.html">get_time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.get_virtual_mask.html">get_virtual_mask</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.grab.html">grab</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.gui.html">gui</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.list_cameras.html">list_cameras</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.list_properties.html">list_properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.print_acquisition_info.html">print_acquisition_info</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.print_saving_info.html">print_saving_info</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.print_server_info.html">print_server_info</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.property_valid_values.html">property_valid_values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.save_image.html">save_image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.setEngMode.html">setEngMode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.setProperty.html">setProperty</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.set_current_camera.html">set_current_camera</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.set_engineering_mode.html">set_engineering_mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.set_hw_roi.html">set_hw_roi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.set_hw_roi_and_get_changed_properties.html">set_hw_roi_and_get_changed_properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.set_property.html">set_property</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.set_property_and_get_changed_properties.html">set_property_and_get_changed_properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.set_sw_roi.html">set_sw_roi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.set_sw_roi_and_get_changed_properties.html">set_sw_roi_and_get_changed_properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.set_virtual_mask.html">set_virtual_mask</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.start_acquisition.html">start_acquisition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.stop_acquisition.html">stop_acquisition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.take_dark_reference.html">take_dark_reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.update_image_size.html">update_image_size</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.update_scan_size.html">update_scan_size</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.Client.wait_for_saving_files.html">wait_for_saving_files</a></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="deapi.VirtualMask.html">VirtualMask</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="deapi.VirtualMask.calculation.html">calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.VirtualMask.plot.html">plot</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="deapi.PropertyCollection.html">PropertyCollection</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="deapi.PropertyCollection.gui.html">gui</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="deapi.Attributes.html">Attributes</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="deapi.PropertySpec.html">PropertySpec</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="deapi.PropertySpec.category.html">category</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.PropertySpec.currentValue.html">currentValue</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.PropertySpec.dataType.html">dataType</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.PropertySpec.defaultValue.html">defaultValue</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.PropertySpec.options.html">options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.PropertySpec.valueType.html">valueType</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="deapi.FrameType.html">FrameType</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deapi.PixelFormat.html">PixelFormat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deapi.DataType.html">DataType</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="deapi.MovieBufferInfo.html">MovieBufferInfo</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="deapi.MovieBufferInfo.total_bytes.html">total_bytes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deapi.MovieBufferInfo.to_buffer.html">to_buffer</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="deapi.MovieBufferStatus.html">MovieBufferStatus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deapi.Histogram.html">Histogram</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="deapi.fake_data.html">fake_data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="deapi.fake_data.BaseFakeData.html">BaseFakeData</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="deapi.fake_data.BaseFakeData.signal.html">signal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="deapi.fake_data.BaseFakeData.get_virtual_image.html">get_virtual_image</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="deapi.fake_data.TiltGrains.html">TiltGrains</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="deapi.fake_data.TiltGrains.create_fake_diffraction_data.html">create_fake_diffraction_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="deapi.fake_data.TiltGrains.create_grains.html">create_grains</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">Client</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="client">
+<h1>Client<a class="headerlink" href="#client" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="deapi.Client">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">deapi.</span></span><span class="sig-name descname"><span class="pre">Client</span></span><a class="headerlink" href="#deapi.Client" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class for connecting to the DE-Server</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="p">[</span><span class="s2">&quot;Exposure Time (seconds)&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p class="rubric">Attributes</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="deapi.Client.acquiring.html#deapi.Client.acquiring" title="deapi.Client.acquiring"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.acquiring</span></code></a></p></td>
+<td><p>Check if the camera is currently acquiring images.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.cameras</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.connected</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.currCamera</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.debugImagesFolder</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.exposureTime</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.height</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.host</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.mmf</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.port</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.refreshProperties</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.usingMmf</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.width</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="rubric">Methods</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="deapi.Client.connect.html#deapi.Client.connect" title="deapi.Client.connect"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.connect</span></code></a>([host, port])</p></td>
+<td><p>Connect to DE-Server</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="deapi.Client.disconnect.html#deapi.Client.disconnect" title="deapi.Client.disconnect"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.disconnect</span></code></a>()</p></td>
+<td><p>Disconnects from the server.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="deapi.Client.getProperty.html#deapi.Client.getProperty" title="deapi.Client.getProperty"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.getProperty</span></code></a>(propertyName)</p></td>
+<td><p>Get the value of a property of the current camera on DE-Server</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="deapi.Client.get_current_camera.html#deapi.Client.get_current_camera" title="deapi.Client.get_current_camera"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.get_current_camera</span></code></a>()</p></td>
+<td><p>Get the current camera on the server.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="deapi.Client.get_current_info.html#deapi.Client.get_current_info" title="deapi.Client.get_current_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.get_current_info</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="deapi.Client.get_image.html#deapi.Client.get_image" title="deapi.Client.get_image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.get_image</span></code></a>([pixelFormat, fileName, ...])</p></td>
+<td><p>Get a single image and save it to disk if a file name is provided</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="deapi.Client.get_movie_buffer.html#deapi.Client.get_movie_buffer" title="deapi.Client.get_movie_buffer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.get_movie_buffer</span></code></a>(movieBuffer, ...[, ...])</p></td>
+<td><p>Get the movie buffer of the current camera on DE-Server.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="deapi.Client.get_movie_buffer_info.html#deapi.Client.get_movie_buffer_info" title="deapi.Client.get_movie_buffer_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.get_movie_buffer_info</span></code></a>([...])</p></td>
+<td><p>Get the movie buffer information of the current camera on DE-Server.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="deapi.Client.get_properties.html#deapi.Client.get_properties" title="deapi.Client.get_properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.get_properties</span></code></a>([names])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="deapi.Client.get_property.html#deapi.Client.get_property" title="deapi.Client.get_property"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.get_property</span></code></a>(propertyName)</p></td>
+<td><p>Get the value of a property of the current camera on DE-Server</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="deapi.Client.get_property_spec.html#deapi.Client.get_property_spec" title="deapi.Client.get_property_spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.get_property_spec</span></code></a>(propertyName)</p></td>
+<td><p>Get a list of allowed values for a property of the current camera on DE-Server</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="deapi.Client.get_result.html#deapi.Client.get_result" title="deapi.Client.get_result"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.get_result</span></code></a>([frameType, pixelFormat, ...])</p></td>
+<td><p>Get the specified type of frames in the desired pixel format and associated information.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="deapi.Client.get_time.html#deapi.Client.get_time" title="deapi.Client.get_time"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.get_time</span></code></a>()</p></td>
+<td><p>Get the current time from the system clock</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="deapi.Client.get_virtual_mask.html#deapi.Client.get_virtual_mask" title="deapi.Client.get_virtual_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.get_virtual_mask</span></code></a>(index)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="deapi.Client.grab.html#deapi.Client.grab" title="deapi.Client.grab"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.grab</span></code></a>([frames, dataSetName, fileName])</p></td>
+<td><p>Grab specified number of frames and print out stats.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="deapi.Client.gui.html#deapi.Client.gui" title="deapi.Client.gui"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.gui</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="deapi.Client.list_cameras.html#deapi.Client.list_cameras" title="deapi.Client.list_cameras"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.list_cameras</span></code></a>()</p></td>
+<td><p>List the available cameras on the server.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="deapi.Client.list_properties.html#deapi.Client.list_properties" title="deapi.Client.list_properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.list_properties</span></code></a>([options, search])</p></td>
+<td><p>Get a list of property names from the current camera on DE-Server</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="deapi.Client.print_acquisition_info.html#deapi.Client.print_acquisition_info" title="deapi.Client.print_acquisition_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.print_acquisition_info</span></code></a>()</p></td>
+<td><p>Print out the acquisition information</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="deapi.Client.print_saving_info.html#deapi.Client.print_saving_info" title="deapi.Client.print_saving_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.print_saving_info</span></code></a>()</p></td>
+<td><p>Print out the saving information</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="deapi.Client.print_server_info.html#deapi.Client.print_server_info" title="deapi.Client.print_server_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.print_server_info</span></code></a>([camera])</p></td>
+<td><p>Print out the server information</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="deapi.Client.property_valid_values.html#deapi.Client.property_valid_values" title="deapi.Client.property_valid_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.property_valid_values</span></code></a>(propertyName)</p></td>
+<td><p>Get a list of allowed values for a property of the current camera on DE-Server</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="deapi.Client.save_image.html#deapi.Client.save_image" title="deapi.Client.save_image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.save_image</span></code></a>(image, fileName[, textSize])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="deapi.Client.setEngMode.html#deapi.Client.setEngMode" title="deapi.Client.setEngMode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.setEngMode</span></code></a>(enable, password)</p></td>
+<td><p>Set the engineering mode of the current camera on DE-Server.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="deapi.Client.setProperty.html#deapi.Client.setProperty" title="deapi.Client.setProperty"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.setProperty</span></code></a>(name, value)</p></td>
+<td><p>Set the value of a property of the current camera on DE-Server</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="deapi.Client.set_current_camera.html#deapi.Client.set_current_camera" title="deapi.Client.set_current_camera"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.set_current_camera</span></code></a>([camera_name])</p></td>
+<td><p>Set the current camera on the server.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="deapi.Client.set_engineering_mode.html#deapi.Client.set_engineering_mode" title="deapi.Client.set_engineering_mode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.set_engineering_mode</span></code></a>(enable, password)</p></td>
+<td><p>Set the engineering mode of the current camera on DE-Server.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="deapi.Client.set_hw_roi.html#deapi.Client.set_hw_roi" title="deapi.Client.set_hw_roi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.set_hw_roi</span></code></a>(offsetX, offsetY, sizeX, sizeY)</p></td>
+<td><p>Set the hardware region of interest (ROI) of the current camera on DE-Server.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="deapi.Client.set_hw_roi_and_get_changed_properties.html#deapi.Client.set_hw_roi_and_get_changed_properties" title="deapi.Client.set_hw_roi_and_get_changed_properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.set_hw_roi_and_get_changed_properties</span></code></a>(...)</p></td>
+<td><p>Set the hardware region of interest (ROI) of the current camera on DE-Server and get all of the changed properties.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="deapi.Client.set_property.html#deapi.Client.set_property" title="deapi.Client.set_property"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.set_property</span></code></a>(name, value)</p></td>
+<td><p>Set the value of a property of the current camera on DE-Server</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="deapi.Client.set_property_and_get_changed_properties.html#deapi.Client.set_property_and_get_changed_properties" title="deapi.Client.set_property_and_get_changed_properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.set_property_and_get_changed_properties</span></code></a>(...)</p></td>
+<td><p>Set the value of a property of the current camera on DE-Server and get all of the changed properties.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="deapi.Client.set_sw_roi.html#deapi.Client.set_sw_roi" title="deapi.Client.set_sw_roi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.set_sw_roi</span></code></a>(offsetX, offsetY, sizeX, sizeY)</p></td>
+<td><p>Set the software region of interest (ROI) of the current camera on DE-Server.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="deapi.Client.set_sw_roi_and_get_changed_properties.html#deapi.Client.set_sw_roi_and_get_changed_properties" title="deapi.Client.set_sw_roi_and_get_changed_properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.set_sw_roi_and_get_changed_properties</span></code></a>(...)</p></td>
+<td><p>Set the software region of interest (ROI) of the current camera on DE-Server and get all of the changed properties.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="deapi.Client.set_virtual_mask.html#deapi.Client.set_virtual_mask" title="deapi.Client.set_virtual_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.set_virtual_mask</span></code></a>(id, w, h, mask)</p></td>
+<td><p>Set the virtual mask of the current camera on DE-Server.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="deapi.Client.start_acquisition.html#deapi.Client.start_acquisition" title="deapi.Client.start_acquisition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.start_acquisition</span></code></a>([...])</p></td>
+<td><p>Start acquiring images.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="deapi.Client.stop_acquisition.html#deapi.Client.stop_acquisition" title="deapi.Client.stop_acquisition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.stop_acquisition</span></code></a>()</p></td>
+<td><p>Stop acquiring images.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="deapi.Client.take_dark_reference.html#deapi.Client.take_dark_reference" title="deapi.Client.take_dark_reference"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.take_dark_reference</span></code></a>([frameRate])</p></td>
+<td><p>Take dark reference images</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="deapi.Client.update_image_size.html#deapi.Client.update_image_size" title="deapi.Client.update_image_size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.update_image_size</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="deapi.Client.update_scan_size.html#deapi.Client.update_scan_size" title="deapi.Client.update_scan_size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.update_scan_size</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="deapi.Client.wait_for_saving_files.html#deapi.Client.wait_for_saving_files" title="deapi.Client.wait_for_saving_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.wait_for_saving_files</span></code></a>([quiet])</p></td>
+<td><p>Wait for the saving files to complete</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd></dl>
+
+<section id="examples-using-client">
+<h2>Examples using <code class="docutils literal notranslate"><span class="pre">Client</span></code><a class="headerlink" href="#examples-using-client" title="Link to this heading">#</a></h2>
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="This example shows how to view the sensor data during acquisition. This is useful for monitoring the data during acquisition."><img alt="" src="../../_images/sphx_glr_viewing_the_sensor_thumb.png" />
+<p><a class="reference internal" href="../../examples/live_imaging/viewing_the_sensor.html#sphx-glr-examples-live-imaging-viewing-the-sensor-py"><span class="std std-ref">Viewing Sensor Data During Acquisition</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Viewing Sensor Data During Acquisition</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="This script will: 1. Connect to the DE server 2. Set the hardware ROI to 256x256 3. Set the scan size to 256x256 4. Set the number of frames per second to 1000 5. Acquire a STEM image using a HAADF detector"><img alt="" src="../../_images/sphx_glr_setting_up_stem_thumb.png" />
+<p><a class="reference internal" href="../../examples/setting_parameters/setting_up_stem.html#sphx-glr-examples-setting-parameters-setting-up-stem-py"><span class="std std-ref">Setting up a STEM Experiment</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Setting up a STEM Experiment</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Virtual images are easily created from a series of (currently) 4 seperate masks. These masks are 8 bit images with values:"><img alt="" src="../../_images/sphx_glr_setting_virtual_masks_thumb.png" />
+<p><a class="reference internal" href="../../examples/virtual_imaging/setting_virtual_masks.html#sphx-glr-examples-virtual-imaging-setting-virtual-masks-py"><span class="std std-ref">Creating a Custom Virtual Mask</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Creating a Custom Virtual Mask</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="The virtual images are created by summing or subtracting the pixel values of the input image based on the values of the virtual masks. The virtual masks are 8-bit images with values: - 0: Negative Mask, pixel values subtracted - 1: Default value, pixels not accounted for - 2: Positive Mask, pixel values added"><img alt="" src="../../_images/sphx_glr_vdf_vbf_thumb.png" />
+<p><a class="reference internal" href="../../examples/virtual_imaging/vdf_vbf.html#sphx-glr-examples-virtual-imaging-vdf-vbf-py"><span class="std std-ref">Virtual Dark/Bright Field (VDF/VBF) Imaging</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Virtual Dark/Bright Field (VDF/VBF) Imaging</div>
+</div></div></section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Reference</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="deapi.Client.acquiring.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">acquiring</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deapi.Client"><code class="docutils literal notranslate"><span class="pre">Client</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples-using-client">Examples using <code class="docutils literal notranslate"><span class="pre">Client</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../../_sources/reference/generated/deapi.Client.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, DE Developers.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.4.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

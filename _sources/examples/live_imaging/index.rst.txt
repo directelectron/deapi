@@ -1,0 +1,44 @@
+
+
+.. _sphx_glr_examples_live_imaging:
+
+Live Imaging Examples
+=====================
+These examples demonstrate how to visualize the data as it is being acquired.
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This example shows how to view the sensor data during acquisition. This is useful for monitoring the data during acquisition.">
+
+.. only:: html
+
+  .. image:: /examples/live_imaging/images/thumb/sphx_glr_viewing_the_sensor_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_live_imaging_viewing_the_sensor.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Viewing Sensor Data During Acquisition</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/live_imaging/viewing_the_sensor
+

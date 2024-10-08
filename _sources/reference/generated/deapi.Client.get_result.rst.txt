@@ -1,0 +1,6 @@
+get\_result
+===========
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.get_result

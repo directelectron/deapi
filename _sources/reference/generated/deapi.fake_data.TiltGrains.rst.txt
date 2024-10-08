@@ -1,0 +1,40 @@
+TiltGrains
+==========
+
+.. currentmodule:: deapi.fake_data
+
+.. autoclass:: TiltGrains
+
+    
+    
+    .. rubric:: Attributes
+
+    .. autosummary::
+        :toctree:
+        :template: custom-attribute-template.rst
+        
+        
+    
+    
+
+    
+    
+    .. rubric:: Methods
+
+    .. autosummary::
+        :toctree:
+        :template: custom-method-template.rst
+        
+        
+        
+        TiltGrains.create_fake_diffraction_data
+        
+        
+        TiltGrains.create_grains
+        
+        
+    
+    
+
+.. minigallery:: deapi.fake_data.TiltGrains
+    :add-heading: Examples using ``TiltGrains``

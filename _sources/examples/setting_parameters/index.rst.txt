@@ -1,0 +1,44 @@
+
+
+.. _sphx_glr_examples_setting_parameters:
+
+Setting up an Acquisition
+=========================
+Below is a gallery of examples on how to set up an acquisition using the deapi.
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This script will: 1. Connect to the DE server 2. Set the hardware ROI to 256x256 3. Set the scan size to 256x256 4. Set the number of frames per second to 1000 5. Acquire a STEM image using a HAADF detector">
+
+.. only:: html
+
+  .. image:: /examples/setting_parameters/images/thumb/sphx_glr_setting_up_stem_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_setting_parameters_setting_up_stem.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Setting up a STEM Experiment</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/setting_parameters/setting_up_stem
+

@@ -1,0 +1,50 @@
+﻿PropertySpec
+============
+
+.. currentmodule:: deapi
+
+.. autoclass:: PropertySpec
+
+    
+    
+    .. rubric:: Attributes
+
+    .. autosummary::
+        :toctree:
+        :template: custom-attribute-template.rst
+        
+        
+        PropertySpec.category
+        
+        
+        PropertySpec.currentValue
+        
+        
+        PropertySpec.dataType
+        
+        
+        PropertySpec.defaultValue
+        
+        
+        PropertySpec.options
+        
+        
+        PropertySpec.valueType
+        
+    
+    
+
+    
+    
+    .. rubric:: Methods
+
+    .. autosummary::
+        :toctree:
+        :template: custom-method-template.rst
+        
+        
+    
+    
+
+.. minigallery:: deapi.PropertySpec
+    :add-heading: Examples using ``PropertySpec``

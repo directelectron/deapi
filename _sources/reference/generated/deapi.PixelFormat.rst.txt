@@ -1,0 +1,28 @@
+﻿PixelFormat
+===========
+
+.. currentmodule:: deapi
+
+.. autoclass:: PixelFormat
+
+    
+    
+    .. rubric:: Attributes
+
+    .. autosummary::
+        :toctree:
+        :template: custom-attribute-template.rst
+        
+        
+        
+        
+        
+    
+    
+
+    
+    
+    
+
+.. minigallery:: deapi.PixelFormat
+    :add-heading: Examples using ``PixelFormat``

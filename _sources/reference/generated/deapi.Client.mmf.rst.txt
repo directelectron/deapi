@@ -1,0 +1,9 @@
+mmf
+===
+
+.. currentmodule:: deapi
+
+.. autoproperty:: Client.mmf
+
+.. minigallery:: deapi.Client.mmf
+    :add-heading: Examples using ``Client.mmf``
