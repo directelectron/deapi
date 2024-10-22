@@ -12,7 +12,8 @@
     "value_type":"Set",
     "category":"Advanced",
     "options":"'1*', '2'",
-    "default_value":"1"
+    "default_value":"1",
+    "set_also": {"hardware_binning_y": "hardware_binning_x"}
   },
   "Hardware Binning Y":{
     "value":"1",
@@ -355,7 +356,7 @@
     "category":"Advanced",
     "options":"",
     "default_value":"1024",
-    "get": "hardware_roi_size_x / hardware_binning_x"
+    "get": "(hardware_roi_size_x / hardware_binning_x)/ binning_x"
   },
     "Image Size Y (pixels)":{
         "value":"1024",
@@ -364,7 +365,7 @@
         "category":"Advanced",
         "options":"",
         "default_value":"1024",
-        "get": "hardware_roi_size_y / hardware_binning_y"
+        "get": "(hardware_roi_size_y / hardware_binning_y)/ binning_y"
     },
   "Server Software Version":{
     "value":"3.7.8893",

@@ -10,6 +10,7 @@ from enum import IntEnum
 import warnings
 
 
+
 class FrameType(Enum):
     """An Enum of the different frame types that can be returned by the DE API"""
 

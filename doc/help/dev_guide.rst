@@ -88,3 +88,7 @@ default port and host. You can also specify the host and port using the followin
 
 This will also run a subset of the tests that require a full DEServer to be running. These tests are marked with the
 `@pytest.mark.server` decorator.
+
+Just a note that only one connection to the DEServer will be made.  As the `conftest.py` file runs before every
+pytest run this reduces the number of times that the DEServer is started and stopped. It also means that it is
+important to make sure that the Client disconnects from the DEServer at the end of the test

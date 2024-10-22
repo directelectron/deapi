@@ -23,11 +23,20 @@ def pytest_addoption(parser):
         "--host", action="store", default="127.0.0.1", help="host to connect to"
     )
     parser.addoption("--port", action="store", default=13240, help="port to connect to")
+    parser.addoption(
+        "--speed",
+        action="store_true",
+        default=False,
+        help="Test the speed of certain operations",
+    )
 
 
 def pytest_configure(config):
     config.addinivalue_line(
         "markers", "server: mark tests that require the full DEServer"
+    )
+    config.addinivalue_line(
+        "markers", "speed: mark tests that measure the speed of the DEServer"
     )
 
 
@@ -40,6 +49,16 @@ def pytest_collection_modifyitems(config, items):
         for item in items:
             if "server" in item.keywords:
                 item.add_marker(skip_server)
+
+    if config.getoption("--speed"):
+        # Do not skip speed tests
+        return
+    else:  # pragma: no cover
+        skip_speed = pytest.mark.skip(reason="need --speed option to run")
+        for item in items:
+            if "speed" in item.keywords:
+                item.add_marker(skip_speed)
+
 
 
 @pytest.fixture(scope="module")

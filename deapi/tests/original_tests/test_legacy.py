@@ -1,5 +1,8 @@
 import time
 import pytest
+import numpy as np
+import deapi as DEAPI
+
 
 class TestFPS01:
     """
@@ -35,7 +38,7 @@ class TestFPS01:
         deClient.SetProperty('Frames Per Second', max_fps*2)
         value = deClient.GetProperty('Frames Per Second')
         assert value == max_fps
-    """
+
     @pytest.mark.parametrize("fps", [100, 200])
     @pytest.mark.parametrize("exposure", [5,1])
     @pytest.mark.server
@@ -45,9 +48,6 @@ class TestFPS01:
         deClient.SetProperty('Exposure Time (seconds)', exposure)
         frameCount = deClient.GetProperty('Frame Count')
         assert frameCount == fps * exposure
-    """
-
-class
 
 
 class TestReferences07:
@@ -97,3 +97,30 @@ class TestReferences07:
             time.sleep(.1)
         gain_reference = deClient.GetProperty("Reference - Gain")
         return gain_reference[:5] == 'Valid'
+
+
+class TestVirtualMasks08:
+    def test_set_mask(self, client):
+        maskID = 1
+        deClient = client
+        # Set initial ROI size
+        deClient.SetProperty("Hardware ROI Size X", 1024)
+        deClient.SetProperty("Hardware ROI Size Y", 1024)
+
+        # Create virtual mask and set the first 200 pixel values to 2
+        mask = np.zeros((1024, 1024), dtype=np.uint8)
+        mask[:200, :] = 2
+
+        property_name = f"Scan - Virtual Detector {maskID} Shape"
+        deClient.SetProperty(property_name, "Arbitrary")
+
+        if not deClient.SetVirtualMask(maskID, 1024, 1024, mask):
+            return False
+
+        # Define attributes and frame type
+        attributes = DEAPI.Attributes()
+        frameType = getattr(DEAPI.FrameType, f"VIRTUAL_MASK{maskID}")
+
+        # Generate and check the first image
+        Image, _, _, _ = deClient.GetResult(frameType, DEAPI.PixelFormat.AUTO, attributes)
+

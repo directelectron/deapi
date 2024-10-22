@@ -2,6 +2,8 @@ import logging
 import time
 import warnings
 
+from prompt_toolkit.filters import is_read_only
+
 from deapi.buffer_protocols import pb
 import json
 from importlib import resources
@@ -195,7 +197,7 @@ class FakeServer:
         self.virtual_masks = []
         for i in range(4):
             self.virtual_masks.append(
-                np.zeros(
+                np.ones(
                     shape=(
                         int(self["Image Size X (pixels)"]),
                         int(self["Image Size Y (pixels)"]),
@@ -282,6 +284,8 @@ class FakeServer:
             return self._fake_get_result(command)
         elif command.command[0].command_id == self.LIST_CAMERAS + commandVersion * 100:
             return self._fake_list_cameras(command)
+        elif command.command[0].command_id == self.SET_CLIENT_READ_ONLY + commandVersion * 100:
+            return self._fake_set_client_read_only(command)
         elif (
             command.command[0].command_id
             == self.SET_VIRTUAL_MASK + commandVersion * 100
@@ -293,6 +297,15 @@ class FakeServer:
                 f" in the FakeServer. Please use the real DEServer for testing."
                 f" The commandVersion is {commandVersion}"
             )
+
+    def _fake_set_client_read_only(self, command):
+
+        self.is_read_only =command.command[0].parameter[0].p_bool
+        acknowledge_return = pb.DEPacket()
+        acknowledge_return.type = pb.DEPacket.P_ACKNOWLEDGE
+        ack1 = acknowledge_return.acknowledge.add()
+        ack1.command_id = command.command[0].command_id
+        return (acknowledge_return,)
 
     def _fake_set_virtual_mask(self, command):
         acknowledge_return = pb.DEPacket()
@@ -671,3 +684,9 @@ class FakeServer:
     SET_VIRTUAL_MASK = 23
     SAVE_FINAL_AFTER_ACQ = 24
     SET_ENG_MODE = 25
+    SET_ENG_MODE_GET_CHANGED_PROPERTIES = 26
+    SET_SCAN_SIZE = 27
+    SET_SCAN_ROI = 28
+    SET_SCAN_SIZE_AND_GET_CHANGED_PROPERTIES = 29
+    SET_SCAN_ROI__AND_GET_CHANGED_PROPERTIES = 30
+    SET_CLIENT_READ_ONLY = 31
