@@ -48,8 +48,7 @@ import functools
 
 ## the commandInfo contains [VERSION_MAJOR.VERSION_MINOR.VERSION_PATCH.VERSION_REVISION]
 
-logLevel = logging.DEBUG
-logLevel = logging.INFO
+
 logLevel = logging.WARNING
 logging.basicConfig(format="%(asctime)s DE %(levelname)-8s %(message)s", level=logLevel)
 log = logging.getLogger("DECameraClientLib")
@@ -67,6 +66,15 @@ def write_only(func):
             return func(*args, **kwargs)
     return wrapper
 
+def disable_scan(func):
+    def wrapper(*args, **kwargs):
+        print("Disabling scan")
+        initial_scan = args[0]["Scan - Enable"]
+        args[0].set_property("Scan - Enable", False)
+        ans = func(*args, **kwargs)
+        args[0].set_property("Scan - Enable", initial_scan)
+        return ans
+    return wrapper
 
 class Client:
     """A class for connecting to the DE-Server
@@ -81,8 +89,18 @@ class Client:
     def __init__(self):
         pass
 
+    def set_log_level(self, level):
+        log = logging.getLogger("DECameraClientLib")
+        log.setLevel(level)
+        log.info("Log level set to %s", level)
+        return
+
     def __str__(self):
         return f"Client(host={self.host}, port={self.port}, camera={self.get_current_camera()})"
+
+
+    def _ipython_key_completions_(self):
+        return self.list_properties()
 
     def _repr_html_(self):
         table = f"""
@@ -964,6 +982,7 @@ class Client:
                 attributes.windowWidth = self.image_sizex
                 attributes.windowHeight = self.image_sizey
 
+
         log.debug("GetResult frameType:%s, pixelFormat:%s", frameType, pixelFormat)
         start_time = self.GetTime()
         step_time = self.GetTime()
@@ -1118,7 +1137,7 @@ class Client:
                             histogram.upperMostLocalMaxima = values[i]
                             i += 1
                         for j in range(histogram.bins):
-                            log.debug("%d: %d" % (j, values[i + j]))
+                            log.debug("Hist %d: %d" % (j, values[i + j]))
                             histogram.data[j] = values[i + j]
 
                     if pixelFormat == PixelFormat.FLOAT32:
@@ -1203,12 +1222,6 @@ class Client:
                 "GetResult frameType:%s, pixelFormat:%s ROI:[%d, %d] Binning:[%d, %d], Return size:[%d, %d], datasetName:%s acqCount:%d, frameCount:%d min:%.1f max:%.1f mean:%.1f std:%.1f %.1f ms",
                 frameType,
                 pixelFormat,
-                self.roi_x,
-                self.roi_y,
-                self.binning_x,
-                self.binning_y,
-                self.width,
-                self.height,
                 attributes.datasetName,
                 attributes.acqIndex,
                 attributes.frameCount,
@@ -1677,6 +1690,7 @@ class Client:
 
         return image
 
+    @disable_scan
     def take_dark_reference(self, frameRate: float = 20):
         """
         Take dark reference images
@@ -1692,7 +1706,7 @@ class Client:
         prevExposureMode = self.GetProperty("Exposure Mode")
         prevExposureTime = self.GetProperty("Exposure Time (seconds)")
 
-        acquisitions = 10
+        acquisitions = 20
         self.SetProperty("Exposure Mode", "Dark")
         self.SetProperty("Frames Per Second", frameRate)
         self.SetProperty("Exposure Time (seconds)", 1)
@@ -1896,51 +1910,38 @@ class Client:
         startTime = self.GetTime()
         self.socket.settimeout(timeout)
 
-        buffer = ""
-        try:
-            buffer = sock.recv(bytes)
-        except:
-            pass  # continue if more needed
+        buffer = b""
 
-        log.debug(
-            " __recvFromSocket : %d of %d in %.1f ms",
-            len(buffer),
-            bytes,
-            (self.GetTime() - startTime) * 1000,
-        )
         total_len = len(buffer)
+        while total_len < bytes:
+            bytes_left = bytes - total_len
+            if bytes_left < 4096:
+                packet_size = bytes_left
+            else:
+                packet_size = 4096
+            loopTime = self.GetTime()
+            try:
+                buffer += sock.recv(packet_size)
 
-        if total_len < bytes:
-            while total_len < bytes:
-                loopTime = self.GetTime()
-                try:
-                    buffer += sock.recv(bytes)
-                    log.debug(
-                        " __recvFromSocket : %d bytes of %d in %.1f ms",
-                        len(buffer),
-                        bytes,
-                        (self.GetTime() - loopTime) * 1000,
-                    )
-
-                except socket.timeout:
-                    log.debug(
-                        " __recvFromSocket : timeout in trying to receive %d bytes in %.1f ms",
-                        bytes,
-                        (self.GetTime() - loopTime) * 1000,
-                    )
-                    if self.GetTime() - startTime > timeout:
-                        log.error(" __recvFromSocket: max timeout %d seconds", timeout)
-                        break
-                    else:
-                        pass  # continue further
-                except:
-                    log.error(
-                        "Unknown exception occurred. Current Length: %d in %.1f ms",
-                        len(buffer),
-                        (self.GetTime() - loopTime) * 1000,
-                    )
+            except socket.timeout:
+                log.debug(
+                    " __recvFromSocket : timeout in trying to receive %d bytes in %.1f ms",
+                    bytes,
+                    (self.GetTime() - loopTime) * 1000,
+                )
+                if self.GetTime() - startTime > timeout:
+                    log.error(" __recvFromSocket: max timeout %d seconds", timeout)
                     break
-                total_len = len(buffer)
+                else:
+                    pass  # continue further
+            except:
+                log.error(
+                    "Unknown exception occurred. Current Length: %d in %.1f ms",
+                    len(buffer),
+                    (self.GetTime() - loopTime) * 1000,
+                )
+                break
+            total_len = len(buffer)
 
         totalTimeMs = (self.GetTime() - startTime) * 1000
         Gbps = total_len * 8 / (totalTimeMs / 1000) / 1024 / 1024 / 1024
