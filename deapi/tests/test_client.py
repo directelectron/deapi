@@ -4,7 +4,7 @@ import numpy as np
 
 from deapi import Client
 import pytest
-from deapi.data_types import PropertySpec, VirtualMask
+from deapi.data_types import PropertySpec, VirtualMask, MovieBufferStatus
 
 
 class TestClient:
@@ -49,8 +49,8 @@ class TestClient:
         assert isinstance(prop, float)
 
     def test_set_property(self, client):
-        client["Frames Per Second"] = 100
-        assert client["Frames Per Second"] == 100
+        client["Frames Per Second"] = 5
+        assert client["Frames Per Second"] == 5
 
     def test_enable_scan(self, client):
         client["Scan - Enable"] = "On"
@@ -86,7 +86,7 @@ class TestClient:
         client.start_acquisition(1)
         while client.acquiring:
             time.sleep(1)
-        result = client.get_result("singleframe_integrated")
+        result = client.get_result()
         assert isinstance(result, tuple)
         assert len(result) == 4
         assert result[0].shape == (1024, 1024)
@@ -160,12 +160,25 @@ class TestClient:
         pass
 
     @pytest.mark.server
-    def test_property_spec_set(self, client):
-        client.set_property("Binning Y", 2)
+    def test_bin_property_set(self, client):
+        client.set_property("Scan - Enable", "Off")
+        client.set_property("Binning Y", 16)
+        sp = client.get_property("Binning Y")
+        assert sp == 16
+
+    @pytest.mark.server
+    @pytest.mark.parametrize("bin_sw", [1, 2, 4])
+    def test_property_spec_set(self, client, bin_sw):
+        client.set_property("Hardware Binning Y", 1)
+        client.set_property("Binning Y", bin_sw)
         sp = client.get_property_spec("Binning Y")
         assert isinstance(sp, PropertySpec)
-        assert sp.currentValue == "2"
+        assert sp.currentValue == str(bin_sw)
         assert sp.options == "'1*', '2', '4', '8', '16', '32', '64', '128', '256', '512', '1024'"
+        client.set_property("Hardware Binning Y", 2)
+        sp = client.get_property_spec("Binning Y")
+        assert sp.currentValue == str(bin_sw)
+        assert sp.options == "'1*', '2', '4', '8', '16', '32', '64', '128', '256', '512'"
 
     @pytest.mark.parametrize("bin", [1, 2])
     @pytest.mark.parametrize("offsetx", [0, 512])
@@ -180,6 +193,8 @@ class TestClient:
         client["Hardware Binning Y"] = 1
         client["Binning X"] = 1
         client["Binning Y"] = 1
+        client["Crop Offset X"] = 0
+        client["Crop Offset Y"] = 0
 
         assert client["Image Size X (pixels)"] == 1024
         assert client["Image Size Y (pixels)"] == 1024
@@ -200,7 +215,48 @@ class TestClient:
         assert client["Image Size X (pixels)"] == size//bin
 
         client["Binning X"] = bin_sw
+        client["Binning Y"] = bin_sw
+        assert client["Binning X"] == bin_sw
         assert client["Image Size X (pixels)"] == size//bin_sw//bin
+
+    def test_stream_data(self, client):
+        client["Frames Per Second"] = 5
+        client.scan(size_x=10, size_y=10, enable="On")
+        client.start_acquisition(1, requestMovieBuffer=True)
+        numberFrames = 0
+        index = 0
+        status = MovieBufferStatus.OK
+        success = True
+        info, buffer, total_bytes, numpy_dtype = client.current_movie_buffer()
+        number_frames = 0
+        while status == MovieBufferStatus.OK and success:
+            status, total_bytes, number_frames, buffer = client.GetMovieBuffer(buffer,
+                                                                                  total_bytes,
+                                                                                  number_frames)
+
+
+            ## CovertToImage(movieBuffer, headerBytes, dataType, imageW, imageH, numberFrames);
+            frameIndexArray = np.frombuffer(buffer, np.longlong, offset=0, count=numberFrames)
+            movieBuffer = np.frombuffer(buffer, dtype=numpy_dtype, offset=info.headerBytes,
+                                           count=info.imageH * info.imageW * numberFrames)
+
+            ## Verify the value
+
+            for i in range(numberFrames):
+                # Calculate the starting index for each 64-bit integer (8 bytes per integer)
+                start_index = i * 8
+
+                # Extract the 64-bit integer frameIndex using struct.unpack
+                frame_index = frameIndexArray[i]
+
+                # Extract the first pixel value
+                first_pixel_value = movieBuffer[i * info.imageW * info.imageH]
+
+                success = success and (frame_index == index) and (first_pixel_value == index)
+
+                index += 1
+                if not success:
+                    break
 
 
 

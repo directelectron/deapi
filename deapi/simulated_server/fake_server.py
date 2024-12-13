@@ -152,6 +152,7 @@ class FakeServer:
         self.dataset = dataset
         self.fake_data = None
         self.socket = socket
+        self.current_movie_index = 0
 
         with open(inp_file) as f:
             values = json.load(f)
@@ -355,6 +356,8 @@ class FakeServer:
             )
 
     def _fake_start_acquisition(self, command):
+        self.current_movie_index = 0
+
         acknowledge_return = pb.DEPacket()
         num_acq = command.command[0].parameter[0].p_int
         if self["Scan - Enable"] == "On":
@@ -490,48 +493,41 @@ class FakeServer:
         return (acknowledge_return,)
 
     def _fake_get_movie_buffer_info(self, command):
+        print("Getting movie buffer info")
         acknowledge_return = pb.DEPacket()
         acknowledge_return.type = pb.DEPacket.P_ACKNOWLEDGE
         ack1 = acknowledge_return.acknowledge.add()
+
         ack1.command_id = command.command[0].command_id
         int_param = ack1.parameter.add()
         int_param.type = pb.AnyParameter.P_INT
-        int_param.p_int = 512  # header size
-        # Image total bytes
+        int_param.p_int = 1024 # Header bytes
         int_param = ack1.parameter.add()
         int_param.type = pb.AnyParameter.P_INT
+        int_param.p_int = (int(self["Image Size Y (pixels)"]) *
+                           int(self["Image Size X (pixels)"]) *
+                           int(self["Grabbing - Frames Per Buffer"])* 2) # Image buffer bytes
+        int_param = ack1.parameter.add()
+        int_param.type = pb.AnyParameter.P_INT
+        int_param.p_int = 0 # Frame index start pos
+        int_param = ack1.parameter.add()
+        int_param.type = pb.AnyParameter.P_INT
+        int_param.p_int = int(self["Image Size X (pixels)"]) # image width
+        int_param = ack1.parameter.add()
+        int_param.type = pb.AnyParameter.P_INT
+        int_param.p_int = 1024 # image start
+        int_param = ack1.parameter.add()
+        int_param.type = pb.AnyParameter.P_INT
+        int_param.p_int = int(self["Image Size Y (pixels)"]) # image height
+        int_param = ack1.parameter.add()
+        int_param.type = pb.AnyParameter.P_INT
+        int_param.p_int = int(self["Grabbing - Frames Per Buffer"]) # frames in buffer
+        int_param = ack1.parameter.add()
+        int_param.type = pb.AnyParameter.P_INT
+        int_param.p_int = 5 # data type (only int16 supported)
 
-        # TODO: Figure out the right way to calculate this
-        int_param.p_int = (
-            int(self["Crop Size X"])
-            * int(self["Crop Size Y"])
-            * int(self["Grab Buffer Size"])
-            * 2
-        )  # 16 bit
-        # frame index start
-        int_param = ack1.parameter.add()
-        int_param.type = pb.AnyParameter.P_INT
-        # Header Size
-        int_param = ack1.parameter.add()
-        int_param.type = pb.AnyParameter.P_INT
-        int_param.p_int = 512
-        # image H
-        int_param = ack1.parameter.add()
-        int_param.type = pb.AnyParameter.P_INT
-        int_param.p_int = int(self["Crop Size X"])
-        # image W
-        int_param = ack1.parameter.add()
-        int_param.type = pb.AnyParameter.P_INT
-        int_param.p_int = int(self["Crop Size Y"])
-        # number of frames
-        int_param = ack1.parameter.add()
-        int_param.type = pb.AnyParameter.P_INT
-        int_param.p_int = int(self["Grab Buffer Size"])
-        # image data type
-        int_param = ack1.parameter.add()
-        int_param.type = pb.AnyParameter.P_INT
-        int_param.p_int = 5  # uint16
         return (acknowledge_return,)
+
 
     def _fake_get_result(self, command):
         acknowledge_return = pb.DEPacket()
@@ -639,29 +635,50 @@ class FakeServer:
         return ans
 
     def _fake_get_movie_buffer(self, command):
+        sizey = int(self["Image Size Y (pixels)"])
+        sizex = int(self["Image Size X (pixels)"])
+        frames_per_buffer = int(self["Grabbing - Frames Per Buffer"])
+
         acknowledge_return = pb.DEPacket()
         acknowledge_return.type = pb.DEPacket.P_ACKNOWLEDGE
         ack1 = acknowledge_return.acknowledge.add()
         ack1.command_id = command.command[0].command_id
         int_param = ack1.parameter.add()
         int_param.type = pb.AnyParameter.P_INT
-        if self.is_acquisition_running:
-            int_param.p_int = 5
-        else:
-            int_param.p_int = 4
-        # Frame size
-        int_param = ack1.parameter.add()
-        int_param.type = pb.AnyParameter.P_INT
-        int_param.p_int = (
-            self["Grab Buffer Size"] * self["Crop Size X"] * self["Crop Size X"] * 2
-        )  # 16 bit
-        # number of frames
-        int_param = ack1.parameter.add()
-        int_param.type = pb.AnyParameter.P_INT
-        int_param.p_int = self["Grab Buffer Size"]
 
-        self.current_stream_id = 0
-        return (acknowledge_return,)
+        if np.prod(self.fake_data.navigator.shape) > self.current_movie_index:
+            frame_numbers = np.arange(self.current_movie_index,
+                                      self.current_movie_index + frames_per_buffer, dtype=np.int64)
+            print(f"Getting movie buffer {frame_numbers}")
+            data = self.fake_data.flat[self.current_movie_index: self.current_movie_index + frames_per_buffer]
+            print(f"Data shape {data.shape}")
+            self.current_movie_index = self.current_movie_index + frames_per_buffer
+            if len(frame_numbers) < 128:
+                frame_numbers = np.pad(frame_numbers, (0, 128 - len(frame_numbers)), mode='constant', constant_values=0)
+
+            int_param.p_int = 5 # okay
+            int_param = ack1.parameter.add()
+            int_param.type = pb.AnyParameter.P_INT
+            int_param.p_int = np.prod(data.shape) * 2 + 1024   # Image total bytes
+            # Image total bytes
+            int_param = ack1.parameter.add()
+            int_param.type = pb.AnyParameter.P_INT
+            int_param.p_int = data.shape[0]  # Number of frames
+
+            ans = (acknowledge_return,)
+            ans += (frame_numbers.tobytes(), data.astype(np.int16).tobytes())
+        else:
+            int_param.p_int = 4 # finished
+            int_param = ack1.parameter.add()
+            int_param.type = pb.AnyParameter.P_INT
+            int_param.p_int = 0  # Image total bytes
+            # Image total bytes
+            int_param = ack1.parameter.add()
+            int_param.type = pb.AnyParameter.P_INT
+            int_param.p_int = 0
+            ans = (acknowledge_return,)
+
+        return ans
 
     # command lists
     LIST_CAMERAS = 0

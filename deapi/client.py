@@ -37,6 +37,7 @@ from deapi.data_types import (
     DataType,
     PropertyCollection,
     VirtualMask,
+
 )
 
 
@@ -49,7 +50,7 @@ import functools
 ## the commandInfo contains [VERSION_MAJOR.VERSION_MINOR.VERSION_PATCH.VERSION_REVISION]
 
 
-logLevel = logging.WARNING
+logLevel = logging.INFO
 logging.basicConfig(format="%(asctime)s DE %(levelname)-8s %(message)s", level=logLevel)
 log = logging.getLogger("DECameraClientLib")
 log.info("Python    : " + sys.version.split("(")[0])
@@ -828,6 +829,20 @@ class Client:
 
         return ret
 
+    def current_movie_buffer(self):
+        movieBufferInfo = self.GetMovieBufferInfo()
+        if movieBufferInfo.imageDataType == DataType.DE8u:
+            imageType = numpy.uint8
+        elif movieBufferInfo.imageDataType == DataType.DE16u:
+            imageType = numpy.uint16
+        elif movieBufferInfo.imageDataType == DataType.DE32f:
+            imageType = numpy.float32
+
+            ## Allocate movie buffers
+        totalBytes = movieBufferInfo.headerBytes + movieBufferInfo.imageBufferBytes
+        buffer = bytearray(totalBytes)
+        return movieBufferInfo, buffer, totalBytes, imageType
+
     @write_only
     def start_acquisition(
         self,
@@ -1333,13 +1348,15 @@ class Client:
                 totalBytes = values[1]
                 numFrames = values[2]
                 movieBufferStatus = MovieBufferStatus(status)
-
                 if movieBufferStatus == MovieBufferStatus.OK:
                     if totalBytes == 0 or movieBufferSize < totalBytes:
                         retval = False
-                        log.error("Image received did not have the expected size.")
+                        log.error(f"Image received did not have the expected size."
+                                  f"expected: {totalBytes}, received: {movieBufferSize}")
                     else:
+                        print("reading movie buffer", totalBytes)
                         movieBuffer = self._recvFromSocket(self.socket, totalBytes)
+                        print("Done reading movie buffer")
         else:
             retval = False
 
@@ -1913,12 +1930,13 @@ class Client:
         buffer = b""
 
         total_len = len(buffer)
+        upper_lim =  4096*4096*12 #4096 #1024*256
         while total_len < bytes:
             bytes_left = bytes - total_len
-            if bytes_left < 4096:
+            if bytes_left < upper_lim:
                 packet_size = bytes_left
             else:
-                packet_size = 4096
+                packet_size = upper_lim
             loopTime = self.GetTime()
             try:
                 buffer += sock.recv(packet_size)

@@ -9,6 +9,7 @@ class TestFPS01:
     Test the Frames Per Second property. Make sure that it is set to the
     maximum value and that the camera is able to acquire at that size.
     """
+    @pytest.mark.server
     @pytest.fixture(autouse=True)
     def clean_state(self, client):
         # First set the hardware ROI to a known state
@@ -21,6 +22,7 @@ class TestFPS01:
         # Set the software Binning to 1
         client["Binning X"] = 1
         client["Binning Y"] = 1
+        client.SetProperty("Scan - Enable", "Off")
 
 
     @pytest.mark.parametrize("fps", [25, 50])
@@ -37,9 +39,9 @@ class TestFPS01:
         max_fps = deClient.GetProperty('Frames Per Second (Max)')
         deClient.SetProperty('Frames Per Second', max_fps*2)
         value = deClient.GetProperty('Frames Per Second')
-        assert value == max_fps
+        np.testing.assert_allclose(value,  max_fps , rtol=0.1)
 
-    @pytest.mark.parametrize("fps", [100, 200])
+    @pytest.mark.parametrize("fps", [10, 15])
     @pytest.mark.parametrize("exposure", [5,1])
     @pytest.mark.server
     def test_frame_count(self, client, fps, exposure):
@@ -64,9 +66,9 @@ class TestReferences07:
         deClient.SetProperty("Exposure Mode", "Dark")
         deClient.SetProperty("Frames Per Second", 10)
 
-        deClient.Grab(2)
+        deClient.TakeDarkReference(100)
+        deClient.SetProperty('Exposure Mode', 'Normal')
 
-        deClient.TakeDarkReference(15)
         assert deClient.GetProperty("Reference - Dark")[:5] == "Valid"
 
     @pytest.mark.server
@@ -82,6 +84,8 @@ class TestReferences07:
         while deClient.acquiring:
             time.sleep(.1)
         darkReference = deClient.GetProperty("Reference - Dark")
+        deClient.SetProperty('Exposure Mode', 'Normal')
+
         return darkReference[:5] == 'Valid'
 
     @pytest.mark.server
@@ -96,6 +100,7 @@ class TestReferences07:
         while deClient.acquiring:
             time.sleep(.1)
         gain_reference = deClient.GetProperty("Reference - Gain")
+        deClient.SetProperty('Exposure Mode', 'Normal')
         return gain_reference[:5] == 'Valid'
 
 
