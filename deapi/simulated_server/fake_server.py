@@ -1,8 +1,5 @@
-import logging
 import time
 import warnings
-
-from prompt_toolkit.filters import is_read_only
 
 from deapi.buffer_protocols import pb
 import json
