@@ -11,8 +11,11 @@ This example will:
 2. Start an acquisition
 3. Continuously update a plot of the sensor data during acquisition
 4. Continually update a plot of the virtual image 0 (The sum of the sensor data) during acquisition
+
+Note: Using the qt matplotlib backend will make the plotting update.
 """
 
+#  %matplotlib qt
 from deapi import Client
 import matplotlib.pyplot as plt
 import numpy as np
@@ -21,8 +24,8 @@ client = Client()
 client.usingMmf = False
 
 client.connect(port=13241)  # connect to the running DE Server
-
-client.scan(size_x=128, size_y=128, enable="On")
+client["Frames Per Second"] = 500
+client.scan(size_x=64, size_y=64, enable="On")
 client.start_acquisition(1)
 
 
