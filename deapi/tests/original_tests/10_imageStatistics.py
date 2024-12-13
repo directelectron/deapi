@@ -27,23 +27,43 @@ camera = cameras[0]
 
 serverVersion = deClient.GetProperty(propertyName.PROP_SERVER_SOFTWARE_VERSION)
 cameraName = deClient.GetProperty(propertyName.PROP_CAMERA_NAME)
-print(f'Camera Name: {cameraName}, Server Software Version: {serverVersion}')
+print(f"Camera Name: {cameraName}, Server Software Version: {serverVersion}")
 
 # Store default properties in a dictionary
 defaultProperties = {
-    propertyName.PROP_TEST_PATTERN                             : deClient.GetProperty(propertyName.PROP_TEST_PATTERN),
-    propertyName.PROP_INSTRUMENT_CLIENT_ADDRESS                : deClient.GetProperty(propertyName.PROP_INSTRUMENT_CLIENT_ADDRESS),
-    propertyName.PROP_INSTRUMENT_PROJECT_MAGNIFICATION         : deClient.GetProperty(propertyName.PROP_INSTRUMENT_PROJECT_MAGNIFICATION ),
-    propertyName.PROP_INSTRUMENT_ACCEL_VOLTAGE                 : deClient.GetProperty(propertyName.PROP_INSTRUMENT_ACCEL_VOLTAGE),
-    propertyName.PROP_HARDWARE_ROI_SIZE_X                      : deClient.GetProperty(propertyName.PROP_HARDWARE_ROI_SIZE_X),
-    propertyName.PROP_HARDWARE_ROI_SIZE_X                      : deClient.GetProperty(propertyName.PROP_HARDWARE_ROI_SIZE_X),
-    propertyName.PROP_FRAMES_PER_SECOND                        : deClient.GetProperty(propertyName.PROP_FRAMES_PER_SECOND),
-    propertyName.PROP_FRAME_COUNT                              : deClient.GetProperty(propertyName.PROP_FRAME_COUNT),
-    propertyName.PROP_AUTOSAVE_MOVIE                           : deClient.GetProperty(propertyName.PROP_AUTOSAVE_MOVIE),
-    propertyName.PROP_IMAGE_PROCESSING_MODE                    : deClient.GetProperty(propertyName.PROP_IMAGE_PROCESSING_MODE),
-    propertyName.PROP_IMAGE_PROCESSING_FLATFIELD_CORRECTION    : deClient.GetProperty(propertyName.PROP_IMAGE_PROCESSING_FLATFIELD_CORRECTION),
-    propertyName.PROP_BINNING_X                                : deClient.GetProperty(propertyName.PROP_BINNING_X),
-    propertyName.PROP_BINNING_Y                                : deClient.GetProperty(propertyName.PROP_BINNING_Y)
+    propertyName.PROP_TEST_PATTERN: deClient.GetProperty(
+        propertyName.PROP_TEST_PATTERN
+    ),
+    propertyName.PROP_INSTRUMENT_CLIENT_ADDRESS: deClient.GetProperty(
+        propertyName.PROP_INSTRUMENT_CLIENT_ADDRESS
+    ),
+    propertyName.PROP_INSTRUMENT_PROJECT_MAGNIFICATION: deClient.GetProperty(
+        propertyName.PROP_INSTRUMENT_PROJECT_MAGNIFICATION
+    ),
+    propertyName.PROP_INSTRUMENT_ACCEL_VOLTAGE: deClient.GetProperty(
+        propertyName.PROP_INSTRUMENT_ACCEL_VOLTAGE
+    ),
+    propertyName.PROP_HARDWARE_ROI_SIZE_X: deClient.GetProperty(
+        propertyName.PROP_HARDWARE_ROI_SIZE_X
+    ),
+    propertyName.PROP_HARDWARE_ROI_SIZE_X: deClient.GetProperty(
+        propertyName.PROP_HARDWARE_ROI_SIZE_X
+    ),
+    propertyName.PROP_FRAMES_PER_SECOND: deClient.GetProperty(
+        propertyName.PROP_FRAMES_PER_SECOND
+    ),
+    propertyName.PROP_FRAME_COUNT: deClient.GetProperty(propertyName.PROP_FRAME_COUNT),
+    propertyName.PROP_AUTOSAVE_MOVIE: deClient.GetProperty(
+        propertyName.PROP_AUTOSAVE_MOVIE
+    ),
+    propertyName.PROP_IMAGE_PROCESSING_MODE: deClient.GetProperty(
+        propertyName.PROP_IMAGE_PROCESSING_MODE
+    ),
+    propertyName.PROP_IMAGE_PROCESSING_FLATFIELD_CORRECTION: deClient.GetProperty(
+        propertyName.PROP_IMAGE_PROCESSING_FLATFIELD_CORRECTION
+    ),
+    propertyName.PROP_BINNING_X: deClient.GetProperty(propertyName.PROP_BINNING_X),
+    propertyName.PROP_BINNING_Y: deClient.GetProperty(propertyName.PROP_BINNING_Y),
 }
 
 testPattern = "SW Constant 400"
@@ -56,10 +76,14 @@ numPrecision = 6
 frameCount = 1
 
 deClient.SetCurrentCamera(camera)
-#deClient.SetProperty("Test Pattern", testPattern)
+# deClient.SetProperty("Test Pattern", testPattern)
 deClient.SetProperty(propertyName.PROP_INSTRUMENT_CLIENT_ADDRESS, "Manual")
-deClient.SetProperty(propertyName.PROP_INSTRUMENT_PROJECT_MAGNIFICATION, instrumentProjectMagnification)
-deClient.SetProperty(propertyName.PROP_INSTRUMENT_ACCEL_VOLTAGE, instrumentAcceleratingVoltageV)
+deClient.SetProperty(
+    propertyName.PROP_INSTRUMENT_PROJECT_MAGNIFICATION, instrumentProjectMagnification
+)
+deClient.SetProperty(
+    propertyName.PROP_INSTRUMENT_ACCEL_VOLTAGE, instrumentAcceleratingVoltageV
+)
 deClient.SetProperty(propertyName.PROP_HARDWARE_ROI_SIZE_X, hwRoiSizeX)
 deClient.SetProperty(propertyName.PROP_HARDWARE_ROI_SIZE_Y, hwRoiSizeY)
 deClient.SetProperty(propertyName.PROP_FRAMES_PER_SECOND, fps)
@@ -69,8 +93,12 @@ hwWidth = deClient.GetProperty(propertyName.PROP_HARDWARE_FRAME_SIZE_X)
 hwHeight = deClient.GetProperty(propertyName.PROP_HARDWARE_FRAME_SIZE_Y)
 frameCount = deClient.GetProperty(propertyName.PROP_FRAME_COUNT)
 fps = deClient.GetProperty(propertyName.PROP_FRAMES_PER_SECOND)
-specimenPixelXns = deClient.GetProperty(propertyName.PROP_SPECIMEN_PIXEL_SIZE_X_NANOMETERS)
-specimenPixelYns = deClient.GetProperty(propertyName.PROP_SPECIMEN_PIXEL_SIZE_Y_NANOMETERS)
+specimenPixelXns = deClient.GetProperty(
+    propertyName.PROP_SPECIMEN_PIXEL_SIZE_X_NANOMETERS
+)
+specimenPixelYns = deClient.GetProperty(
+    propertyName.PROP_SPECIMEN_PIXEL_SIZE_Y_NANOMETERS
+)
 swBinX = deClient.GetProperty(propertyName.PROP_BINNING_X)
 swBinY = deClient.GetProperty(propertyName.PROP_BINNING_Y)
 numPhysicalPixels = hwWidth * hwHeight
@@ -86,25 +114,52 @@ class Stats:
         self.eps = 0
         self.epa2 = 0
 
-    def UpdateStats(self, eppixpf, frameCount, fps, numPhysicalPixels, specimenPixelXns, specimenPixelYns, swBinX, swBinY):
-        self.eppix = eppixpf * frameCount            # -> e-/pix = e-/pix/frame * framCount
-        self.eppixps = eppixpf * fps                 # -> e-/pix/s = e-/pix/frame * Fps
-        self.eps = self.eppixps * numPhysicalPixels  # -> e-/s = e-/pix/s * RoiSizeX * RoiSizeY
-        angstromsSquared = 100.0 * specimenPixelXns * specimenPixelYns / (swBinX * swBinY)
-        self.epa2 = self.eppix / angstromsSquared    # -> e-/a^2 = e-/pix / angstromsSquared
+    def UpdateStats(
+        self,
+        eppixpf,
+        frameCount,
+        fps,
+        numPhysicalPixels,
+        specimenPixelXns,
+        specimenPixelYns,
+        swBinX,
+        swBinY,
+    ):
+        self.eppix = eppixpf * frameCount  # -> e-/pix = e-/pix/frame * framCount
+        self.eppixps = eppixpf * fps  # -> e-/pix/s = e-/pix/frame * Fps
+        self.eps = (
+            self.eppixps * numPhysicalPixels
+        )  # -> e-/s = e-/pix/s * RoiSizeX * RoiSizeY
+        angstromsSquared = (
+            100.0 * specimenPixelXns * specimenPixelYns / (swBinX * swBinY)
+        )
+        self.epa2 = (
+            self.eppix / angstromsSquared
+        )  # -> e-/a^2 = e-/pix / angstromsSquared
 
-    
+
 def statisticsValueCheck(imageProcessingMode, correctionMode):
     deClient.SetProperty(propertyName.PROP_IMAGE_PROCESSING_MODE, imageProcessingMode)
-    deClient.SetProperty(propertyName.PROP_IMAGE_PROCESSING_FLATFIELD_CORRECTION, correctionMode)
-    deClient.SetProperty(propertyName.PROP_BINNING_X, swBinX) 
+    deClient.SetProperty(
+        propertyName.PROP_IMAGE_PROCESSING_FLATFIELD_CORRECTION, correctionMode
+    )
+    deClient.SetProperty(propertyName.PROP_BINNING_X, swBinX)
     deClient.SetProperty(propertyName.PROP_BINNING_Y, swBinY)
-    
+
     deClient.StartAcquisition()
     stats = Stats()
     image = deClient.GetResult(frameType.SUMTOTAL, pixelFormat.AUTO, attributes)
 
-    stats.UpdateStats(attributes.eppixpf, frameCount, fps, numPhysicalPixels, specimenPixelXns, specimenPixelYns, swBinX, swBinY)
+    stats.UpdateStats(
+        attributes.eppixpf,
+        frameCount,
+        fps,
+        numPhysicalPixels,
+        specimenPixelXns,
+        specimenPixelYns,
+        swBinX,
+        swBinY,
+    )
     print(f"imagemean: {attributes.imageMean}")
     print(stats.eppix)
     print(stats.epa2)
@@ -117,7 +172,9 @@ def statisticsValueCheck(imageProcessingMode, correctionMode):
 
 def compareBin1Bin2(imageProcessingMode, correctionMode, swBinningFactor):
     deClient.SetProperty(propertyName.PROP_IMAGE_PROCESSING_MODE, imageProcessingMode)
-    deClient.SetProperty(propertyName.PROP_IMAGE_PROCESSING_FLATFIELD_CORRECTION, correctionMode)
+    deClient.SetProperty(
+        propertyName.PROP_IMAGE_PROCESSING_FLATFIELD_CORRECTION, correctionMode
+    )
 
     deClient.SetProperty(propertyName.PROP_BINNING_X, 1)
     deClient.SetProperty(propertyName.PROP_BINNING_Y, 1)
@@ -125,7 +182,16 @@ def compareBin1Bin2(imageProcessingMode, correctionMode, swBinningFactor):
     statsBin1 = Stats()
 
     image = deClient.GetResult(frameType.SUMTOTAL, pixelFormat.AUTO, attributes)
-    statsBin1.UpdateStats(attributes.eppixpf, frameCount, fps, numPhysicalPixels, specimenPixelXns, specimenPixelYns, swBinX, swBinY)
+    statsBin1.UpdateStats(
+        attributes.eppixpf,
+        frameCount,
+        fps,
+        numPhysicalPixels,
+        specimenPixelXns,
+        specimenPixelYns,
+        swBinX,
+        swBinY,
+    )
 
     deClient.SetProperty(propertyName.PROP_BINNING_X, swBinningFactor)
     deClient.SetProperty(propertyName.PROP_BINNING_Y, swBinningFactor)
@@ -133,22 +199,44 @@ def compareBin1Bin2(imageProcessingMode, correctionMode, swBinningFactor):
     statsBin2 = Stats()
 
     image = deClient.GetResult(frameType.SUMTOTAL, pixelFormat.AUTO, attributes)
-    statsBin2.UpdateStats(attributes.eppixpf, frameCount, fps, numPhysicalPixels, specimenPixelXns, specimenPixelYns, swBinX, swBinY)
+    statsBin2.UpdateStats(
+        attributes.eppixpf,
+        frameCount,
+        fps,
+        numPhysicalPixels,
+        specimenPixelXns,
+        specimenPixelYns,
+        swBinX,
+        swBinY,
+    )
 
-    func.compare2FloatValue(statsBin1.eppix,   statsBin2.eppix,   numPrecision, "e-/pix")
-    func.compare2FloatValue(statsBin1.eppixps, statsBin2.eppixps, numPrecision, "e-/pix/s")
-    func.compare2FloatValue(statsBin1.eps,     statsBin2.eps,     numPrecision, "e-/s")
-    func.compare2FloatValue(statsBin1.epa2,    statsBin2.epa2,    numPrecision, "e-/a^2")
-
+    func.compare2FloatValue(statsBin1.eppix, statsBin2.eppix, numPrecision, "e-/pix")
+    func.compare2FloatValue(
+        statsBin1.eppixps, statsBin2.eppixps, numPrecision, "e-/pix/s"
+    )
+    func.compare2FloatValue(statsBin1.eps, statsBin2.eps, numPrecision, "e-/s")
+    func.compare2FloatValue(statsBin1.epa2, statsBin2.epa2, numPrecision, "e-/a^2")
 
 
 class TestPatternPixelValues(unittest.TestCase):
     def testImageStatisticsTest1(self):
-        self.assertTrue(statisticsValueCheck(imageProcessingMode="Integrating", correctionMode="Dark"))
-    def testImageStatisticsTest2(self):
-        self.assertTrue(compareBin1Bin2(imageProcessingMode="Integrating", correctionMode="Dark", swBinningFactor=2))
+        self.assertTrue(
+            statisticsValueCheck(
+                imageProcessingMode="Integrating", correctionMode="Dark"
+            )
+        )
 
-if __name__ == '__main__':
+    def testImageStatisticsTest2(self):
+        self.assertTrue(
+            compareBin1Bin2(
+                imageProcessingMode="Integrating",
+                correctionMode="Dark",
+                swBinningFactor=2,
+            )
+        )
+
+
+if __name__ == "__main__":
     try:
         unittest.main()
     finally:

@@ -16,19 +16,31 @@ camera = cameras[0]
 deClient.SetCurrentCamera(camera)
 serverVersion = deClient.GetProperty(propertyName.PROP_SERVER_SOFTWARE_VERSION)
 cameraName = deClient.GetProperty(propertyName.PROP_CAMERA_NAME)
-print(f'Camera Name: {cameraName}, Server Software Version is: {serverVersion}')
+print(f"Camera Name: {cameraName}, Server Software Version is: {serverVersion}")
 
 # Store default properties in a dictionary
 defaultProperties = {
-    propertyName.PROP_FRAME_COUNT                              : deClient.GetProperty(propertyName.PROP_FRAME_COUNT),
-    propertyName.PROP_BINNING_X                                : deClient.GetProperty(propertyName.PROP_BINNING_X),
-    propertyName.PROP_BINNING_Y                                : deClient.GetProperty(propertyName.PROP_BINNING_Y),
-    propertyName.PROP_HARDWARE_BINNING_X                       : deClient.GetProperty(propertyName.PROP_HARDWARE_BINNING_X),
-    propertyName.PROP_HARDWARE_BINNING_Y                       : deClient.GetProperty(propertyName.PROP_HARDWARE_BINNING_Y),
-    propertyName.PROP_FRAMES_PER_SECOND                        : deClient.GetProperty(propertyName.PROP_FRAMES_PER_SECOND),
-    propertyName.PROP_IMAGE_PROCESSING_MODE                    : deClient.GetProperty(propertyName.PROP_IMAGE_PROCESSING_MODE),
-    propertyName.PROP_AUTOSAVE_FINAL_IMAGE                     : deClient.GetProperty(propertyName.PROP_AUTOSAVE_FINAL_IMAGE),
-    propertyName.PROP_IMAGE_PROCESSING_FLATFIELD_CORRECTION    : deClient.GetProperty(propertyName.PROP_IMAGE_PROCESSING_FLATFIELD_CORRECTION)
+    propertyName.PROP_FRAME_COUNT: deClient.GetProperty(propertyName.PROP_FRAME_COUNT),
+    propertyName.PROP_BINNING_X: deClient.GetProperty(propertyName.PROP_BINNING_X),
+    propertyName.PROP_BINNING_Y: deClient.GetProperty(propertyName.PROP_BINNING_Y),
+    propertyName.PROP_HARDWARE_BINNING_X: deClient.GetProperty(
+        propertyName.PROP_HARDWARE_BINNING_X
+    ),
+    propertyName.PROP_HARDWARE_BINNING_Y: deClient.GetProperty(
+        propertyName.PROP_HARDWARE_BINNING_Y
+    ),
+    propertyName.PROP_FRAMES_PER_SECOND: deClient.GetProperty(
+        propertyName.PROP_FRAMES_PER_SECOND
+    ),
+    propertyName.PROP_IMAGE_PROCESSING_MODE: deClient.GetProperty(
+        propertyName.PROP_IMAGE_PROCESSING_MODE
+    ),
+    propertyName.PROP_AUTOSAVE_FINAL_IMAGE: deClient.GetProperty(
+        propertyName.PROP_AUTOSAVE_FINAL_IMAGE
+    ),
+    propertyName.PROP_IMAGE_PROCESSING_FLATFIELD_CORRECTION: deClient.GetProperty(
+        propertyName.PROP_IMAGE_PROCESSING_FLATFIELD_CORRECTION
+    ),
 }
 
 # Set default:
@@ -59,11 +71,17 @@ deClient.SetProperty(propertyName.PROP_IMAGE_PROCESSING_MODE, "Integrating")
 deClient.SetProperty(propertyName.PROP_AUTOSAVE_FINAL_IMAGE, "Save")
 deClient.SetProperty(propertyName.PROP_IMAGE_PROCESSING_FLATFIELD_CORRECTION, "None")
 
+
 def patternTest(binningMethod, expectedValue):
     deClient.SetProperty(propertyName.PROP_BINNING_METHOD, binningMethod)
     deClient.StartAcquisition()
     image = deClient.GetResult(frame_type, DEAPI.PixelFormat.UINT16)[0]
-    fName = deClient.GetProperty('Autosave Directory') + '\\' + deClient.GetProperty('Dataset Name') + '_final.mrc'
+    fName = (
+        deClient.GetProperty("Autosave Directory")
+        + "\\"
+        + deClient.GetProperty("Dataset Name")
+        + "_final.mrc"
+    )
 
     with mrcfile.open(fName, permissive=True) as mrc:
         # Read the data
@@ -84,7 +102,9 @@ def patternTest(binningMethod, expectedValue):
         # Print the pixel values
         for coord, value in values.items():
             if value != expectedValue:
-                print(f"Error: Pixel Coordinates {coord} : value {value} expectValue {expectedValue}")
+                print(
+                    f"Error: Pixel Coordinates {coord} : value {value} expectValue {expectedValue}"
+                )
                 return False
 
         # Print the mean of pixel values
@@ -95,17 +115,20 @@ def patternTest(binningMethod, expectedValue):
 
         return True
 
+
 class TestPatternPixelValues(unittest.TestCase):
 
     def testPatternTest1(self):
         self.assertTrue(patternTest("Sum", pixelValue * binningX * binningY))
+
     def testPatternTest2(self):
         self.assertTrue(patternTest("Average", pixelValue))
+
 
 if __name__ == "__main__":
     scriptName = os.path.basename(__file__)
     func.writeLogFile(TestPatternPixelValues, scriptName)
-        
+
     # Reset stdout to the console
     sys.stdout = sys.__stdout__
 

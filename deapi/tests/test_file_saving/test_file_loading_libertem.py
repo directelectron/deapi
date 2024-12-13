@@ -26,7 +26,9 @@ class TestLoadingLiberTEM:
         client["Binning X"] = 1
         client["Binning Y"] = 1
 
-    @pytest.mark.parametrize("file_format", ["DE5", "HSPY"]) # MRC file loading in LiberTEM is broken!
+    @pytest.mark.parametrize(
+        "file_format", ["DE5", "HSPY"]
+    )  # MRC file loading in LiberTEM is broken!
     @pytest.mark.server
     def test_save_4DSTEM(self, client, file_format):
         if not os.path.exists("D:\Temp"):
@@ -41,7 +43,7 @@ class TestLoadingLiberTEM:
         client["Autosave Directory"] = temp_dir
         client.start_acquisition(1)
         while client.acquiring:
-            time.sleep(.1)
-        movie = glob.glob(temp_dir + "/*movie."+file_format.lower())[0]
-        dataset = lt.Context().load("auto", path = movie)
-        assert tuple(dataset.shape) == (8,16, 1024, 1024)
+            time.sleep(0.1)
+        movie = glob.glob(temp_dir + "/*movie." + file_format.lower())[0]
+        dataset = lt.Context().load("auto", path=movie)
+        assert tuple(dataset.shape) == (8, 16, 1024, 1024)

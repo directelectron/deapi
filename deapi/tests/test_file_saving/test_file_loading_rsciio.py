@@ -6,7 +6,6 @@ This should be run before any release to make sure that the file loaders downstr
 work. 
 """
 
-
 import os
 import time
 import pytest
@@ -44,11 +43,11 @@ class TestSavingHyperSpy:
         client
         client.start_acquisition(1)
         while client.acquiring:
-            time.sleep(.1)
+            time.sleep(0.1)
         s = hs.load(client["Autosave Movie Frames File Path"])
         if file_format == "MRC":
             assert s.data.shape == (64, 1024, 1024)
         elif file_format == "DE5":
-            assert s.data.shape == (1024,1024,8,8)
+            assert s.data.shape == (1024, 1024, 8, 8)
         else:
-            assert s.data.shape == (8,8,1024,1024)
+            assert s.data.shape == (8, 8, 1024, 1024)

@@ -22,9 +22,8 @@ class TestClient:
         client["Binning X"] = 1
         client["Binning Y"] = 1
 
-
     def teardown(self):
-        time.sleep(.1)
+        time.sleep(0.1)
 
     def test_client_connection(self, client):
         assert client.connected
@@ -126,12 +125,12 @@ class TestClient:
         np.testing.assert_allclose(client.virtual_masks[0][:], 1)
 
     def test_set_virtual_mask(self, client):
-        #client.virtual_masks[0][:] = 1
-        #np.testing.assert_allclose(client.virtual_masks[0][:], 1)
-        #client.virtual_masks[1][:] = 1
-        #np.testing.assert_allclose(client.virtual_masks[1][:], 1)
-        #client.virtual_masks[2][:] = 2
-        #np.testing.assert_allclose(client.virtual_masks[2][:], 2)
+        # client.virtual_masks[0][:] = 1
+        # np.testing.assert_allclose(client.virtual_masks[0][:], 1)
+        # client.virtual_masks[1][:] = 1
+        # np.testing.assert_allclose(client.virtual_masks[1][:], 1)
+        # client.virtual_masks[2][:] = 2
+        # np.testing.assert_allclose(client.virtual_masks[2][:], 2)
         pass
 
     def test_resize_virtual_mask(self, client):
@@ -174,11 +173,16 @@ class TestClient:
         sp = client.get_property_spec("Binning Y")
         assert isinstance(sp, PropertySpec)
         assert sp.currentValue == str(bin_sw)
-        assert sp.options == "'1*', '2', '4', '8', '16', '32', '64', '128', '256', '512', '1024'"
+        assert (
+            sp.options
+            == "'1*', '2', '4', '8', '16', '32', '64', '128', '256', '512', '1024'"
+        )
         client.set_property("Hardware Binning Y", 2)
         sp = client.get_property_spec("Binning Y")
         assert sp.currentValue == str(bin_sw)
-        assert sp.options == "'1*', '2', '4', '8', '16', '32', '64', '128', '256', '512'"
+        assert (
+            sp.options == "'1*', '2', '4', '8', '16', '32', '64', '128', '256', '512'"
+        )
 
     @pytest.mark.parametrize("bin", [1, 2])
     @pytest.mark.parametrize("offsetx", [0, 512])
@@ -208,16 +212,16 @@ class TestClient:
 
         client["Hardware ROI Offset X"] = offsetx
         assert client["Hardware ROI Offset X"] == offsetx
-        assert client["Image Size X (pixels)"] == (1024-offsetx)//bin
+        assert client["Image Size X (pixels)"] == (1024 - offsetx) // bin
 
         client["Hardware ROI Size X"] = size
         assert client["Hardware ROI Size X"] == size
-        assert client["Image Size X (pixels)"] == size//bin
+        assert client["Image Size X (pixels)"] == size // bin
 
         client["Binning X"] = bin_sw
         client["Binning Y"] = bin_sw
         assert client["Binning X"] == bin_sw
-        assert client["Image Size X (pixels)"] == size//bin_sw//bin
+        assert client["Image Size X (pixels)"] == size // bin_sw // bin
 
     def test_stream_data(self, client):
         client["Frames Per Second"] = 5
@@ -230,15 +234,20 @@ class TestClient:
         info, buffer, total_bytes, numpy_dtype = client.current_movie_buffer()
         number_frames = 0
         while status == MovieBufferStatus.OK and success:
-            status, total_bytes, number_frames, buffer = client.GetMovieBuffer(buffer,
-                                                                                  total_bytes,
-                                                                                  number_frames)
-
+            status, total_bytes, number_frames, buffer = client.GetMovieBuffer(
+                buffer, total_bytes, number_frames
+            )
 
             ## CovertToImage(movieBuffer, headerBytes, dataType, imageW, imageH, numberFrames);
-            frameIndexArray = np.frombuffer(buffer, np.longlong, offset=0, count=numberFrames)
-            movieBuffer = np.frombuffer(buffer, dtype=numpy_dtype, offset=info.headerBytes,
-                                           count=info.imageH * info.imageW * numberFrames)
+            frameIndexArray = np.frombuffer(
+                buffer, np.longlong, offset=0, count=numberFrames
+            )
+            movieBuffer = np.frombuffer(
+                buffer,
+                dtype=numpy_dtype,
+                offset=info.headerBytes,
+                count=info.imageH * info.imageW * numberFrames,
+            )
 
             ## Verify the value
 
@@ -252,12 +261,10 @@ class TestClient:
                 # Extract the first pixel value
                 first_pixel_value = movieBuffer[i * info.imageW * info.imageH]
 
-                success = success and (frame_index == index) and (first_pixel_value == index)
+                success = (
+                    success and (frame_index == index) and (first_pixel_value == index)
+                )
 
                 index += 1
                 if not success:
                     break
-
-
-
-

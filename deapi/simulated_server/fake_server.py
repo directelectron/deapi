@@ -285,7 +285,10 @@ class FakeServer:
             return self._fake_get_result(command)
         elif command.command[0].command_id == self.LIST_CAMERAS + commandVersion * 100:
             return self._fake_list_cameras(command)
-        elif command.command[0].command_id == self.SET_CLIENT_READ_ONLY + commandVersion * 100:
+        elif (
+            command.command[0].command_id
+            == self.SET_CLIENT_READ_ONLY + commandVersion * 100
+        ):
             return self._fake_set_client_read_only(command)
         elif (
             command.command[0].command_id
@@ -301,7 +304,7 @@ class FakeServer:
 
     def _fake_set_client_read_only(self, command):
 
-        self.is_read_only =command.command[0].parameter[0].p_bool
+        self.is_read_only = command.command[0].parameter[0].p_bool
         acknowledge_return = pb.DEPacket()
         acknowledge_return.type = pb.DEPacket.P_ACKNOWLEDGE
         ack1 = acknowledge_return.acknowledge.add()
@@ -501,33 +504,35 @@ class FakeServer:
         ack1.command_id = command.command[0].command_id
         int_param = ack1.parameter.add()
         int_param.type = pb.AnyParameter.P_INT
-        int_param.p_int = 1024 # Header bytes
+        int_param.p_int = 1024  # Header bytes
         int_param = ack1.parameter.add()
         int_param.type = pb.AnyParameter.P_INT
-        int_param.p_int = (int(self["Image Size Y (pixels)"]) *
-                           int(self["Image Size X (pixels)"]) *
-                           int(self["Grabbing - Frames Per Buffer"])* 2) # Image buffer bytes
+        int_param.p_int = (
+            int(self["Image Size Y (pixels)"])
+            * int(self["Image Size X (pixels)"])
+            * int(self["Grabbing - Frames Per Buffer"])
+            * 2
+        )  # Image buffer bytes
         int_param = ack1.parameter.add()
         int_param.type = pb.AnyParameter.P_INT
-        int_param.p_int = 0 # Frame index start pos
+        int_param.p_int = 0  # Frame index start pos
         int_param = ack1.parameter.add()
         int_param.type = pb.AnyParameter.P_INT
-        int_param.p_int = int(self["Image Size X (pixels)"]) # image width
+        int_param.p_int = int(self["Image Size X (pixels)"])  # image width
         int_param = ack1.parameter.add()
         int_param.type = pb.AnyParameter.P_INT
-        int_param.p_int = 1024 # image start
+        int_param.p_int = 1024  # image start
         int_param = ack1.parameter.add()
         int_param.type = pb.AnyParameter.P_INT
-        int_param.p_int = int(self["Image Size Y (pixels)"]) # image height
+        int_param.p_int = int(self["Image Size Y (pixels)"])  # image height
         int_param = ack1.parameter.add()
         int_param.type = pb.AnyParameter.P_INT
-        int_param.p_int = int(self["Grabbing - Frames Per Buffer"]) # frames in buffer
+        int_param.p_int = int(self["Grabbing - Frames Per Buffer"])  # frames in buffer
         int_param = ack1.parameter.add()
         int_param.type = pb.AnyParameter.P_INT
-        int_param.p_int = 5 # data type (only int16 supported)
+        int_param.p_int = 5  # data type (only int16 supported)
 
         return (acknowledge_return,)
-
 
     def _fake_get_result(self, command):
         acknowledge_return = pb.DEPacket()
@@ -647,19 +652,29 @@ class FakeServer:
         int_param.type = pb.AnyParameter.P_INT
 
         if np.prod(self.fake_data.navigator.shape) > self.current_movie_index:
-            frame_numbers = np.arange(self.current_movie_index,
-                                      self.current_movie_index + frames_per_buffer, dtype=np.int64)
+            frame_numbers = np.arange(
+                self.current_movie_index,
+                self.current_movie_index + frames_per_buffer,
+                dtype=np.int64,
+            )
             print(f"Getting movie buffer {frame_numbers}")
-            data = self.fake_data.flat[self.current_movie_index: self.current_movie_index + frames_per_buffer]
+            data = self.fake_data.flat[
+                self.current_movie_index : self.current_movie_index + frames_per_buffer
+            ]
             print(f"Data shape {data.shape}")
             self.current_movie_index = self.current_movie_index + frames_per_buffer
             if len(frame_numbers) < 128:
-                frame_numbers = np.pad(frame_numbers, (0, 128 - len(frame_numbers)), mode='constant', constant_values=0)
+                frame_numbers = np.pad(
+                    frame_numbers,
+                    (0, 128 - len(frame_numbers)),
+                    mode="constant",
+                    constant_values=0,
+                )
 
-            int_param.p_int = 5 # okay
+            int_param.p_int = 5  # okay
             int_param = ack1.parameter.add()
             int_param.type = pb.AnyParameter.P_INT
-            int_param.p_int = np.prod(data.shape) * 2 + 1024   # Image total bytes
+            int_param.p_int = np.prod(data.shape) * 2 + 1024  # Image total bytes
             # Image total bytes
             int_param = ack1.parameter.add()
             int_param.type = pb.AnyParameter.P_INT
@@ -668,7 +683,7 @@ class FakeServer:
             ans = (acknowledge_return,)
             ans += (frame_numbers.tobytes(), data.astype(np.int16).tobytes())
         else:
-            int_param.p_int = 4 # finished
+            int_param.p_int = 4  # finished
             int_param = ack1.parameter.add()
             int_param.type = pb.AnyParameter.P_INT
             int_param.p_int = 0  # Image total bytes

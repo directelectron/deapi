@@ -18,11 +18,20 @@ print(f"Camera Name: {cameraName}, Server Software Version is: {serverVersion}")
 
 # Store default properties in a dictionary
 defaultProperties = {
-    propertyName.PROP_FRAMES_PER_SECOND       : deClient.GetProperty(propertyName.PROP_FRAMES_PER_SECOND),
-    propertyName.PROP_HARDWARE_ROI_SIZE_X     : deClient.GetProperty(propertyName.PROP_HARDWARE_ROI_SIZE_X),
-    propertyName.PROP_HARDWARE_ROI_SIZE_X     : deClient.GetProperty(propertyName.PROP_HARDWARE_ROI_SIZE_Y),
-    propertyName.PROP_EXPOSURE_TIME_SECONDS   : deClient.GetProperty(propertyName.PROP_EXPOSURE_TIME_SECONDS)
+    propertyName.PROP_FRAMES_PER_SECOND: deClient.GetProperty(
+        propertyName.PROP_FRAMES_PER_SECOND
+    ),
+    propertyName.PROP_HARDWARE_ROI_SIZE_X: deClient.GetProperty(
+        propertyName.PROP_HARDWARE_ROI_SIZE_X
+    ),
+    propertyName.PROP_HARDWARE_ROI_SIZE_X: deClient.GetProperty(
+        propertyName.PROP_HARDWARE_ROI_SIZE_Y
+    ),
+    propertyName.PROP_EXPOSURE_TIME_SECONDS: deClient.GetProperty(
+        propertyName.PROP_EXPOSURE_TIME_SECONDS
+    ),
 }
+
 
 def setProperties(fps, hwSizeX, hwSizeY, exTime=None):
     deClient.SetProperty(propertyName.PROP_HARDWARE_ROI_SIZE_X, hwSizeX)
@@ -31,11 +40,13 @@ def setProperties(fps, hwSizeX, hwSizeY, exTime=None):
     if exTime is not None:
         deClient.SetProperty(propertyName.PROP_EXPOSURE_TIME_SECONDS, exTime)
 
+
 # Function to be tested
 def TestFps(fps, hwSizeX, hwSizeY):
     setProperties(fps, hwSizeX, hwSizeY)
     value = int(deClient.GetProperty(propertyName.PROP_FRAMES_PER_SECOND))
     return func.compare2Value(fps, value, "Fps: ")
+
 
 def TestMaxFps(fps, hwSizeX, hwSizeY):
     if not cameraName == "DESim":
@@ -46,10 +57,12 @@ def TestMaxFps(fps, hwSizeX, hwSizeY):
     else:
         return True
 
+
 def TestFrameCount(fps, hwSizeX, hwSizeY, exTime):
     setProperties(fps, hwSizeX, hwSizeY, exTime)
     frameCount = deClient.GetProperty(propertyName.PROP_FRAME_COUNT)
-    return func.compare2Value(fps*exTime, frameCount, "Frame Count: ")
+    return func.compare2Value(fps * exTime, frameCount, "Frame Count: ")
+
 
 class testFPS(unittest.TestCase):
     # Set fps: 25
@@ -60,10 +73,10 @@ class testFPS(unittest.TestCase):
     def testFpsTest2(self):
         self.assertTrue(TestFps(50, 1024, 1024))
 
-    # Set max fps: 99999 and check if it will auto change to the correct max fps 
+    # Set max fps: 99999 and check if it will auto change to the correct max fps
     def testMaxFpsTest1(self):
         self.assertTrue(TestMaxFps(99999, 1024, 1024))
-    
+
     def testMaxFpsTest2(self):
         self.assertTrue(TestMaxFps(99999, 512, 512))
 
@@ -78,7 +91,7 @@ class testFPS(unittest.TestCase):
 if __name__ == "__main__":
     scriptName = os.path.basename(__file__)
     func.writeLogFile(testFPS, scriptName)
-        
+
     # Reset stdout to the console
     sys.stdout = sys.__stdout__
 

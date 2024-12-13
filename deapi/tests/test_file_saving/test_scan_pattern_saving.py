@@ -33,9 +33,11 @@ class TestSavingScans:
             frame_num_order = np.arange(num_pos)
             frame_num_order = frame_num_order.reshape((i, i))
             skips = i // 4
-            frame_num_order = np.vstack([frame_num_order[i::skips] for i in range(skips)])
+            frame_num_order = np.vstack(
+                [frame_num_order[i::skips] for i in range(skips)]
+            )
             frame_num_order = frame_num_order.reshape(-1)
-        else: # Raster
+        else:  # Raster
             frame_num_order = range(num_pos)
 
         client["Frames Per Second"] = 100
@@ -54,11 +56,13 @@ class TestSavingScans:
         client["Test Pattern"] = "SW Frame Number"
         client.start_acquisition(1)
         while client.acquiring:
-            time.sleep(.1)
+            time.sleep(0.1)
 
         if file_format == "HSPY":
             movie = hs.load(client["Autosave Movie Frames File Path"])
         else:
-            movie = hs.load(client["Autosave Movie Frames File Path"], navigation_shape=(i,i))
+            movie = hs.load(
+                client["Autosave Movie Frames File Path"], navigation_shape=(i, i)
+            )
         frame_order = movie.data[:, :, 0, 0]
         np.testing.assert_array_equal(frame_order.reshape(-1), frame_num_order)

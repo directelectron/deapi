@@ -37,7 +37,6 @@ from deapi.data_types import (
     DataType,
     PropertyCollection,
     VirtualMask,
-
 )
 
 
@@ -58,6 +57,7 @@ log.info("DEClient  : " + version)
 log.info("CommandVer: " + str(commandVersion))
 log.info("logLevel  : " + str(logging.getLevelName(logLevel)))
 
+
 def write_only(func):
     def wrapper(*args, **kwargs):
         if args[0].read_only:
@@ -65,7 +65,9 @@ def write_only(func):
             return
         else:
             return func(*args, **kwargs)
+
     return wrapper
+
 
 def disable_scan(func):
     def wrapper(*args, **kwargs):
@@ -75,7 +77,9 @@ def disable_scan(func):
         ans = func(*args, **kwargs)
         args[0].set_property("Scan - Enable", initial_scan)
         return ans
+
     return wrapper
+
 
 class Client:
     """A class for connecting to the DE-Server
@@ -98,7 +102,6 @@ class Client:
 
     def __str__(self):
         return f"Client(host={self.host}, port={self.port}, camera={self.get_current_camera()})"
-
 
     def _ipython_key_completions_(self):
         return self.list_properties()
@@ -209,7 +212,6 @@ class Client:
 
         version = [int(part) for part in serverVersion[:4]]
         temp = version[2] + version[1] * 1000 + version[0] * 1000000
-
 
         if cVersion >= 12:
             self.set_client_read_only(read_only)
@@ -447,18 +449,17 @@ class Client:
         """
         Get the server software version
         """
-        server_version = self.GetProperty("Server Software Version");
-        server_version = re.findall(r'\d+', server_version)
+        server_version = self.GetProperty("Server Software Version")
+        server_version = re.findall(r"\d+", server_version)
 
         ver = [int(part) for part in server_version[:4]]
         res = ver[2] + ver[1] * 1000 + ver[0] * 1000000
         return res
 
-
     def get_properties(self, names=None):
-            if names is None:
-                names = self.list_properties()
-            return [self.get_property(p) for p in names]
+        if names is None:
+            names = self.list_properties()
+        return [self.get_property(p) for p in names]
 
     @property
     def acquiring(self):
@@ -551,9 +552,7 @@ class Client:
         """
         ret = False
 
-        command = self._addSingleCommand(self.SET_ENG_MODE,
-                                         None,
-                                         [enable, password])
+        command = self._addSingleCommand(self.SET_ENG_MODE, None, [enable, password])
         response = self._sendCommand(command)
         if response != False:
             ret = response.acknowledge[0].error != True
@@ -565,7 +564,9 @@ class Client:
 
         ret = False
 
-        command = self.__addSingleCommand(self.SET_ENG_MODE_GET_CHANGED_PROPERTIES, None, [enable, password])
+        command = self.__addSingleCommand(
+            self.SET_ENG_MODE_GET_CHANGED_PROPERTIES, None, [enable, password]
+        )
         response = self.__sendCommand(command)
         if response != False:
             ret = response.acknowledge[0].error != True
@@ -628,7 +629,12 @@ class Client:
             self.refreshProperties = True
 
         if logLevel == logging.DEBUG:
-            log.debug("SetScanSize: (%i,%i) , completed in %.1f ms", sizeX, sizeY, (self.GetTime() - t0) * 1000)
+            log.debug(
+                "SetScanSize: (%i,%i) , completed in %.1f ms",
+                sizeX,
+                sizeY,
+                (self.GetTime() - t0) * 1000,
+            )
 
         return ret
 
@@ -637,7 +643,9 @@ class Client:
         t0 = self.GetTime()
         ret = False
 
-        command = self.__addSingleCommand(self.SET_SCAN_SIZE_AND_GET_CHANGED_PROPERTIES, None, [sizeX, sizeY])
+        command = self.__addSingleCommand(
+            self.SET_SCAN_SIZE_AND_GET_CHANGED_PROPERTIES, None, [sizeX, sizeY]
+        )
         response = self.__sendCommand(command)
         if response != False:
             ret = response.acknowledge[0].error != True
@@ -647,7 +655,12 @@ class Client:
             ret = self.ParseChangedProperties(changedProperties, response)
 
         if logLevel == logging.DEBUG:
-            log.debug("SetScanSize: (%i,%i) , completed in %.1f ms", sizeX, sizeY, (self.GetTime() - t0) * 1000)
+            log.debug(
+                "SetScanSize: (%i,%i) , completed in %.1f ms",
+                sizeX,
+                sizeY,
+                (self.GetTime() - t0) * 1000,
+            )
 
         return ret
 
@@ -657,15 +670,23 @@ class Client:
         t0 = self.GetTime()
         ret = False
 
-        command = self.__addSingleCommand(self.SET_SCAN_SIZE, None, [enable, offsetX, offsetY, sizeX, sizeY])
+        command = self.__addSingleCommand(
+            self.SET_SCAN_SIZE, None, [enable, offsetX, offsetY, sizeX, sizeY]
+        )
         response = self.__sendCommand(command)
         if response != False:
             ret = response.acknowledge[0].error != True
             self.refreshProperties = True
 
         if logLevel == logging.DEBUG:
-            log.debug("SetScanROI: (%i,%i,%i,%i) , completed in %.1f ms", offsetX, offsetY, sizeX, sizeY,
-                      (self.GetTime() - t0) * 1000)
+            log.debug(
+                "SetScanROI: (%i,%i,%i,%i) , completed in %.1f ms",
+                offsetX,
+                offsetY,
+                sizeX,
+                sizeY,
+                (self.GetTime() - t0) * 1000,
+            )
 
         return ret
 
@@ -674,8 +695,11 @@ class Client:
         t0 = self.GetTime()
         ret = False
 
-        command = self.__addSingleCommand(self.SET_SCAN_ROI__AND_GET_CHANGED_PROPERTIES, None,
-                                          [enable, offsetX, offsetY, sizeX, sizeY])
+        command = self.__addSingleCommand(
+            self.SET_SCAN_ROI__AND_GET_CHANGED_PROPERTIES,
+            None,
+            [enable, offsetX, offsetY, sizeX, sizeY],
+        )
         response = self.__sendCommand(command)
         if response != False:
             ret = response.acknowledge[0].error != True
@@ -685,8 +709,14 @@ class Client:
             ret = self.ParseChangedProperties(changedProperties, response)
 
         if logLevel == logging.DEBUG:
-            log.debug("SetScanROI: (%i,%i,%i,%i) , completed in %.1f ms", offsetX, offsetY, sizeX, sizeY,
-                      (self.GetTime() - t0) * 1000)
+            log.debug(
+                "SetScanROI: (%i,%i,%i,%i) , completed in %.1f ms",
+                offsetX,
+                offsetY,
+                sizeX,
+                sizeY,
+                (self.GetTime() - t0) * 1000,
+            )
 
         return ret
 
@@ -997,7 +1027,6 @@ class Client:
                 attributes.windowWidth = self.image_sizex
                 attributes.windowHeight = self.image_sizey
 
-
         log.debug("GetResult frameType:%s, pixelFormat:%s", frameType, pixelFormat)
         start_time = self.GetTime()
         step_time = self.GetTime()
@@ -1266,10 +1295,14 @@ class Client:
             The mask to set
         """
         if id < 1 or id > 4:
-            log.error(" SetVirtualMask The virtual mask id must be selected between 1-4")
+            log.error(
+                " SetVirtualMask The virtual mask id must be selected between 1-4"
+            )
             ret = False
         elif w < 0 or h < 0:
-            log.error(" SetVirtualMask The virtual mask width and height must greater than 0")
+            log.error(
+                " SetVirtualMask The virtual mask width and height must greater than 0"
+            )
             ret = False
         else:
             command = self._addSingleCommand(self.SET_VIRTUAL_MASK, None, [id, w, h])
@@ -1351,8 +1384,10 @@ class Client:
                 if movieBufferStatus == MovieBufferStatus.OK:
                     if totalBytes == 0 or movieBufferSize < totalBytes:
                         retval = False
-                        log.error(f"Image received did not have the expected size."
-                                  f"expected: {totalBytes}, received: {movieBufferSize}")
+                        log.error(
+                            f"Image received did not have the expected size."
+                            f"expected: {totalBytes}, received: {movieBufferSize}"
+                        )
                     else:
                         print("reading movie buffer", totalBytes)
                         movieBuffer = self._recvFromSocket(self.socket, totalBytes)
@@ -1930,7 +1965,7 @@ class Client:
         buffer = b""
 
         total_len = len(buffer)
-        upper_lim =  4096*4096*12 #4096 #1024*256
+        upper_lim = 4096 * 4096 * 12  # 4096 #1024*256
         while total_len < bytes:
             bytes_left = bytes - total_len
             if bytes_left < upper_lim:

@@ -9,6 +9,7 @@ class TestFPS01:
     Test the Frames Per Second property. Make sure that it is set to the
     maximum value and that the camera is able to acquire at that size.
     """
+
     @pytest.mark.server
     @pytest.fixture(autouse=True)
     def clean_state(self, client):
@@ -24,31 +25,30 @@ class TestFPS01:
         client["Binning Y"] = 1
         client.SetProperty("Scan - Enable", "Off")
 
-
     @pytest.mark.parametrize("fps", [25, 50])
     @pytest.mark.server
-    def test_set_fps(self,client, fps):
+    def test_set_fps(self, client, fps):
         deClient = client
-        deClient.SetProperty('Frames Per Second', fps)
-        value = deClient.GetProperty('Frames Per Second')
+        deClient.SetProperty("Frames Per Second", fps)
+        value = deClient.GetProperty("Frames Per Second")
         assert value == fps
 
     @pytest.mark.server
-    def test_max_fps(self,client):
+    def test_max_fps(self, client):
         deClient = client
-        max_fps = deClient.GetProperty('Frames Per Second (Max)')
-        deClient.SetProperty('Frames Per Second', max_fps*2)
-        value = deClient.GetProperty('Frames Per Second')
-        np.testing.assert_allclose(value,  max_fps , rtol=0.1)
+        max_fps = deClient.GetProperty("Frames Per Second (Max)")
+        deClient.SetProperty("Frames Per Second", max_fps * 2)
+        value = deClient.GetProperty("Frames Per Second")
+        np.testing.assert_allclose(value, max_fps, rtol=0.1)
 
     @pytest.mark.parametrize("fps", [10, 15])
-    @pytest.mark.parametrize("exposure", [5,1])
+    @pytest.mark.parametrize("exposure", [5, 1])
     @pytest.mark.server
     def test_frame_count(self, client, fps, exposure):
         deClient = client
-        deClient.SetProperty('Frames Per Second', fps)
-        deClient.SetProperty('Exposure Time (seconds)', exposure)
-        frameCount = deClient.GetProperty('Frame Count')
+        deClient.SetProperty("Frames Per Second", fps)
+        deClient.SetProperty("Exposure Time (seconds)", exposure)
+        frameCount = deClient.GetProperty("Frame Count")
         assert frameCount == fps * exposure
 
 
@@ -67,7 +67,7 @@ class TestReferences07:
         deClient.SetProperty("Frames Per Second", 10)
 
         deClient.TakeDarkReference(100)
-        deClient.SetProperty('Exposure Mode', 'Normal')
+        deClient.SetProperty("Exposure Mode", "Normal")
 
         assert deClient.GetProperty("Reference - Dark")[:5] == "Valid"
 
@@ -75,33 +75,33 @@ class TestReferences07:
     def test_dark_reference2(self, client):
         deClient = client
         acquisitions = 10
-        deClient.SetProperty('Exposure Mode', 'Dark')
-        deClient.SetProperty('Frames Per Second', 10)
-        deClient.SetProperty('Exposure Time (seconds)', 1)
+        deClient.SetProperty("Exposure Mode", "Dark")
+        deClient.SetProperty("Frames Per Second", 10)
+        deClient.SetProperty("Exposure Time (seconds)", 1)
         deClient.StartAcquisition(acquisitions)
 
         # Can we test to make sure the camera shutter is closed?
         while deClient.acquiring:
-            time.sleep(.1)
+            time.sleep(0.1)
         darkReference = deClient.GetProperty("Reference - Dark")
-        deClient.SetProperty('Exposure Mode', 'Normal')
+        deClient.SetProperty("Exposure Mode", "Normal")
 
-        return darkReference[:5] == 'Valid'
+        return darkReference[:5] == "Valid"
 
     @pytest.mark.server
     def test_gain_reference2(self, client):
         deClient = client
         acquisitions = 10
-        deClient.SetProperty('Exposure Mode', 'Gain')
-        deClient.SetProperty('Frames Per Second', 10)
-        deClient.SetProperty('Exposure Time (seconds)', 1)
+        deClient.SetProperty("Exposure Mode", "Gain")
+        deClient.SetProperty("Frames Per Second", 10)
+        deClient.SetProperty("Exposure Time (seconds)", 1)
         deClient.StartAcquisition(acquisitions)
 
         while deClient.acquiring:
-            time.sleep(.1)
+            time.sleep(0.1)
         gain_reference = deClient.GetProperty("Reference - Gain")
-        deClient.SetProperty('Exposure Mode', 'Normal')
-        return gain_reference[:5] == 'Valid'
+        deClient.SetProperty("Exposure Mode", "Normal")
+        return gain_reference[:5] == "Valid"
 
 
 class TestVirtualMasks08:
@@ -127,5 +127,6 @@ class TestVirtualMasks08:
         frameType = getattr(DEAPI.FrameType, f"VIRTUAL_MASK{maskID}")
 
         # Generate and check the first image
-        Image, _, _, _ = deClient.GetResult(frameType, DEAPI.PixelFormat.AUTO, attributes)
-
+        Image, _, _, _ = deClient.GetResult(
+            frameType, DEAPI.PixelFormat.AUTO, attributes
+        )

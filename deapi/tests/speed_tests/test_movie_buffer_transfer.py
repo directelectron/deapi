@@ -12,12 +12,13 @@ from deapi.data_types import MovieBufferStatus
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 @pytest.mark.skip(reason="This test is slow and only for testing speed of saving")
 class TestBufferTransfer:
 
     def test_transfer(self, client):
-        client["Frames Per Second"] = 60 # ~1 GB/s
-        targets = [2,4,8,16,32,64]
+        client["Frames Per Second"] = 60  # ~1 GB/s
+        targets = [2, 4, 8, 16, 32, 64]
         speed = []
         for target in targets:
             client["Grabbing - Target Buffer Size (MB)"] = target
@@ -32,16 +33,22 @@ class TestBufferTransfer:
             times = []
             while status == MovieBufferStatus.OK and success:
                 tic = time.time()
-                status, total_bytes, number_frames, buffer = client.GetMovieBuffer(buffer,
-                                                                                   total_bytes,
-                                                                                   number_frames)
+                status, total_bytes, number_frames, buffer = client.GetMovieBuffer(
+                    buffer, total_bytes, number_frames
+                )
 
                 ## CovertToImage(movieBuffer, headerBytes, dataType, imageW, imageH, numberFrames);
-                frameIndexArray = np.frombuffer(buffer, np.longlong, offset=0, count=numberFrames)
-                movieBuffer = np.frombuffer(buffer, dtype=numpy_dtype, offset=info.headerBytes,
-                                            count=info.imageH * info.imageW * numberFrames)
+                frameIndexArray = np.frombuffer(
+                    buffer, np.longlong, offset=0, count=numberFrames
+                )
+                movieBuffer = np.frombuffer(
+                    buffer,
+                    dtype=numpy_dtype,
+                    offset=info.headerBytes,
+                    count=info.imageH * info.imageW * numberFrames,
+                )
                 toc = time.time()
-                times.append(total_bytes/(toc-tic))
+                times.append(total_bytes / (toc - tic))
 
             speed.append(np.mean(times))
         all_speeds = np.vstack((targets, speed))

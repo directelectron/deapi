@@ -12,6 +12,7 @@ class FlatFakeData:
         dp = self.fake_data.signal[labels]
         return dp
 
+
 class BaseFakeData:
     """
     The idea of this class is to provide a base class for fake data generation.
