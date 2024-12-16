@@ -2,6 +2,17 @@ import numpy as np
 from skimage.transform import resize
 
 
+class FlatFakeData:
+
+    def __init__(self, fake_data):
+        self.fake_data = fake_data
+
+    def __getitem__(self, item):
+        labels = self.fake_data.navigator.flat[item].astype(int)
+        dp = self.fake_data.signal[labels]
+        return dp
+
+
 class BaseFakeData:
     """
     The idea of this class is to provide a base class for fake data generation.
@@ -23,6 +34,7 @@ class BaseFakeData:
         self.navigator = np.array(navigator).astype(int)
         self._signal = np.array(signal)
         self.server = server
+        self.flat = FlatFakeData(self)
 
     @property
     def signal(self):

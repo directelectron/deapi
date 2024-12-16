@@ -4,10 +4,7 @@
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-import inspect
-import os
-from os.path import relpath, dirname
-import re
+
 import sys
 
 import deapi

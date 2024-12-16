@@ -42,19 +42,43 @@ from deapi.data_types import (
 
 from deapi.buffer_protocols import pb
 from deapi.version import version, commandVersion
+from deapi.version import commandVersion as cVersion
+import functools
 
 
 ## the commandInfo contains [VERSION_MAJOR.VERSION_MINOR.VERSION_PATCH.VERSION_REVISION]
 
-logLevel = logging.DEBUG
+
 logLevel = logging.INFO
-logLevel = logging.WARNING
 logging.basicConfig(format="%(asctime)s DE %(levelname)-8s %(message)s", level=logLevel)
 log = logging.getLogger("DECameraClientLib")
 log.info("Python    : " + sys.version.split("(")[0])
 log.info("DEClient  : " + version)
 log.info("CommandVer: " + str(commandVersion))
 log.info("logLevel  : " + str(logging.getLevelName(logLevel)))
+
+
+def write_only(func):
+    def wrapper(*args, **kwargs):
+        if args[0].read_only:
+            log.error("Client is read-only. Cannot set property.")
+            return
+        else:
+            return func(*args, **kwargs)
+
+    return wrapper
+
+
+def disable_scan(func):
+    def wrapper(*args, **kwargs):
+        print("Disabling scan")
+        initial_scan = args[0]["Scan - Enable"]
+        args[0].set_property("Scan - Enable", False)
+        ans = func(*args, **kwargs)
+        args[0].set_property("Scan - Enable", initial_scan)
+        return ans
+
+    return wrapper
 
 
 class Client:
@@ -70,8 +94,17 @@ class Client:
     def __init__(self):
         pass
 
+    def set_log_level(self, level):
+        log = logging.getLogger("DECameraClientLib")
+        log.setLevel(level)
+        log.info("Log level set to %s", level)
+        return
+
     def __str__(self):
         return f"Client(host={self.host}, port={self.port}, camera={self.get_current_camera()})"
+
+    def _ipython_key_completions_(self):
+        return self.list_properties()
 
     def _repr_html_(self):
         table = f"""
@@ -128,7 +161,7 @@ class Client:
                 PropertyCollection(client=self, name=collection, properties=props),
             )
 
-    def connect(self, host: str = "127.0.0.1", port: int = 13240):
+    def connect(self, host: str = "127.0.0.1", port: int = 13240, read_only=False):
         """Connect to DE-Server
 
         Parameters
@@ -158,7 +191,7 @@ class Client:
             (host, port)
         )  # Connect to server reading port for sending data
         self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, tcpNoDelay)
-        self.socket.setblocking(0)
+        self.socket.setblocking(False)
         self.socket.settimeout(2)
 
         self.cameras = self.__getStrings(self.LIST_CAMERAS)
@@ -179,6 +212,10 @@ class Client:
 
         version = [int(part) for part in serverVersion[:4]]
         temp = version[2] + version[1] * 1000 + version[0] * 1000000
+
+        if cVersion >= 12:
+            self.set_client_read_only(read_only)
+
         if temp >= 2007004:
             ## version after 2.7.4
             commandVersion = 12
@@ -200,6 +237,12 @@ class Client:
         self.virtual_masks = []
         for i in range(4):
             self.virtual_masks.append(VirtualMask(client=self, index=i))
+
+    def set_client_read_only(self, read_only):
+        self.read_only = read_only
+        command = self._addSingleCommand(self.SET_CLIENT_READ_ONLY, None, [read_only])
+        response = self._sendCommand(command)
+        return response
 
     def update_scan_size(self):
         self.scan_sizex = self["Scan - Size X"]
@@ -253,6 +296,7 @@ class Client:
         else:
             return self.currCamera
 
+    @write_only
     def set_current_camera(self, camera_name: str = None):
         """
         Set the current camera on the server.
@@ -401,6 +445,17 @@ class Client:
 
         return ret
 
+    def get_server_version(self):
+        """
+        Get the server software version
+        """
+        server_version = self.GetProperty("Server Software Version")
+        server_version = re.findall(r"\d+", server_version)
+
+        ver = [int(part) for part in server_version[:4]]
+        res = ver[2] + ver[1] * 1000 + ver[0] * 1000000
+        return res
+
     def get_properties(self, names=None):
         if names is None:
             names = self.list_properties()
@@ -411,7 +466,7 @@ class Client:
         """Check if the camera is currently acquiring images. (bool)"""
         return self.get_property("Acquisition Status") == "Acquiring"
 
-    # Set the value of a property of the current camera on DE-Server
+    @write_only
     def set_property(self, name: str, value):
         """
         Set the value of a property of the current camera on DE-Server
@@ -443,6 +498,7 @@ class Client:
 
         return ret
 
+    @write_only
     def set_property_and_get_changed_properties(self, name, value, changedProperties):
         """
         Set the value of a property of the current camera on DE-Server and get all of
@@ -482,6 +538,7 @@ class Client:
 
         return ret
 
+    @write_only
     def set_engineering_mode(self, enable, password):
         """
         Set the engineering mode of the current camera on DE-Server. Mostly for internal testing.
@@ -493,7 +550,6 @@ class Client:
         password : str
             The password to enable engineering mode
         """
-
         ret = False
 
         command = self._addSingleCommand(self.SET_ENG_MODE, None, [enable, password])
@@ -503,6 +559,25 @@ class Client:
             self.refreshProperties = True
         return ret
 
+    @write_only
+    def setEngModeAndGetChangedProperties(self, enable, password, changedProperties):
+
+        ret = False
+
+        command = self.__addSingleCommand(
+            self.SET_ENG_MODE_GET_CHANGED_PROPERTIES, None, [enable, password]
+        )
+        response = self.__sendCommand(command)
+        if response != False:
+            ret = response.acknowledge[0].error != True
+            self.refreshProperties = True
+
+        if ret:
+            ret = self.ParseChangedProperties(changedProperties, response)
+
+        return ret
+
+    @write_only
     def set_hw_roi(self, offsetX: int, offsetY: int, sizeX: int, sizeY: int):
         """
         Set the hardware region of interest (ROI) of the current camera on DE-Server.
@@ -541,6 +616,111 @@ class Client:
 
         return ret
 
+    @write_only
+    def SetScanSize(self, sizeX, sizeY):
+
+        t0 = self.GetTime()
+        ret = False
+
+        command = self.__addSingleCommand(self.SET_SCAN_SIZE, None, [sizeX, sizeY])
+        response = self.__sendCommand(command)
+        if response != False:
+            ret = response.acknowledge[0].error != True
+            self.refreshProperties = True
+
+        if logLevel == logging.DEBUG:
+            log.debug(
+                "SetScanSize: (%i,%i) , completed in %.1f ms",
+                sizeX,
+                sizeY,
+                (self.GetTime() - t0) * 1000,
+            )
+
+        return ret
+
+    @write_only
+    def SetScanSizeAndGetChangedProperties(self, sizeX, sizeY, changedProperties):
+        t0 = self.GetTime()
+        ret = False
+
+        command = self.__addSingleCommand(
+            self.SET_SCAN_SIZE_AND_GET_CHANGED_PROPERTIES, None, [sizeX, sizeY]
+        )
+        response = self.__sendCommand(command)
+        if response != False:
+            ret = response.acknowledge[0].error != True
+            self.refreshProperties = True
+
+        if ret:
+            ret = self.ParseChangedProperties(changedProperties, response)
+
+        if logLevel == logging.DEBUG:
+            log.debug(
+                "SetScanSize: (%i,%i) , completed in %.1f ms",
+                sizeX,
+                sizeY,
+                (self.GetTime() - t0) * 1000,
+            )
+
+        return ret
+
+    @write_only
+    def SetScanROI(self, enable, offsetX, offsetY, sizeX, sizeY):
+
+        t0 = self.GetTime()
+        ret = False
+
+        command = self.__addSingleCommand(
+            self.SET_SCAN_SIZE, None, [enable, offsetX, offsetY, sizeX, sizeY]
+        )
+        response = self.__sendCommand(command)
+        if response != False:
+            ret = response.acknowledge[0].error != True
+            self.refreshProperties = True
+
+        if logLevel == logging.DEBUG:
+            log.debug(
+                "SetScanROI: (%i,%i,%i,%i) , completed in %.1f ms",
+                offsetX,
+                offsetY,
+                sizeX,
+                sizeY,
+                (self.GetTime() - t0) * 1000,
+            )
+
+        return ret
+
+    @write_only
+    def SetScanROI(self, enable, offsetX, offsetY, sizeX, sizeY, changedProperties):
+        t0 = self.GetTime()
+        ret = False
+
+        command = self.__addSingleCommand(
+            self.SET_SCAN_ROI__AND_GET_CHANGED_PROPERTIES,
+            None,
+            [enable, offsetX, offsetY, sizeX, sizeY],
+        )
+        response = self.__sendCommand(command)
+        if response != False:
+            ret = response.acknowledge[0].error != True
+            self.refreshProperties = True
+
+        if ret:
+            ret = self.ParseChangedProperties(changedProperties, response)
+
+        if logLevel == logging.DEBUG:
+            log.debug(
+                "SetScanROI: (%i,%i,%i,%i) , completed in %.1f ms",
+                offsetX,
+                offsetY,
+                sizeX,
+                sizeY,
+                (self.GetTime() - t0) * 1000,
+            )
+
+        return ret
+
+    @write_only
     def set_hw_roi_and_get_changed_properties(
         self, offsetX: int, offsetY: int, sizeX: int, sizeY: int, changedProperties
     ):
@@ -590,6 +770,7 @@ class Client:
 
         return ret
 
+    @write_only
     def set_sw_roi(self, offsetX: int, offsetY: int, sizeX: int, sizeY: int):
         """
         Set the software region of interest (ROI) of the current camera on DE-Server.
@@ -628,6 +809,7 @@ class Client:
 
         return ret
 
+    @write_only
     def set_sw_roi_and_get_changed_properties(
         self, offsetX, offsetY, sizeX, sizeY, changedProperties
     ):
@@ -677,6 +859,21 @@ class Client:
 
         return ret
 
+    def current_movie_buffer(self):
+        movieBufferInfo = self.GetMovieBufferInfo()
+        if movieBufferInfo.imageDataType == DataType.DE8u:
+            imageType = numpy.uint8
+        elif movieBufferInfo.imageDataType == DataType.DE16u:
+            imageType = numpy.uint16
+        elif movieBufferInfo.imageDataType == DataType.DE32f:
+            imageType = numpy.float32
+
+            ## Allocate movie buffers
+        totalBytes = movieBufferInfo.headerBytes + movieBufferInfo.imageBufferBytes
+        buffer = bytearray(totalBytes)
+        return movieBufferInfo, buffer, totalBytes, imageType
+
+    @write_only
     def start_acquisition(
         self,
         numberOfAcquisitions: int = 1,
@@ -758,6 +955,7 @@ class Client:
                 self.height,
             )
 
+    @write_only
     def stop_acquisition(self):
         """
         Stop acquiring images.
@@ -983,7 +1181,7 @@ class Client:
                             histogram.upperMostLocalMaxima = values[i]
                             i += 1
                         for j in range(histogram.bins):
-                            log.debug("%d: %d" % (j, values[i + j]))
+                            log.debug("Hist %d: %d" % (j, values[i + j]))
                             histogram.data[j] = values[i + j]
 
                     if pixelFormat == PixelFormat.FLOAT32:
@@ -1068,12 +1266,6 @@ class Client:
                 "GetResult frameType:%s, pixelFormat:%s ROI:[%d, %d] Binning:[%d, %d], Return size:[%d, %d], datasetName:%s acqCount:%d, frameCount:%d min:%.1f max:%.1f mean:%.1f std:%.1f %.1f ms",
                 frameType,
                 pixelFormat,
-                self.roi_x,
-                self.roi_y,
-                self.binning_x,
-                self.binning_y,
-                self.width,
-                self.height,
                 attributes.datasetName,
                 attributes.acqIndex,
                 attributes.frameCount,
@@ -1086,6 +1278,7 @@ class Client:
 
         return image, pixelFormat, attributes, histogram
 
+    @write_only
     def set_virtual_mask(self, id, w, h, mask):
         """
         Set the virtual mask of the current camera on DE-Server.
@@ -1101,8 +1294,17 @@ class Client:
         mask : np.ndarray
             The mask to set
         """
-        if 0 <= id < 4 and w >= 0 and h >= 0:
-
+        if id < 1 or id > 4:
+            log.error(
+                " SetVirtualMask The virtual mask id must be selected between 1-4"
+            )
+            ret = False
+        elif w < 0 or h < 0:
+            log.error(
+                " SetVirtualMask The virtual mask width and height must greater than 0"
+            )
+            ret = False
+        else:
             command = self._addSingleCommand(self.SET_VIRTUAL_MASK, None, [id, w, h])
             ret = True
             try:
@@ -1179,13 +1381,17 @@ class Client:
                 totalBytes = values[1]
                 numFrames = values[2]
                 movieBufferStatus = MovieBufferStatus(status)
-
                 if movieBufferStatus == MovieBufferStatus.OK:
                     if totalBytes == 0 or movieBufferSize < totalBytes:
                         retval = False
-                        log.error("Image received did not have the expected size.")
+                        log.error(
+                            f"Image received did not have the expected size."
+                            f"expected: {totalBytes}, received: {movieBufferSize}"
+                        )
                     else:
+                        print("reading movie buffer", totalBytes)
                         movieBuffer = self._recvFromSocket(self.socket, totalBytes)
+                        print("Done reading movie buffer")
         else:
             retval = False
 
@@ -1536,6 +1742,7 @@ class Client:
 
         return image
 
+    @disable_scan
     def take_dark_reference(self, frameRate: float = 20):
         """
         Take dark reference images
@@ -1551,7 +1758,7 @@ class Client:
         prevExposureMode = self.GetProperty("Exposure Mode")
         prevExposureTime = self.GetProperty("Exposure Time (seconds)")
 
-        acquisitions = 10
+        acquisitions = 20
         self.SetProperty("Exposure Mode", "Dark")
         self.SetProperty("Frames Per Second", frameRate)
         self.SetProperty("Exposure Time (seconds)", 1)
@@ -1755,51 +1962,39 @@ class Client:
         startTime = self.GetTime()
         self.socket.settimeout(timeout)
 
-        buffer = ""
-        try:
-            buffer = sock.recv(bytes)
-        except:
-            pass  # continue if more needed
+        buffer = b""
 
-        log.debug(
-            " __recvFromSocket : %d of %d in %.1f ms",
-            len(buffer),
-            bytes,
-            (self.GetTime() - startTime) * 1000,
-        )
         total_len = len(buffer)
+        upper_lim = 4096 * 4096 * 12  # 4096 #1024*256
+        while total_len < bytes:
+            bytes_left = bytes - total_len
+            if bytes_left < upper_lim:
+                packet_size = bytes_left
+            else:
+                packet_size = upper_lim
+            loopTime = self.GetTime()
+            try:
+                buffer += sock.recv(packet_size)
 
-        if total_len < bytes:
-            while total_len < bytes:
-                loopTime = self.GetTime()
-                try:
-                    buffer += sock.recv(bytes)
-                    log.debug(
-                        " __recvFromSocket : %d bytes of %d in %.1f ms",
-                        len(buffer),
-                        bytes,
-                        (self.GetTime() - loopTime) * 1000,
-                    )
-
-                except socket.timeout:
-                    log.debug(
-                        " __recvFromSocket : timeout in trying to receive %d bytes in %.1f ms",
-                        bytes,
-                        (self.GetTime() - loopTime) * 1000,
-                    )
-                    if self.GetTime() - startTime > timeout:
-                        log.error(" __recvFromSocket: max timeout %d seconds", timeout)
-                        break
-                    else:
-                        pass  # continue further
-                except:
-                    log.error(
-                        "Unknown exception occurred. Current Length: %d in %.1f ms",
-                        len(buffer),
-                        (self.GetTime() - loopTime) * 1000,
-                    )
+            except socket.timeout:
+                log.debug(
+                    " __recvFromSocket : timeout in trying to receive %d bytes in %.1f ms",
+                    bytes,
+                    (self.GetTime() - loopTime) * 1000,
+                )
+                if self.GetTime() - startTime > timeout:
+                    log.error(" __recvFromSocket: max timeout %d seconds", timeout)
                     break
-                total_len = len(buffer)
+                else:
+                    pass  # continue further
+            except:
+                log.error(
+                    "Unknown exception occurred. Current Length: %d in %.1f ms",
+                    len(buffer),
+                    (self.GetTime() - loopTime) * 1000,
+                )
+                break
+            total_len = len(buffer)
 
         totalTimeMs = (self.GetTime() - startTime) * 1000
         Gbps = total_len * 8 / (totalTimeMs / 1000) / 1024 / 1024 / 1024
@@ -1878,6 +2073,7 @@ class Client:
         return changedProperties
 
     # renamed methods to follow python standards
+    GetServerVersion = get_server_version
     Connect = connect
     Disconnect = disconnect
     ListCameras = list_cameras
@@ -1927,6 +2123,7 @@ class Client:
     exposureTime = 1
     host = 0
     port = 0
+    read_only = False
 
     # command lists
     LIST_CAMERAS = 0
@@ -1949,6 +2146,12 @@ class Client:
     SET_VIRTUAL_MASK = 23
     SAVE_FINAL_AFTER_ACQ = 24
     SET_ENG_MODE = 25
+    SET_ENG_MODE_GET_CHANGED_PROPERTIES = 26
+    SET_SCAN_SIZE = 27
+    SET_SCAN_ROI = 28
+    SET_SCAN_SIZE_AND_GET_CHANGED_PROPERTIES = 29
+    SET_SCAN_ROI__AND_GET_CHANGED_PROPERTIES = 30
+    SET_CLIENT_READ_ONLY = 31
 
 
 MMF_DATA_HEADER_SIZE = 24

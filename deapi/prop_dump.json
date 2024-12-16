@@ -6,13 +6,22 @@
     "options":"0.05999999865889549, 1000000.0, '0.05999999865889549 - 1000000.0'",
     "default_value":"171.268066"
   },
+  "Grabbing - Frames Per Buffer":{
+    "value":"1",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Advanced",
+    "options":"1.0, 1000.0, '1 - 1000'",
+    "default_value":"1"
+  },
   "Hardware Binning X":{
     "value":"1",
     "data_type":"Integer",
     "value_type":"Set",
     "category":"Advanced",
     "options":"'1*', '2'",
-    "default_value":"1"
+    "default_value":"1",
+    "set_also": {"hardware_binning_y": "hardware_binning_x"}
   },
   "Hardware Binning Y":{
     "value":"1",
@@ -355,7 +364,7 @@
     "category":"Advanced",
     "options":"",
     "default_value":"1024",
-    "get": "hardware_roi_size_x / hardware_binning_x"
+    "get": "((hardware_roi_size_x / hardware_binning_x)/ binning_x) - crop_offset_x"
   },
     "Image Size Y (pixels)":{
         "value":"1024",
@@ -364,7 +373,7 @@
         "category":"Advanced",
         "options":"",
         "default_value":"1024",
-        "get": "hardware_roi_size_y / hardware_binning_y"
+        "get": "((hardware_roi_size_y / hardware_binning_y)/ binning_y)-crop_offset_y"
     },
   "Server Software Version":{
     "value":"3.7.8893",
@@ -389,6 +398,22 @@
         "category":"Advanced",
         "options":"1.0, 1024.0, '1 - 1024'",
         "default_value":"1024"
+    },
+    "Crop Offset X":{
+        "value":"0",
+        "data_type":"Integer",
+        "value_type":"Range",
+        "category":"Advanced",
+        "options":"0.0, 1023.0, '0 - 1023'",
+        "default_value":"0"
+    },
+    "Crop Offset Y":{
+        "value":"0",
+        "data_type":"Integer",
+        "value_type":"Range",
+        "category":"Advanced",
+        "options":"0.0, 1023.0, '0 - 1023'",
+        "default_value":"0"
     },
   "Binning X":{
     "value":"1",
