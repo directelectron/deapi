@@ -10,8 +10,8 @@ import pytest
 import json
 
 
-@pytest.mark.skip(reason="This test is slow and only for testing speed of saving")
 class Test4DSaving:
+    @pytest.mark.skip(reason="This test is slow and only for testing speed of saving")
     def test_saving(self, client):
         sizes = [128, 256, 512, 1024]
         times = {

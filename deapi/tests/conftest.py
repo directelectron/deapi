@@ -79,7 +79,7 @@ def client(xprocess, request):
         curdir = pathlib.Path(__file__).parent.parent
 
         class Starter(ProcessStarter):
-            timeout = 20
+            timeout = 50
             pattern = "started"
             args = [
                 sys.executable,

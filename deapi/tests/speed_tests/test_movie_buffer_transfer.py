@@ -13,9 +13,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-@pytest.mark.skip(reason="This test is slow and only for testing speed of saving")
 class TestBufferTransfer:
-
+    @pytest.mark.skip(reason="This test is slow and only for testing speed of saving")
     def test_transfer(self, client):
         client["Frames Per Second"] = 60  # ~1 GB/s
         targets = [2, 4, 8, 16, 32, 64]

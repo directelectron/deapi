@@ -28,7 +28,7 @@ jobs:
   Publish:
     needs: [Build]
     name: Publish to TestPyPI
-    # Only run when the label 'Test Publish' is added to a PR
+    # Only run when dispatched manually
     runs-on: Ubuntu-latest
     permissions:
     # IMPORTANT: this permission is mandatory for trusted publishing
