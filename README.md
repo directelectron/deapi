@@ -1,12 +1,3 @@
-Warning!
-========
-
-This API is still under development and is subject to changes.  It is provided for future reference and development. 
-
-
-
-
-
 DE API - Python
 ===============
 
