@@ -63,12 +63,11 @@ doc = [
 ]
 
 [project.urls]
-"Bug Reports" = "https://github.com/hyperspy/hyperspy/issues"
-Documentation = "https://hyperspy.org/hyperspy-doc/current/index.html"
-Conda-forge = "https://anaconda.org/conda-forge/hyperspy"
-Homepage = "https://hyperspy.org"
-Support = "https://gitter.im/hyperspy/hyperspy"
-Source = "https://github.com/hyperspy/hyperspy"
+"Bug Reports" = "https://github.com/directelectron/deapi/issues"
+Documentation = "https://directelectron.github.io/deapi/"
+Homepage = "https://directelectron.com/"
+Support = "https://github.com/directelectron/deapi/discussions"
+Source = "https://github.com/directelectron/deapi"
 
 [project.scripts]
 pydeserver = "deapi.simulated_server.initialize_server:main"
