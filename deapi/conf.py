@@ -51,7 +51,7 @@ extensions = [
     "nbsphinx",
 ]
 
-# Create links to references within pyxem's documentation to these packages.
+# Create links to references within deapi's documentation to these packages.
 intersphinx_mapping = {
     "dask": ("https://docs.dask.org/en/stable", None),
     "diffpy.structure": ("https://www.diffpy.org/diffpy.structure", None),
@@ -82,19 +82,12 @@ version_match = "dev" if "dev" in _version else ".".join(_version.split(".")[:2]
 html_theme = "pydata_sphinx_theme"
 
 html_theme_options = {
-    "github_url": "https://github.com/pyxem/pyxem",
+    "github_url": "https://github.com/directelectron/deapi",
     "header_links_before_dropdown": 7,
     "navigation_with_keys": True,
     "show_toc_level": 2,
     "use_edit_page_button": True,
-    "announcement": "Check out the "
-    "<a href='https://www.diamond.ac.uk/Home/Events/2024/HyperSpy-Workshop-2024.html'>Hyperspy Workshop</a> "
-    "May 13-17, 2024 Online",
-    "switcher": {
-        "json_url": "https://pyxem.readthedocs.io/en/latest/_static/switcher.json",
-        "version_match": version_match,
-    },
-    "navbar_start": ["navbar-logo", "version-switcher"],
+    "navbar_start": ["navbar-logo"],
 }
 
 html_context = {
@@ -123,7 +116,7 @@ numfig = True
 # nbsphinx configuration
 # Taken from nbsphinx' own nbsphinx configuration file, with slight
 # modification to point nbviewer and Binder to the GitHub master links
-# when the documentation is launched from a pyxem version with
+# when the documentation is launched from a deapi version with
 # "dev" in the version.
 if "dev" in version:
     release_version = "master"
@@ -143,12 +136,12 @@ bibtex_bibfiles = ["bibliography.bib"]
 # https://sphinx-gallery.github.io
 sphinx_gallery_conf = {
     "backreferences_dir": "reference/generated",
-    "doc_module": ("pyxem",),
+    "doc_module": ("deapi",),
     "examples_dirs": "../examples",  # path to your example scripts
     "gallery_dirs": "examples",  # path to where to save gallery generated output
     "filename_pattern": "^((?!sgskip).)*$",  # pattern to define which will be executed
     "ignore_pattern": "_sgskip.py",  # pattern to define which will not be executed
-    "reference_url": {"pyxem": None},
+    "reference_url": {"deapi": None},
     "show_memory": True,
 }
 
