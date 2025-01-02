@@ -1,8 +1,8 @@
 DE API - Python
 ===============
 
-The DE API provides python bindings for basic operations for controlling the DEServer. This API isn't functional without 
-a working copy of DEServer and a Direct Electron Detector.
+The DE API provides python bindings for basic operations for controlling Direct Electron's Mission Control Software. This API isn't functional without 
+a working copy of Mission Control, (or the older DE Server) and a Direct Electron Detector.
 
 
 Installation
