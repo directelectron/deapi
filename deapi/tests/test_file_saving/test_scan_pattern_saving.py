@@ -11,7 +11,6 @@ import os
 
 
 class TestSavingScans:
-    @pytest.mark.skip(reason="This test does not work with DESIM currently")
     @pytest.mark.parametrize("scan_type", ["Raster", "Serpentine", "Raster Interlaced"])
     @pytest.mark.parametrize("buffer", [2, 16])
     @pytest.mark.parametrize("file_format", ["HSPY", "MRC"])
@@ -58,11 +57,13 @@ class TestSavingScans:
         while client.acquiring:
             time.sleep(0.1)
 
+        time.sleep(2)  # Wait for the file to be written to disk etc.
+
         if file_format == "HSPY":
             movie = hs.load(client["Autosave Movie Frames File Path"])
         else:
-            movie = hs.load(
-                client["Autosave Movie Frames File Path"], navigation_shape=(i, i)
-            )
+            print(client["Autosave Movie Frames File Path"])
+            fp = client["Autosave Movie Frames File Path"]
+            movie = hs.load(client["Autosave Movie Frames File Path"])
         frame_order = movie.data[:, :, 0, 0]
         np.testing.assert_array_equal(frame_order.reshape(-1), frame_num_order)

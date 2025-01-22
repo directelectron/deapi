@@ -23,7 +23,7 @@ import numpy as np
 # External package imports
 from PIL import Image
 import numpy
-
+from sympy.codegen.ast import continue_
 
 # Internal package imports
 from deapi.data_types import (
@@ -975,6 +975,59 @@ class Client:
 
         return b"Stopped" in respond
 
+    @write_only
+    def set_xy_array(self, positions, width=None, height=None):
+        """
+        Set the scan array for a set of x,y positions.
+
+        Parameters
+        ----------
+        positions : np.array
+            A list of x,y positions to scan in the form [[x1, y1], [x2, y2], ...]. Each
+            position should be an integer. If width and height are not provided, the
+            max and min of the positions will be used.
+
+        width : int, optional
+            The width of the scan array, by default None. If None, the max of the x positions
+            will be used and the scan will cover the full width of the image.
+
+        height : int, optional
+            The height of the scan array, by default None. If None, the max of the y positions
+            will be used and the scan will cover the full height of the image.
+        """
+        if positions.dtype != np.int32:
+            log.error("Positions must be integers... Casting to int")
+            positions = positions.astype(np.int32)
+        if width is None:
+            width = np.max(positions[:, 0]) + 1
+        if height is None:
+            height = np.max(positions[:, 1]) + 1
+
+        num_positions = len(positions)
+
+        command = self._addSingleCommand(
+            self.SET_SCAN_XY_ARRAY, None, [width, height, num_positions]
+        )
+        try:
+            packet = struct.pack("I", command.ByteSize()) + command.SerializeToString()
+            self.socket.send(packet)
+            ret = self.__ReceiveResponseForCommand(command) != False
+        except socket.error:
+            return False
+
+        try:
+            x = positions[:, 0].tobytes()
+            self.__sendToSocket(self.socket, x, len(x))
+            y = positions[:, 1].tobytes()
+            self.__sendToSocket(self.socket, y, len(y))
+        except socket.error as e:
+            log.log(logging.ERROR, "Error sending data to socket: %s", e)
+            return False
+
+        ret = self.__ReceiveResponseForCommand(command) != False
+
+        return ret
+
     def get_result(
         self,
         frameType="singleframe_integrated",
@@ -1021,8 +1074,15 @@ class Client:
             attributes = Attributes()
             scan_images = [17, 18, 19, 20, 21, 22, 23, 24, 25]
             if frameType.value in scan_images:
-                attributes.windowWidth = self.scan_sizex
-                attributes.windowHeight = self.scan_sizey
+                if self["Scan - Type"] == "XY Array":
+                    attributes.windowHeight = self["Scan - XY Array Height"]
+                    attributes.windowWidth = self["Scan - XY Array Width"]
+                elif self["Scan - Type"] == "XY File":
+                    attributes.windowHeight = self["Scan - XY File Height"]
+                    attributes.windowWidth = self["Scan - XY File Width"]
+                else:
+                    attributes.windowWidth = self.scan_sizex
+                    attributes.windowHeight = self.scan_sizey
             else:
                 attributes.windowWidth = self.image_sizex
                 attributes.windowHeight = self.image_sizey
@@ -2152,6 +2212,7 @@ class Client:
     SET_SCAN_SIZE_AND_GET_CHANGED_PROPERTIES = 29
     SET_SCAN_ROI__AND_GET_CHANGED_PROPERTIES = 30
     SET_CLIENT_READ_ONLY = 31
+    SET_SCAN_XY_ARRAY = 32
 
 
 MMF_DATA_HEADER_SIZE = 24
