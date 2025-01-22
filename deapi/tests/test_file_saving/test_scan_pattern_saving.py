@@ -57,15 +57,13 @@ class TestSavingScans:
         while client.acquiring:
             time.sleep(0.1)
 
-        time.sleep(2) # Wait for the file to be written to disk etc.
+        time.sleep(2)  # Wait for the file to be written to disk etc.
 
         if file_format == "HSPY":
             movie = hs.load(client["Autosave Movie Frames File Path"])
         else:
             print(client["Autosave Movie Frames File Path"])
             fp = client["Autosave Movie Frames File Path"]
-            movie = hs.load(
-                client["Autosave Movie Frames File Path"]
-            )
+            movie = hs.load(client["Autosave Movie Frames File Path"])
         frame_order = movie.data[:, :, 0, 0]
         np.testing.assert_array_equal(frame_order.reshape(-1), frame_num_order)

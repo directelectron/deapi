@@ -277,19 +277,17 @@ class TestClient:
         mask[3:-3, 3:-3] = 0
         pos = np.argwhere(mask)
         client["Scan - Type"] = "XY Array"
-        is_set =client.set_xy_array(pos)
+        is_set = client.set_xy_array(pos)
         assert client["Scan - Type"] == "XY Array"
         assert is_set
         assert client["Scan - Points"] == np.sum(mask)
 
         pos2 = np.vstack([pos, pos])
-        is_set =client.set_xy_array(pos2)
+        is_set = client.set_xy_array(pos2)
         assert is_set
         assert client["Scan - Points"] == np.sum(mask) * 2
         client.start_acquisition(1)
         while client.acquiring:
             time.sleep(1)
         result = client.get_result("virtual_image1")
-        assert result[0].shape == (12,12)
-
-
+        assert result[0].shape == (12, 12)

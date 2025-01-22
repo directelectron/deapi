@@ -999,18 +999,17 @@ class Client:
             log.error("Positions must be integers... Casting to int")
             positions = positions.astype(np.int32)
         if width is None:
-            width = np.max(positions[:, 0])+1
+            width = np.max(positions[:, 0]) + 1
         if height is None:
-            height = np.max(positions[:, 1])+1
+            height = np.max(positions[:, 1]) + 1
 
         num_positions = len(positions)
 
-
-        command = self._addSingleCommand(self.SET_SCAN_XY_ARRAY, None, [width, height, num_positions])
+        command = self._addSingleCommand(
+            self.SET_SCAN_XY_ARRAY, None, [width, height, num_positions]
+        )
         try:
-            packet = (
-                struct.pack("I", command.ByteSize()) + command.SerializeToString()
-            )
+            packet = struct.pack("I", command.ByteSize()) + command.SerializeToString()
             self.socket.send(packet)
             ret = self.__ReceiveResponseForCommand(command) != False
         except socket.error:
