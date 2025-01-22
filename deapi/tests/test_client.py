@@ -268,3 +268,28 @@ class TestClient:
                 index += 1
                 if not success:
                     break
+
+    @pytest.mark.server
+    def test_set_xy_array(self, client):
+        client["Scan - Type"] = "Raster"
+        client["Scan - Enable"] = "On"
+        mask = np.ones((12, 12))
+        mask[3:-3, 3:-3] = 0
+        pos = np.argwhere(mask)
+        client["Scan - Type"] = "XY Array"
+        is_set =client.set_xy_array(pos)
+        assert client["Scan - Type"] == "XY Array"
+        assert is_set
+        assert client["Scan - Points"] == np.sum(mask)
+
+        pos2 = np.vstack([pos, pos])
+        is_set =client.set_xy_array(pos2)
+        assert is_set
+        assert client["Scan - Points"] == np.sum(mask) * 2
+        client.start_acquisition(1)
+        while client.acquiring:
+            time.sleep(1)
+        result = client.get_result("virtual_image1")
+        assert result[0].shape == (12,12)
+
+
