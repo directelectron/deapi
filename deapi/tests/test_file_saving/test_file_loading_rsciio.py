@@ -3,7 +3,7 @@
 This module tests file saving and loading in Hyperspy (Rosettasciio)
 
 This should be run before any release to make sure that the file loaders downstream
-work. 
+work.
 """
 
 import os
