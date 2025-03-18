@@ -9,6 +9,8 @@ from enum import Enum
 from enum import IntEnum
 import warnings
 
+import numpy as np
+
 
 class FrameType(Enum):
     """An Enum of the different frame types that can be returned by the DE API"""
@@ -293,6 +295,37 @@ class Histogram:
         self.bins = bins
         self.data = data
 
+    def __repr__(self):
+        return (f"Histogram(min={self.min},"
+                f" max={self.max}, "
+                f"upperMostLocalMaxima={self.upperMostLocalMaxima},"
+                f" bins={self.bins},"
+                f" data={self.data})")
+
+
+    def plot(self, ax=None):
+        """Plot the histogram using matplotlib
+
+        Parameters
+        ----------
+        ax : matplotlib.axes.Axes, optional
+            Axes object to plot the histogram on. If not provided, a new figure will be created.
+
+        Returns
+        -------
+        matplotlib.axes.Axes
+            Axes object containing the histogram plot
+        """
+        import matplotlib.pyplot as plt
+
+        if ax is None:
+            fig, ax = plt.subplots()
+        ax.plot(np.linspace(self.min, self.max, self.bins), self.data)
+        ax.set_title("Histogram")
+        ax.set_xlabel("Detector Units")
+        ax.set_ylabel("Frequency")
+        return ax
+
 
 class MovieBufferInfo:
     """
@@ -393,6 +426,14 @@ class PropertySpec:
     defaultValue = None  # default value
     currentValue = None  # current value
     readonly = False # Read-only property
+
+    def __repr__(self):
+        return (f"PropertySpec(dataType={self.dataType},"
+                f" valueType={self.valueType}, "
+                f"category={self.category},"
+                f" options={self.options},"
+                f" defaultValue={self.defaultValue}, "
+                f"currentValue={self.currentValue})")
 
 class PropertyCollection:
     """Class to interact with collections of properties in the DE API
@@ -528,6 +569,9 @@ class VirtualMask:
     This class is mostly used via the client.virtual_masks property which is a list
     of VirtualMask objects.
     """
+
+    def __str__(self):
+        return f"Virtual Mask {self.index}"
 
     def __init__(self, client, index):
         self.client = client

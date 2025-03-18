@@ -29,6 +29,9 @@ def pytest_addoption(parser):
         default=False,
         help="Test the speed of certain operations",
     )
+    parser.addoption(
+        "--engineering", action="store", default="", help="Run engineering mode"
+    )
 
 
 def pytest_configure(config):
@@ -50,6 +53,15 @@ def pytest_collection_modifyitems(config, items):
             if "server" in item.keywords:
                 item.add_marker(skip_server)
 
+    if config.getoption("--engineering") and config.getoption("--engineering") != "":
+        # Do not skip engineering tests
+        return
+    else:  # pragma: no cover
+        skip_engineering = pytest.mark.skip(reason="need --engineering option to run")
+        for item in items:
+            if "engineering" in item.keywords:
+                item.add_marker(skip_engineering)
+
     if config.getoption("--speed"):
         # Do not skip speed tests
         return
@@ -70,6 +82,9 @@ def client(xprocess, request):
             host=request.config.getoption("--host"),
             port=request.config.getoption("--port"),
         )
+
+        if request.config.getoption("--engineering"):
+            c.set_engineering_mode(enable =True, password =request.config.getoption("--engineering"))
         yield c
         time.sleep(4)
         c.disconnect()

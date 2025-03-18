@@ -406,10 +406,10 @@ class Client:
         propertyName : str
             The name of the property to get the allowed values for
         """
-        t0 = self.GetTime()   
+        t0 = self.GetTime()
         values   = False
         command  = self.__addSingleCommand(self.GET_PROPERTY_SPECIFICATIONS, propertyName)
-        response = self.__sendCommand(command) 
+        response = self.__sendCommand(command)
         if response == False:
             return None
 
@@ -431,7 +431,7 @@ class Client:
                 rangeString = ""
                 for i in range(optionsLength):
                     if propSpec.dataType == "Integer":
-                        rangeString += str(int(propSpec.options[i])) 
+                        rangeString += str(int(propSpec.options[i]))
                     else:
                         rangeString += str(propSpec.options[i])
                     if i == 0:
@@ -525,6 +525,10 @@ class Client:
         value : any
             The value to set the property to
         """
+        if self.readOnly:
+            log.error("Read-only client cannot set properties.")
+            return False
+
         t0 = self.GetTime()
         ret = False
 
@@ -561,6 +565,10 @@ class Client:
         changedProperties : list
             List of properties that have changed
         """
+        if self.readOnly:
+            log.error("Read-only client cannot set properties.")
+            return False
+
         t0 = self.GetTime()
         ret = False
 
@@ -597,6 +605,10 @@ class Client:
         password : str
             The password to enable engineering mode
         """
+        if self.readOnly:
+            log.error("Read-only client cannot set engineering mode.")
+            return False
+
         ret = False
 
         command = self._addSingleCommand(self.SET_ENG_MODE, None, [enable, password])
@@ -608,6 +620,9 @@ class Client:
 
     @write_only
     def setEngModeAndGetChangedProperties(self, enable, password, changedProperties):
+        if self.readOnly:
+            log.error("Read-only client cannot set engineering mode.")
+            return False
 
         ret = False
 
@@ -640,6 +655,10 @@ class Client:
         sizeY : int
             The height of the ROI
         """
+        if self.read_only:
+            log.error("Read-only client cannot set HW ROI.")
+            return False
+
         t0 = self.GetTime()
         ret = False
 
@@ -665,6 +684,9 @@ class Client:
 
     @write_only
     def SetScanSize(self, sizeX, sizeY):
+        if self.read_only:
+            log.error("Read-only client cannot set scan size.")
+            return False
 
         t0 = self.GetTime()
         ret = False
@@ -687,6 +709,10 @@ class Client:
 
     @write_only
     def SetScanSizeAndGetChangedProperties(self, sizeX, sizeY, changedProperties):
+        if self.read_only:
+            log.error("Read-only client cannot set scan size.")
+            return False
+
         t0 = self.GetTime()
         ret = False
 
@@ -713,6 +739,9 @@ class Client:
 
     @write_only
     def SetScanROI(self, enable, offsetX, offsetY, sizeX, sizeY):
+        if self.read_only:
+            log.error("Read-only client cannot set scan ROI.")
+            return False
 
         t0 = self.GetTime()
         ret = False
@@ -793,6 +822,10 @@ class Client:
         changedProperties : list
             List of properties that have changed
         """
+        if self.read_only:
+            log.error("Read-only client cannot set HW ROI.")
+            return False
+
         t0 = self.GetTime()
         ret = False
 
@@ -837,6 +870,10 @@ class Client:
         sizeY : int
             The height of the ROI
         """
+        if self.read_only:
+            log.error("Read-only client cannot set SW ROI.")
+            return False
+
         t0 = self.GetTime()
         ret = False
 
@@ -882,6 +919,10 @@ class Client:
         changedProperties : list
             List of properties that have changed
         """
+        if self.read_only:
+            log.error("Read-only client cannot set SW ROI.")
+            return False
+
         t0 = self.GetTime()
         ret = False
 
@@ -929,16 +970,16 @@ class Client:
             log.error("Read-only client cannot set adaptive ROI.")
             return False
 
-        t0 = self.GetTime()   
+        t0 = self.GetTime()
         ret = False
-            
+
         command = self.__addSingleCommand(self.SET_ADAPTIVE_ROI, None, [offsetX, offsetY, sizeX, sizeY])
-        response = self.__sendCommand(command)                
+        response = self.__sendCommand(command)
         if response != False:
             ret = response.acknowledge[0].error != True
             self.refreshProperties = True
 
-        if logLevel == logging.DEBUG:  
+        if logLevel == logging.DEBUG:
             log.debug("SetAdaptiveROI: (%i,%i,%i,%i) , completed in %.1f ms", offsetX, offsetY, sizeX, sizeY, (self.GetTime() - t0) * 1000)
 
         return ret
@@ -966,11 +1007,11 @@ class Client:
             log.error("Read-only client cannot set adaptive ROI and get changed properties.")
             return False
 
-        t0 = self.GetTime()   
+        t0 = self.GetTime()
         ret = False
-            
+
         command = self.__addSingleCommand(self.SET_ADAPTIVE_ROI_AND_GET_CHANGED_PROPERTIES, None, [offsetX, offsetY, sizeX, sizeY])
-        response = self.__sendCommand(command)                
+        response = self.__sendCommand(command)
         if response != False:
             ret = response.acknowledge[0].error != True
             self.refreshProperties = True
@@ -978,7 +1019,7 @@ class Client:
         if ret:
             ret = self.ParseChangedProperties(changedProperties, response)
 
-        if logLevel == logging.DEBUG:  
+        if logLevel == logging.DEBUG:
             log.debug("SetAdaptiveROI: (%i,%i,%i,%i) , completed in %.1f ms", offsetX, offsetY, sizeX, sizeY, (self.GetTime() - t0) * 1000)
 
         return ret
@@ -1016,6 +1057,10 @@ class Client:
             with all of the frames.
 
         """
+        if self.read_only:
+            log.error("Read-only client cannot start acquisition.")
+            return False
+
         start_time = self.GetTime()
         step_time = self.GetTime()
 
@@ -1098,7 +1143,7 @@ class Client:
             log.debug("    Stop Time: %.1f ms", lapsed)
 
         return b"Stopped" in respond
-    
+
     @write_only
     def start_manual_movie_saving(self):
         """
@@ -1115,7 +1160,7 @@ class Client:
             log.debug("    Start saving during acquisition time: %.1f ms", lapsed)
 
         return b"ManualMovieStart" in respond
-    
+
     @write_only
     def stop_manual_movie_saving(self):
         """
@@ -1153,6 +1198,10 @@ class Client:
             The height of the scan array, by default None. If None, the max of the y positions
             will be used and the scan will cover the full height of the image.
         """
+        if self.read_only:
+            log.error("Read-only client cannot set scan xy array.")
+            return False
+
         if positions.dtype != np.int32:
             log.error("Positions must be integers... Casting to int")
             positions = positions.astype(np.int32)
@@ -1349,16 +1398,16 @@ class Client:
                     i += 1
                     attributes.eppixpf = values[i]
                     i += 1
-                    if self.commandVersion >= 12:
-                        attributes.eppixIncident = values[i]
+                    if commandVersion >= 12:
+                        attributes.eppix_incident = values[i]
                         i += 1
-                        attributes.epsIncident = values[i]
+                        attributes.eps_incident = values[i]
                         i += 1
-                        attributes.eppixpsIncident = values[i]
+                        attributes.eppixps_incident = values[i]
                         i += 1
-                        attributes.epa2Incident = values[i]
+                        attributes.epa2_incident = values[i]
                         i += 1
-                        attributes.eppixpfIncident = values[i]
+                        attributes.eppixpf_incident = values[i]
                         i += 1
                         attributes.redSatWarningValue = values[i]
                         i += 1
@@ -1509,6 +1558,10 @@ class Client:
         mask : np.ndarray
             The mask to set
         """
+        if self.read_only:
+            log.error("Read-only client cannot set virtual mask.")
+            return False
+
         if id < 1 or id > 4:
             log.error(
                 " SetVirtualMask The virtual mask id must be selected between 1-4"
@@ -1733,6 +1786,10 @@ class Client:
         fileName : str, optional
             Save the returned image as a file if provided, by default None
         """
+        if self.read_only:
+            log.error("Read-only client cannot grab image.")
+            return False
+
         imageW = self.GetProperty("Image Size X (pixels)")
         imageH = self.GetProperty("Image Size Y (pixels)")
         fps = self.GetProperty("Frames Per Second")
@@ -1939,6 +1996,10 @@ class Client:
         textSize : int, optional
             The text size, by default 0
         """
+        if self.read_only:
+            log.error("Read-only client cannot start acquisition.")
+            return False
+
         self.StartAcquisition(1)
         frameType = FrameType.SUMTOTAL
 
@@ -1967,6 +2028,10 @@ class Client:
         frameRate : float, optional
             The frame rate, by default 20 frames per second
         """
+        if self.read_only:
+            log.error("Read-only client cannot start acquisition.")
+            return False
+
         sys.stdout.write("Taking dark references: ")
         sys.stdout.flush()
 
@@ -2370,7 +2435,7 @@ class Client:
     SET_SCAN_XY_ARRAY = 32
     SET_ADAPTIVE_ROI = 33
     SET_ADAPTIVE_ROI_AND_GET_CHANGED_PROPERTIES = 34
-    GET_PROPERTY_SPECIFICATIONS = 35 
+    GET_PROPERTY_SPECIFICATIONS = 35
 
 
 MMF_DATA_HEADER_SIZE = 24

@@ -2,7 +2,7 @@ import time
 
 import numpy as np
 
-from deapi import Client
+from deapi import Client, Histogram
 import pytest
 from deapi.data_types import PropertySpec, VirtualMask, MovieBufferStatus, ContrastStretchType
 
@@ -91,6 +91,17 @@ class TestClient:
         assert len(result) == 4
         assert result[0].shape == (1024, 1024)
         assert result[2].stretchType == ContrastStretchType.NONE
+
+
+    def test_get_histogram(self, client):
+        client["Frames Per Second"] = 1000
+        client.scan(size_x=10, size_y=10, enable="On")
+        client.start_acquisition(1)
+        while client.acquiring:
+            time.sleep(1)
+        result = client.get_result("singleframe_integrated")
+        assert  isinstance(result[3], Histogram)
+        result[3].plot()
 
     def test_get_result_no_scan(self, client):
         client["Frames Per Second"] = 1000

@@ -565,44 +565,6 @@ class FakeServer:
             )
         curr = self.current_navigation_index
         flat_index = int(np.ravel_multi_index(curr, self.fake_data.navigator.shape))
-
-        # map to right order...
-        response_mapping = [
-            pixel_format,
-            windowWidth,
-            windowHeight,
-            "Test",
-            0,
-            self.acquisition_status == "Acquiring",
-            flat_index,
-            1,
-            0,
-            2**16,
-            100,
-            10,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            1,
-            time.time(),
-            0,
-            0,
-            0,
-        ]
-        for val in response_mapping:
-            ack1 = add_parameter(ack1, val)
-        ans = (acknowledge_return,)
-        # add the data header packet for how many bytes are in the data
-        pack = pb.DEPacket()
-        pack.type = pb.DEPacket.P_DATA_HEADER
-
         if 2 < frame_type < 8:
             image = self.fake_data[self.current_navigation_index].astype(
                 pixel_format_dict[pixel_format]
@@ -614,22 +576,62 @@ class FakeServer:
             )
             result = image.tobytes()
         elif 11 < frame_type < 17:  # virtual image
-            mask = self.virtual_masks[frame_type - 12]
-            if mask.shape != (windowWidth, windowHeight):
-                mask = resize(
-                    mask, (windowWidth, windowHeight), preserve_range=True
+            image = self.virtual_masks[frame_type - 12]
+            if image.shape != (windowWidth, windowHeight):
+                image = resize(
+                    image, (windowWidth, windowHeight), preserve_range=True
                 ).astype(np.int8)
-            result = mask.tobytes()
+            result = image.tobytes()
         elif 17 <= frame_type < 22:
-            mask = self.virtual_masks[frame_type - 17]
+            image = self.virtual_masks[frame_type - 17]
             calculation_type = self[
                 f"Scan - Virtual Detector {frame_type-17} Calculation"
             ]
-            result = self.fake_data.get_virtual_image(mask, method=calculation_type)
-            result = result.astype(pixel_format_dict[pixel_format]).tobytes()
+            image = self.fake_data.get_virtual_image(image, method=calculation_type)
+            image = image.astype(pixel_format_dict[pixel_format])
+            result = image.tobytes()
 
         else:
             raise ValueError(f"Frame type {frame_type} not Supported in PythonDEServer")
+        # map to right order...
+        response_mapping = [
+            pixel_format, # pix format
+            windowWidth, # window width
+            windowHeight, # window height
+            "Test", # name
+            0, # acquisition index
+            self.acquisition_status == "Acquiring", # status
+            flat_index, # frame number
+            1, # frame count
+            0, # image min
+            2**16, # image max
+            100, # image mean
+            10, # image std
+            0, # eppix
+            0, # eps
+            0, # eppixps
+            0, # epa2
+            0, # eppixpf
+            0, # eppix_incident
+            0, # eps_incident
+            0, # epa2_incident
+            0, # eppixpf_incident
+            0, # saturation
+            time.time(), # current time
+            0, # autoStretchMin
+            0, #autoStretchMax
+            0, # autoStretchGamma
+            0, # histogram min
+            np.max(image), # histogram max
+            np.max(image), # histogram upper local max
+        ]
+        for val in response_mapping:
+            ack1 = add_parameter(ack1, val)
+        ans = (acknowledge_return,)
+        # add the data header packet for how many bytes are in the data
+        pack = pb.DEPacket()
+        pack.type = pb.DEPacket.P_DATA_HEADER
+
         pack.data_header.bytesize = len(result)
         ans += (pack,)
         ans += (result,)
