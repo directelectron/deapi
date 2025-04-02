@@ -38,12 +38,16 @@ class TestLoadingLiberTEM:
         client["Scan - Enable"] = "On"
         client.scan["Size X"] = 16
         client.scan["Size Y"] = 8
+        assert client.scan["Size X"] == 16
+        assert client.scan["Size Y"] == 8
         client["Autosave Movie"] = "On"
-        client["Autosave Movie File Format"] = file_format
+        client["Autosave 4D File Format"] = file_format
         client["Autosave Directory"] = temp_dir
+        assert client["Autosave 4D File Format"] == file_format
         client.start_acquisition(1)
         while client.acquiring:
             time.sleep(0.1)
+        assert (file_format.lower() in client["Autosave Movie Frames File Path"])
         movie = glob.glob(temp_dir + "/*movie." + file_format.lower())[0]
         dataset = lt.Context().load("auto", path=movie)
         assert tuple(dataset.shape) == (8, 16, 1024, 1024)

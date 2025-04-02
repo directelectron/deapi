@@ -4,7 +4,7 @@ import numpy as np
 
 from deapi import Client
 import pytest
-from deapi.data_types import PropertySpec, VirtualMask, MovieBufferStatus
+from deapi.data_types import PropertySpec, VirtualMask, MovieBufferStatus, ContrastStretchType
 
 
 class TestClient:
@@ -18,6 +18,7 @@ class TestClient:
         client["Hardware Binning Y"] = 1
         client["Hardware ROI Size X"] = 1024
         client["Hardware ROI Size Y"] = 1024
+        client["Scan - Type"] = "Raster"
         # Set the software Binning to 1
         client["Binning X"] = 1
         client["Binning Y"] = 1
@@ -89,6 +90,7 @@ class TestClient:
         assert isinstance(result, tuple)
         assert len(result) == 4
         assert result[0].shape == (1024, 1024)
+        assert result[2].stretchType == ContrastStretchType.NONE
 
     def test_get_result_no_scan(self, client):
         client["Frames Per Second"] = 1000
@@ -143,6 +145,8 @@ class TestClient:
 
     def test_virtual_mask_calculation(self, client):
         client.scan(size_x=8, size_y=10, enable="On")
+        assert client.scan_sizex == 8
+        assert client.scan_sizey == 10
         client.virtual_masks[2][:] = 2
         client.virtual_masks[2].calculation = "Difference"
         client.virtual_masks[2][1::2] = 0
@@ -156,7 +160,6 @@ class TestClient:
         result = client.get_result("virtual_image3")
         assert result is not None
         assert result[0].shape == (10, 8)
-        pass
 
     @pytest.mark.server
     def test_bin_property_set(self, client):
@@ -276,8 +279,8 @@ class TestClient:
         mask = np.ones((12, 12))
         mask[3:-3, 3:-3] = 0
         pos = np.argwhere(mask)
-        client["Scan - Type"] = "XY Array"
-        is_set = client.set_xy_array(pos)
+
+        is_set =client.set_xy_array(pos)
         assert client["Scan - Type"] == "XY Array"
         assert is_set
         assert client["Scan - Points"] == np.sum(mask)

@@ -175,7 +175,7 @@ class Attributes:
         window_height: int = 0,
         fft: bool = False,
         linear_stretch: bool = False,
-        stretch_type: int = ContrastStretchType.LINEAR,
+        stretch_type: int = ContrastStretchType.NONE,
         manual_stretch_min: float = 0.0,
         manual_stretch_max: float = 0.0,
         manual_stretch_gamma: float = 1.0,
@@ -198,6 +198,8 @@ class Attributes:
         eppixps: float = 0,
         epa2: float = 0,
         eppixpf=0,
+        red_sat_warning_value=0,
+        orange_sat_warning_value=0,
         eppix_incident=0,
         eps_incident=0,
         eppixps_incident=0,
@@ -242,11 +244,13 @@ class Attributes:
         self.eppixps = eppixps
         self.epa2 = epa2
         self.eppixpf = eppixpf
-        self.eppix_incident = eppix_incident
-        self.eps_incident = eps_incident
-        self.eppixps_incident = eppixps_incident
-        self.epa2_incident = epa2_incident
-        self.eppixpf_incident = eppixpf_incident
+        self.redSatWarningValue = red_sat_warning_value
+        self.orangeSatWarningValue = orange_sat_warning_value
+        self.eppixIncident = eppix_incident
+        self.epsIncident = eps_incident
+        self.eppixpsIncident = eppixps_incident
+        self.epa2Incident = epa2_incident
+        self.eppixpfIncident = eppixpf_incident
         self.underExposureRate = under_exposure_rate
         self.overExposureRate = over_exposure_rate
         self.timestamp = timestamp
@@ -370,6 +374,7 @@ class PropertySpec:
         options: list = None,
         default_value=None,
         current_value=None,
+        read_only = None,
     ):
         self.dataType = data_type
         self.valueType = value_type
@@ -377,16 +382,17 @@ class PropertySpec:
         self.options = options
         self.defaultValue = default_value
         self.currentValue = current_value
+        self.read_only = read_only
 
     dataType = None  # "String"   | "Integer"  | "Float"
-    valueType = None  # "ReadOnly" | "Set"      | "Range"       | "AllowAll"
+    valueType = None  # "Set"      | "Range"       | "AllowAll"
     category = (
         None  # "Basic"    | "Advanced" | "Engineering" | "Deprecated" | Obsolete"
     )
     options = None  # List of options
     defaultValue = None  # default value
     currentValue = None  # current value
-
+    readonly = False # Read-only property
 
 class PropertyCollection:
     """Class to interact with collections of properties in the DE API

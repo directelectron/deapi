@@ -92,7 +92,7 @@ class Client:
     """
 
     def __init__(self):
-        pass
+        self.commandVersion = commandVersion
 
     def set_log_level(self, level):
         log = logging.getLogger("DECameraClientLib")
@@ -171,7 +171,7 @@ class Client:
         port : int, optional
             The port to connect to, by default 13240
         """
-        if host == "localhost" or host == "127.0.0.1":
+        if not read_only and (host == "localhost" or host == "127.0.0.1"):
             tcpNoDelay = 0  # on loopback interface, nodelay causes delay
 
             if self.usingMmf:
@@ -207,30 +207,33 @@ class Client:
         self.port = port
         log.info("Connected to server: %s, port: %d", host, port)
 
+        if cVersion >= 12:
+            self.set_client_read_only(read_only)
+
         serverVersion = self.GetProperty("Server Software Version")
         serverVersion = re.findall(r"\d+", serverVersion)
 
         version = [int(part) for part in serverVersion[:4]]
         temp = version[2] + version[1] * 1000 + version[0] * 1000000
 
-        if cVersion >= 12:
-            self.set_client_read_only(read_only)
-
         if temp >= 2007004:
             ## version after 2.7.4
-            commandVersion = 12
+            self.commandVersion = 13
         elif temp >= 2007003:
             ## version after 2.7.3
-            commandVersion = 11
+            self.commandVersion = 11
         elif temp >= 2007002:
             ## version after 2.7.2
-            commandVersion = 10
+            self.commandVersion = 10
         elif temp >= 2005025:
             ##version after 2.5.25
-            commandVersion = 4
+            self.commandVersion = 4
         elif temp >= 2001017:
             ## version after 2.1.17
-            commandVersion = 3
+            self.commandVersion = 3
+        else:
+            self.commandVersion = commandVersion
+
         self._initialize_attributes()
         self.update_scan_size()
         self.update_image_size()
@@ -334,6 +337,7 @@ class Client:
     def get_property_spec(self, propertyName: str):
         """
         Get a list of allowed values for a property of the current camera on DE-Server
+        Deprecated since DE-MC 2.7.4
 
         Parameters
         ----------
@@ -342,7 +346,7 @@ class Client:
         """
         t0 = self.GetTime()
         values = False
-        command = self._addSingleCommand(self.LIST_ALLOWED_VALUES, propertyName)
+        command = self._addSingleCommand(self.GET_ALLOWABLE_VALUES_DEPRECATED, propertyName)
         response = self._sendCommand(command)
         if response == False:
             return None
@@ -391,26 +395,69 @@ class Client:
 
         return propSpec
 
-    def property_valid_values(self, propertyName: str):
+
+    def get_property_specifications(self, propertyName):
         """
         Get a list of allowed values for a property of the current camera on DE-Server
+        Only works for DE-MC version greater or equal to 2.7.4
+
+        Parameters
+        ----------
+        propertyName : str
+            The name of the property to get the allowed values for
         """
-        t0 = self.GetTime()
-        values = False
-        command = self._addSingleCommand(self.LIST_ALLOWED_VALUES, propertyName)
-        response = self._sendCommand(command)
-        if response != False:
-            values = self.__getParameters(response.acknowledge[0])
+        t0 = self.GetTime()   
+        values   = False
+        command  = self.__addSingleCommand(self.GET_PROPERTY_SPECIFICATIONS, propertyName)
+        response = self.__sendCommand(command) 
+        if response == False:
+            return None
 
-            if logLevel == logging.DEBUG:
-                log.debug(
-                    "get allowed property values: %s = %s, completed in %.1f ms",
-                    propertyName,
-                    values,
-                    (self.GetTime() - t0) * 1000,
-                )
+        values = self.__getParameters(response.acknowledge[0])
 
-        return values
+        propSpec = PropertySpec()
+        propSpec.dataType        = values[0]
+        propSpec.valueType       = values[1]
+        propSpec.category        = values[len(values)-4]
+        propSpec.options         = list(values[2:len(values)-4])
+        propSpec.defaultValue    = str(values[len(values)-3])
+        propSpec.currentValue    = str(values[len(values)-2])
+        propSpec.readOnly        = bool(values[len(values)-1])
+
+        optionsLength   = len(propSpec.options)
+
+        if propSpec.valueType == "Range":
+            if optionsLength == 2:
+                rangeString = ""
+                for i in range(optionsLength):
+                    if propSpec.dataType == "Integer":
+                        rangeString += str(int(propSpec.options[i])) 
+                    else:
+                        rangeString += str(propSpec.options[i])
+                    if i == 0:
+                        rangeString += str(" - ")
+
+                propSpec.options.append(rangeString)
+
+        if propSpec.valueType == "Set":
+            for i in range(optionsLength):
+                if propSpec.defaultValue == propSpec.options[i]:
+                    if propSpec.defaultValue != "":
+                        propSpec.options[i] = propSpec.defaultValue + str("*")
+                    else:
+                        emptyStringIndex = i
+            if propSpec.defaultValue == "":
+                propSpec.options.pop(emptyStringIndex)
+
+        if "allow_all" in propSpec.valueType:
+            propSpec.options = ""
+        elif propSpec.dataType == "String":
+            propSpec.options = str(list(map(lambda a: str(a), propSpec.options)))[1:-1]
+        else:
+            propSpec.options = str(propSpec.options)[1:-1]
+
+        return propSpec
+
 
     def get_property(self, propertyName: str):
         """
@@ -671,7 +718,7 @@ class Client:
         ret = False
 
         command = self.__addSingleCommand(
-            self.SET_SCAN_SIZE, None, [enable, offsetX, offsetY, sizeX, sizeY]
+            self.SET_SCAN_ROI, None, [enable, offsetX, offsetY, sizeX, sizeY]
         )
         response = self.__sendCommand(command)
         if response != False:
@@ -691,7 +738,11 @@ class Client:
         return ret
 
     @write_only
-    def SetScanROI(self, enable, offsetX, offsetY, sizeX, sizeY, changedProperties):
+    def SetScanROIAndGetChangedProperties(self, enable, offsetX, offsetY, sizeX, sizeY, changedProperties):
+        if self.read_only:
+            log.error("Read-only client cannot set scan ROI.")
+            return False
+
         t0 = self.GetTime()
         ret = False
 
@@ -859,6 +910,79 @@ class Client:
 
         return ret
 
+    def set_adaptive_roi(self, offsetX, offsetY, sizeX, sizeY):
+        """
+        Automatically choose the proper HW ROI and set SW ROI of the current camera on DE-Server.
+
+        Parameters
+        ----------
+        offsetX : int
+            The x offset of the ROI
+        offsetY : int
+            The y offset of the ROI
+        sizeX : int
+            The width of the ROI
+        sizeY : int
+            The height of the ROI
+        """
+        if self.read_only:
+            log.error("Read-only client cannot set adaptive ROI.")
+            return False
+
+        t0 = self.GetTime()   
+        ret = False
+            
+        command = self.__addSingleCommand(self.SET_ADAPTIVE_ROI, None, [offsetX, offsetY, sizeX, sizeY])
+        response = self.__sendCommand(command)                
+        if response != False:
+            ret = response.acknowledge[0].error != True
+            self.refreshProperties = True
+
+        if logLevel == logging.DEBUG:  
+            log.debug("SetAdaptiveROI: (%i,%i,%i,%i) , completed in %.1f ms", offsetX, offsetY, sizeX, sizeY, (self.GetTime() - t0) * 1000)
+
+        return ret
+
+    def set_adaptive_roi_and_get_changed_properties(self, offsetX, offsetY, sizeX, sizeY, changedProperties, timeoutMsec = 5000):
+        """
+        Automatically choose the proper HW ROI and set SW ROI of the current camera on DE-Server and get all of
+        the changed properties.  This is useful for testing and determining how certain
+        properties affect others.
+
+        Parameters
+        ----------
+        offsetX : int
+            The x offset of the ROI
+        offsetY : int
+            The y offset of the ROI
+        sizeX : int
+            The width of the ROI
+        sizeY : int
+            The height of the ROI
+        changedProperties : list
+            List of properties that have changed
+        """
+        if self.read_only:
+            log.error("Read-only client cannot set adaptive ROI and get changed properties.")
+            return False
+
+        t0 = self.GetTime()   
+        ret = False
+            
+        command = self.__addSingleCommand(self.SET_ADAPTIVE_ROI_AND_GET_CHANGED_PROPERTIES, None, [offsetX, offsetY, sizeX, sizeY])
+        response = self.__sendCommand(command)                
+        if response != False:
+            ret = response.acknowledge[0].error != True
+            self.refreshProperties = True
+
+        if ret:
+            ret = self.ParseChangedProperties(changedProperties, response)
+
+        if logLevel == logging.DEBUG:  
+            log.debug("SetAdaptiveROI: (%i,%i,%i,%i) , completed in %.1f ms", offsetX, offsetY, sizeX, sizeY, (self.GetTime() - t0) * 1000)
+
+        return ret
+
     def current_movie_buffer(self):
         movieBufferInfo = self.GetMovieBufferInfo()
         if movieBufferInfo.imageDataType == DataType.DE8u:
@@ -974,6 +1098,40 @@ class Client:
             log.debug("    Stop Time: %.1f ms", lapsed)
 
         return b"Stopped" in respond
+    
+    @write_only
+    def start_manual_movie_saving(self):
+        """
+        Start saving movie during acquisition.
+        """
+        start_time = self.GetTime()
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
+        sock.sendto(b"PyClientManualMovieStart", (self.host, self.port))
+        respond = sock.recv(32)
+        if logLevel == logging.INFO:
+            log.info(f"{self.host} {self.port} {respond}")
+        if logLevel <= logging.DEBUG:
+            lapsed = (self.GetTime() - start_time) * 1000
+            log.debug("    Start saving during acquisition time: %.1f ms", lapsed)
+
+        return b"ManualMovieStart" in respond
+    
+    @write_only
+    def stop_manual_movie_saving(self):
+        """
+        Stop saving movie during acquisition.
+        """
+        start_time = self.GetTime()
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
+        sock.sendto(b"PyClientManualMovieStop", (self.host, self.port))
+        respond = sock.recv(32);
+        if logLevel == logging.INFO:
+            log.info(f"{self.host} {self.port} {respond}")
+        if logLevel <= logging.DEBUG:
+            lapsed = (self.GetTime() - start_time) * 1000
+            log.debug("    Stop saving during acquisition time: %.1f ms", lapsed)
+
+        return b"ManualMovieStop" in respond
 
     @write_only
     def set_xy_array(self, positions, width=None, height=None):
@@ -1025,7 +1183,7 @@ class Client:
             return False
 
         ret = self.__ReceiveResponseForCommand(command) != False
-
+        self["Scan - Type"] = "XY Array"
         return ret
 
     def get_result(
@@ -1074,15 +1232,8 @@ class Client:
             attributes = Attributes()
             scan_images = [17, 18, 19, 20, 21, 22, 23, 24, 25]
             if frameType.value in scan_images:
-                if self["Scan - Type"] == "XY Array":
-                    attributes.windowHeight = self["Scan - XY Array Height"]
-                    attributes.windowWidth = self["Scan - XY Array Width"]
-                elif self["Scan - Type"] == "XY File":
-                    attributes.windowHeight = self["Scan - XY File Height"]
-                    attributes.windowWidth = self["Scan - XY File Width"]
-                else:
-                    attributes.windowWidth = self.scan_sizex
-                    attributes.windowHeight = self.scan_sizey
+                attributes.windowWidth = self.scan_sizex
+                attributes.windowHeight = self.scan_sizey
             else:
                 attributes.windowWidth = self.image_sizex
                 attributes.windowHeight = self.image_sizey
@@ -1198,28 +1349,32 @@ class Client:
                     i += 1
                     attributes.eppixpf = values[i]
                     i += 1
-                    if commandVersion >= 12:
-                        attributes.eppix_incident = values[i]
+                    if self.commandVersion >= 12:
+                        attributes.eppixIncident = values[i]
                         i += 1
-                        attributes.eps_incident = values[i]
+                        attributes.epsIncident = values[i]
                         i += 1
-                        attributes.eppixps_incident = values[i]
+                        attributes.eppixpsIncident = values[i]
                         i += 1
-                        attributes.epa2_incident = values[i]
+                        attributes.epa2Incident = values[i]
                         i += 1
-                        attributes.eppixpf_incident = values[i]
+                        attributes.eppixpfIncident = values[i]
                         i += 1
-                    if commandVersion >= 11:
+                        attributes.redSatWarningValue = values[i]
+                        i += 1
+                        attributes.orangeSatWarningValue = values[i]
+                        i += 1
+                    if self.commandVersion >= 11:
                         attributes.saturation = values[i]
                         i += 1
-                    if commandVersion < 10:
+                    if self.commandVersion < 10:
                         attributes.underExposureRate = values[i]
                         i += 1
                         attributes.overExposureRate = values[i]
                         i += 1
                     attributes.timestamp = float(values[i])
                     i += 1
-                    if commandVersion >= 10:
+                    if self.commandVersion >= 10:
                         attributes.autoStretchMin = values[i]
                         i += 1
                         attributes.autoStretchMax = values[i]
@@ -1237,7 +1392,7 @@ class Client:
                         i += 1
                         histogram.max = values[i]
                         i += 1
-                        if commandVersion >= 11:
+                        if self.commandVersion >= 11:
                             histogram.upperMostLocalMaxima = values[i]
                             i += 1
                         for j in range(histogram.bins):
@@ -1302,7 +1457,7 @@ class Client:
                     step_time = self.GetTime()
 
             if bytesize <= 0:
-                log.error("  GetResut failed! An empty image will be returned.")
+                log.error("  GetResult failed! An empty image will be returned.")
                 image = None
 
             if logLevel == logging.DEBUG:
@@ -1311,7 +1466,7 @@ class Client:
                 step_time = self.GetTime()
 
         if image is None:
-            log.error("  GetResut failed!")
+            log.error("  GetResult failed!")
         else:
             image = image.astype(imageDataType)
 
@@ -1506,17 +1661,17 @@ class Client:
         """
         Print out the acquisition information
         """
-        hwW = self.GetProperty("Hardware ROI - Size X")
-        hwH = self.GetProperty("Hardware ROI - Size Y")
+        hwW = self.GetProperty("Hardware ROI Size X")
+        hwH = self.GetProperty("Hardware ROI Size Y")
         hwX = self.GetProperty("Hardware ROI Offset X")
         hwY = self.GetProperty("Hardware ROI Offset Y")
         hwBinX = self.GetProperty("Hardware Binning X")
         hwBinY = self.GetProperty("Hardware Binning Y")
 
-        swW = self.GetProperty("ROI Size X")
-        swH = self.GetProperty("ROI Size Y")
-        swX = self.GetProperty("ROI Offset X")
-        swY = self.GetProperty("ROI Offset Y")
+        swW = self.GetProperty("Crop Size X")
+        swH = self.GetProperty("Crop Size Y")
+        swX = self.GetProperty("Crop Offset X")
+        swY = self.GetProperty("Crop Offset Y")
         swBinX = self.GetProperty("Binning X")
         swBinY = self.GetProperty("Binning Y")
 
@@ -1893,7 +2048,7 @@ class Client:
         command = pb.DEPacket()  # create the command packet
         command.type = pb.DEPacket.P_COMMAND
         singlecommand1 = command.command.add()  # add the first single command
-        singlecommand1.command_id = command_id + commandVersion * 100
+        singlecommand1.command_id = command_id + self.commandVersion * 100
         if not label is None:
             str_param = command.command[0].parameter.add()
             str_param.type = pb.AnyParameter.P_STRING
@@ -2141,7 +2296,7 @@ class Client:
     SetCurrentCamera = set_current_camera
     ListProperties = list_properties
     GetPropertySpec = get_property_spec
-    PropertyValidValues = property_valid_values
+    #PropertyValidValues = property_valid_values
     GetProperty = get_property
     SetProperty = set_property
     SetPropertyAndGetChangedProperties = set_property_and_get_changed_properties
@@ -2188,7 +2343,7 @@ class Client:
     # command lists
     LIST_CAMERAS = 0
     LIST_PROPERTIES = 1
-    LIST_ALLOWED_VALUES = 2
+    GET_ALLOWABLE_VALUES_DEPRECATED = 2
     GET_PROPERTY = 3
     SET_PROPERTY = 4
     GET_IMAGE_16U = 5
@@ -2213,6 +2368,9 @@ class Client:
     SET_SCAN_ROI__AND_GET_CHANGED_PROPERTIES = 30
     SET_CLIENT_READ_ONLY = 31
     SET_SCAN_XY_ARRAY = 32
+    SET_ADAPTIVE_ROI = 33
+    SET_ADAPTIVE_ROI_AND_GET_CHANGED_PROPERTIES = 34
+    GET_PROPERTY_SPECIFICATIONS = 35 
 
 
 MMF_DATA_HEADER_SIZE = 24
