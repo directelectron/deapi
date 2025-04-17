@@ -6,6 +6,7 @@ import os
 import glob
 import shutil
 
+
 class TestInsitu:
     @pytest.fixture(autouse=True)
     def clean_state(self, client):
@@ -42,9 +43,8 @@ class TestInsitu:
         time.sleep(3)
         assert not client.acquiring
         # autosave directory not saved
-        #path = client["Autosave Movie Frames File Path"]
+        # path = client["Autosave Movie Frames File Path"]
         path = glob.glob("D:\\Temp\\start_stop\\*movie.mrc")[0]
         assert os.path.exists(path)
         size = os.path.getsize(path)
-        assert size < 2*1024*1024*150 # less than 150 frames
-
+        assert size < 2 * 1024 * 1024 * 150  # less than 150 frames

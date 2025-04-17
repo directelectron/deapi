@@ -20,14 +20,16 @@ from deapi import Client
 import matplotlib.pyplot as plt
 import time
 from skimage.draw import disk
+import sys
 
 c = Client()
-c.usingMmf = False
-c.connect(port=13241)  # connect to the running DE Server
+if not sys.platform.startswith("win"):
+    c.usingMmf = False  # True if on same machine as DE Server and a Windows machine
+c.connect(port=13240)  # connect to the running DE Server
 
 c.virtual_masks[0][:] = 1  # Set everything to 1
 c.virtual_masks[0].plot()  # plot the current v0 mask
-
+print("Virtual Mask 0: ", c.virtual_masks[0][:].shape)
 # %%
 # Changing the virtual mask
 # -------------------------
@@ -82,7 +84,7 @@ for a, v in zip(axs, c.virtual_masks):
 # start acquisition function
 
 c["Frames Per Second"] = 5000  # 5000 frames per second
-c.scan(enable="On", size_x=128, size_y=128)
+c.scan(enable="On", size_x=16, size_y=16)
 c.start_acquisition()
 
 while c.acquiring:  # wait for acquisition to finish and then plot the results
@@ -92,3 +94,5 @@ fig, axs = plt.subplots(1, 3)
 for a, virt in zip(axs, ["virtual_image0", "virtual_image1", "virtual_image2"]):
     data, _, _, _ = c.get_result(virt)
     a.imshow(data)
+
+c.disconnect()

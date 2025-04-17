@@ -4,7 +4,12 @@ import numpy as np
 
 from deapi import Client, Histogram
 import pytest
-from deapi.data_types import PropertySpec, VirtualMask, MovieBufferStatus, ContrastStretchType
+from deapi.data_types import (
+    PropertySpec,
+    VirtualMask,
+    MovieBufferStatus,
+    ContrastStretchType,
+)
 
 
 class TestClient:
@@ -100,7 +105,7 @@ class TestClient:
         while client.acquiring:
             time.sleep(1)
         result = client.get_result("singleframe_integrated")
-        assert  isinstance(result[3], Histogram)
+        assert isinstance(result[3], Histogram)
         result[3].plot()
 
     def test_get_result_no_scan(self, client):
@@ -168,7 +173,7 @@ class TestClient:
         client.virtual_masks[2][1::2] = 0
         client.virtual_masks[2][::2] = 2
         assert client.virtual_masks[2].calculation == "Difference"
-        assert client["Scan - Virtual Detector 2 Calculation"] == "Difference"
+        assert client["Scan - Virtual Detector 3 Calculation"] == "Difference"
         np.testing.assert_allclose(client.virtual_masks[2][::2], 2)
         client.start_acquisition(1)
         while client.acquiring:
@@ -297,7 +302,7 @@ class TestClient:
         mask[3:-3, 3:-3] = 0
         pos = np.argwhere(mask)
 
-        is_set =client.set_xy_array(pos)
+        is_set = client.set_xy_array(pos)
         assert client["Scan - Type"] == "XY Array"
         assert is_set
         assert client["Scan - Points"] == np.sum(mask)
@@ -311,5 +316,4 @@ class TestClient:
             time.sleep(1)
         result = client.get_result("virtual_image1")
         assert result[0].shape == (12, 12)
-        client["Scan - Type"] = "Raster" #clean up
-
+        client["Scan - Type"] = "Raster"  # clean up

@@ -10,7 +10,6 @@ class TestFPS01:
     maximum value and that the camera is able to acquire at that size.
     """
 
-    @pytest.mark.server
     @pytest.fixture(autouse=True)
     def clean_state(self, client):
         # First set the hardware ROI to a known state

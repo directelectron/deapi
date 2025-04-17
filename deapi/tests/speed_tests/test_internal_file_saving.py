@@ -53,14 +53,15 @@ class Test4DSaving:
         print(client["Speed - Frame Write Time (us)"])
         return client["Speed - Frame Write Time (us)"]
 
+
 class TestCompressionSpeed:
 
     @pytest.mark.engineering
     @pytest.mark.server
     @pytest.mark.skip(reason="Not implemented yet")
     def test_compression_speeds(self, client):
-        methods = ["lz4"] # zstd throws an error???
-        levels = [ 5, 7, 9]
+        methods = ["lz4"]  # zstd throws an error???
+        levels = [5, 7, 9]
 
         compression_times = {
             "lz4": {l: [] for l in levels},
@@ -69,7 +70,7 @@ class TestCompressionSpeed:
             for level in levels:
                 client["Compression - Mode"] = method
                 client["Compression - Level"] = level
-                client["Compression - Threads"] = 8 # Max is half the number of cores
+                client["Compression - Threads"] = 8  # Max is half the number of cores
                 client["Grabbing - Target Buffer Size (MB)"] = 32
                 assert client["Compression - Mode"] == method
                 assert client["Compression - Level"] == level
@@ -84,7 +85,10 @@ class TestCompressionSpeed:
                 while client.acquiring:
                     time.sleep(0.1)
                 time.sleep(2)
-                processing_log = client["Autosave Movie Frames File Path"].split("0_movie")[0] + "processing.log"
+                processing_log = (
+                    client["Autosave Movie Frames File Path"].split("0_movie")[0]
+                    + "processing.log"
+                )
                 with open(processing_log, "r") as f:
                     lines = f.readlines()
                 summary_index = 0
@@ -93,20 +97,25 @@ class TestCompressionSpeed:
                         summary_index = i
 
                 summary_dict = {}
-                for l in lines[summary_index + 2:]:
+                for l in lines[summary_index + 2 :]:
                     try:
                         key, values = l.split("=")
                         key = key.strip()
                         summary_dict[key] = values.strip()
                     except ValueError:
                         pass
-                print(f"{method}-{level}: {summary_dict['Compression Speed(per core)']}")
-                compression_times[method][level] = summary_dict["Compression Speed(per core)"].split(" ")[0]
+                print(
+                    f"{method}-{level}: {summary_dict['Compression Speed(per core)']}"
+                )
+                compression_times[method][level] = summary_dict[
+                    "Compression Speed(per core)"
+                ].split(" ")[0]
         print(compression_times)
         version = client["Server Software Version"]
         fname = version + "_compression_speed.json"
         with open(fname, "w") as outfile:
             json.dump(compression_times, outfile)
+
 
 class TestCompressionSlow:
 
@@ -115,11 +124,11 @@ class TestCompressionSlow:
     @pytest.mark.skip(reason="Not implemented yet")
     def test_compression_speeds(self, client):
         method = "zlib"
-        level =4
+        level = 4
 
         client["Compression - Mode"] = method
         client["Compression - Level"] = level
-        client["Compression - Threads"] = 8 # Max is half the number of cores
+        client["Compression - Threads"] = 8  # Max is half the number of cores
         client["Grabbing - Target Buffer Size (MB)"] = 32
         assert client["Compression - Mode"] == method
         assert client["Compression - Level"] == level
@@ -135,7 +144,10 @@ class TestCompressionSlow:
             time.sleep(0.1)
 
         time.sleep(2)
-        processing_log = client["Autosave Movie Frames File Path"].split("0_movie")[0] + "processing.log"
+        processing_log = (
+            client["Autosave Movie Frames File Path"].split("0_movie")[0]
+            + "processing.log"
+        )
         with open(processing_log, "r") as f:
             lines = f.readlines()
         summary_index = 0
@@ -144,7 +156,7 @@ class TestCompressionSlow:
                 summary_index = i
 
         summary_dict = {}
-        for l in lines[summary_index + 2:]:
+        for l in lines[summary_index + 2 :]:
             try:
                 key, values = l.split("=")
                 key = key.strip()
@@ -152,8 +164,3 @@ class TestCompressionSlow:
             except ValueError:
                 pass
         print(summary_dict["Compression Speed(per core)"])
-
-
-
-
-

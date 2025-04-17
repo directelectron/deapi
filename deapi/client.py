@@ -348,7 +348,9 @@ class Client:
         """
         t0 = self.GetTime()
         values = False
-        command = self._addSingleCommand(self.GET_ALLOWABLE_VALUES_DEPRECATED, propertyName)
+        command = self._addSingleCommand(
+            self.GET_ALLOWABLE_VALUES_DEPRECATED, propertyName
+        )
         response = self._sendCommand(command)
         if response == False:
             return None
@@ -397,7 +399,6 @@ class Client:
 
         return propSpec
 
-
     def get_property_specifications(self, propertyName):
         """
         Get a list of allowed values for a property of the current camera on DE-Server
@@ -409,8 +410,10 @@ class Client:
             The name of the property to get the allowed values for
         """
         t0 = self.GetTime()
-        values   = False
-        command  = self.__addSingleCommand(self.GET_PROPERTY_SPECIFICATIONS, propertyName)
+        values = False
+        command = self.__addSingleCommand(
+            self.GET_PROPERTY_SPECIFICATIONS, propertyName
+        )
         response = self.__sendCommand(command)
         if response == False:
             return None
@@ -418,15 +421,15 @@ class Client:
         values = self.__getParameters(response.acknowledge[0])
 
         propSpec = PropertySpec()
-        propSpec.dataType        = values[0]
-        propSpec.valueType       = values[1]
-        propSpec.category        = values[len(values)-4]
-        propSpec.options         = list(values[2:len(values)-4])
-        propSpec.defaultValue    = str(values[len(values)-3])
-        propSpec.currentValue    = str(values[len(values)-2])
-        propSpec.readOnly        = bool(values[len(values)-1])
+        propSpec.dataType = values[0]
+        propSpec.valueType = values[1]
+        propSpec.category = values[len(values) - 4]
+        propSpec.options = list(values[2 : len(values) - 4])
+        propSpec.defaultValue = str(values[len(values) - 3])
+        propSpec.currentValue = str(values[len(values) - 2])
+        propSpec.readOnly = bool(values[len(values) - 1])
 
-        optionsLength   = len(propSpec.options)
+        optionsLength = len(propSpec.options)
 
         if propSpec.valueType == "Range":
             if optionsLength == 2:
@@ -459,7 +462,6 @@ class Client:
             propSpec.options = str(propSpec.options)[1:-1]
 
         return propSpec
-
 
     def get_property(self, propertyName: str):
         """
@@ -671,7 +673,6 @@ class Client:
     @write_only
     def SetScanSize(self, sizeX, sizeY):
 
-
         t0 = self.GetTime()
         ret = False
 
@@ -743,7 +744,9 @@ class Client:
         return ret
 
     @write_only
-    def SetScanROIAndGetChangedProperties(self, enable, offsetX, offsetY, sizeX, sizeY, changedProperties):
+    def SetScanROIAndGetChangedProperties(
+        self, enable, offsetX, offsetY, sizeX, sizeY, changedProperties
+    ):
 
         t0 = self.GetTime()
         ret = False
@@ -795,7 +798,6 @@ class Client:
         changedProperties : list
             List of properties that have changed
         """
-
 
         t0 = self.GetTime()
         ret = False
@@ -936,19 +938,30 @@ class Client:
         t0 = self.GetTime()
         ret = False
 
-        command = self.__addSingleCommand(self.SET_ADAPTIVE_ROI, None, [offsetX, offsetY, sizeX, sizeY])
+        command = self.__addSingleCommand(
+            self.SET_ADAPTIVE_ROI, None, [offsetX, offsetY, sizeX, sizeY]
+        )
         response = self.__sendCommand(command)
         if response != False:
             ret = response.acknowledge[0].error != True
             self.refreshProperties = True
 
         if logLevel == logging.DEBUG:
-            log.debug("SetAdaptiveROI: (%i,%i,%i,%i) , completed in %.1f ms", offsetX, offsetY, sizeX, sizeY, (self.GetTime() - t0) * 1000)
+            log.debug(
+                "SetAdaptiveROI: (%i,%i,%i,%i) , completed in %.1f ms",
+                offsetX,
+                offsetY,
+                sizeX,
+                sizeY,
+                (self.GetTime() - t0) * 1000,
+            )
 
         return ret
 
     @write_only
-    def set_adaptive_roi_and_get_changed_properties(self, offsetX, offsetY, sizeX, sizeY, changedProperties, timeoutMsec = 5000):
+    def set_adaptive_roi_and_get_changed_properties(
+        self, offsetX, offsetY, sizeX, sizeY, changedProperties, timeoutMsec=5000
+    ):
         """
         Automatically choose the proper HW ROI and set SW ROI of the current camera on DE-Server and get all of
         the changed properties.  This is useful for testing and determining how certain
@@ -971,7 +984,11 @@ class Client:
         t0 = self.GetTime()
         ret = False
 
-        command = self.__addSingleCommand(self.SET_ADAPTIVE_ROI_AND_GET_CHANGED_PROPERTIES, None, [offsetX, offsetY, sizeX, sizeY])
+        command = self.__addSingleCommand(
+            self.SET_ADAPTIVE_ROI_AND_GET_CHANGED_PROPERTIES,
+            None,
+            [offsetX, offsetY, sizeX, sizeY],
+        )
         response = self.__sendCommand(command)
         if response != False:
             ret = response.acknowledge[0].error != True
@@ -981,7 +998,14 @@ class Client:
             ret = self.ParseChangedProperties(changedProperties, response)
 
         if logLevel == logging.DEBUG:
-            log.debug("SetAdaptiveROI: (%i,%i,%i,%i) , completed in %.1f ms", offsetX, offsetY, sizeX, sizeY, (self.GetTime() - t0) * 1000)
+            log.debug(
+                "SetAdaptiveROI: (%i,%i,%i,%i) , completed in %.1f ms",
+                offsetX,
+                offsetY,
+                sizeX,
+                sizeY,
+                (self.GetTime() - t0) * 1000,
+            )
 
         return ret
 
@@ -1108,7 +1132,7 @@ class Client:
         Start saving movie during acquisition.
         """
         start_time = self.GetTime()
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
         sock.sendto(b"PyClientManualMovieStart", (self.host, self.port))
         respond = sock.recv(32)
         if logLevel == logging.INFO:
@@ -1125,9 +1149,9 @@ class Client:
         Stop saving movie during acquisition.
         """
         start_time = self.GetTime()
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
         sock.sendto(b"PyClientManualMovieStop", (self.host, self.port))
-        respond = sock.recv(32);
+        respond = sock.recv(32)
         if logLevel == logging.INFO:
             log.info(f"{self.host} {self.port} {respond}")
         if logLevel <= logging.DEBUG:
@@ -2303,7 +2327,7 @@ class Client:
     SetCurrentCamera = set_current_camera
     ListProperties = list_properties
     GetPropertySpec = get_property_spec
-    #PropertyValidValues = property_valid_values
+    # PropertyValidValues = property_valid_values
     GetProperty = get_property
     SetProperty = set_property
     SetPropertyAndGetChangedProperties = set_property_and_get_changed_properties

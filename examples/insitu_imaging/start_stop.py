@@ -7,21 +7,28 @@ recording but this could be any event. For example we could start recording when
 starts to ramp or when there is some change in the sample from the previous image.
 """
 
-
 import deapi
 import time
+import sys
+
 
 c = deapi.Client()
+if not sys.platform.startswith("win"):
+    c.usingMmf = False  # True if on same machine as DE Server and a Windows machine
 c.connect()
 
 
 # Set the autosave directory
 loc_time = time.localtime()
-c["Autosave Directory"] = f"D:\\AutomatedInSitu\\{loc_time.tm_year}-{loc_time.tm_mon}-{loc_time.tm_mday}"
+c["Autosave Directory"] = (
+    f"D:\\AutomatedInSitu\\{loc_time.tm_year}-{loc_time.tm_mon}-{loc_time.tm_mday}"
+)
 
-c["Autosave Movie"] = "On" # Save the individual frames
-c["Autosave Final Image"] = "On" # Save the final summed image
-c["Autosave Movie Sum Count"] =10 # The total number of frames summed for one call to `c.start_acquisition`.
+c["Autosave Movie"] = "On"  # Save the individual frames
+c["Autosave Final Image"] = "On"  # Save the final summed image
+c["Autosave Movie Sum Count"] = (
+    10  # The total number of frames summed for one call to `c.start_acquisition`.
+)
 
 # Usually maximum FPS and then increase Autosave Movie Sum Count to get the desired frame rate
 c["Frames Per Second"] = 100
@@ -37,11 +44,12 @@ c.start_acquisition(numberOfAcquisitions=1000)
 # sample starts to change we can use the `start_manual_movie_saving` function to start recording.
 
 
-time.sleep(10) # wait for 10 seconds
-c.start_manual_movie_saving() # start recording
-time.sleep(10) # wait for 10 seconds
-c.stop_manual_movie_saving() # stop recording
+time.sleep(10)  # wait for 10 seconds
+c.start_manual_movie_saving()  # start recording
+time.sleep(10)  # wait for 10 seconds
+c.stop_manual_movie_saving()  # stop recording
 
 while c.acquiring:
-    time.sleep(1) # wait for acquisition to finish
+    time.sleep(1)  # wait for acquisition to finish
 
+c.disconnect()  # disconnect from the server

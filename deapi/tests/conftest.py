@@ -84,7 +84,9 @@ def client(xprocess, request):
         )
 
         if request.config.getoption("--engineering"):
-            c.set_engineering_mode(enable =True, password =request.config.getoption("--engineering"))
+            c.set_engineering_mode(
+                enable=True, password=request.config.getoption("--engineering")
+            )
         yield c
         time.sleep(4)
         c.disconnect()

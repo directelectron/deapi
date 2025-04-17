@@ -65,8 +65,6 @@ class TestSavingScans:
 
         time.sleep(5)  # Wait for the file to be written to disk etc.
 
-
-
         if file_format == "HSPY":
             movie = hs.load(client["Autosave Movie Frames File Path"])
             frame_order = movie.data[:, :, 0, 0]
@@ -75,7 +73,11 @@ class TestSavingScans:
             print(client["Autosave Movie Frames File Path"])
             fp = client["Autosave Movie Frames File Path"]
             movie = hs.load(client["Autosave Movie Frames File Path"])
-            np.testing.assert_array_equal(movie.data.reshape(-1, 1024, 1024), np.arange(num_pos)[:, np.newaxis, np.newaxis] * np.ones((1, 1024, 1024)))
+            np.testing.assert_array_equal(
+                movie.data.reshape(-1, 1024, 1024),
+                np.arange(num_pos)[:, np.newaxis, np.newaxis]
+                * np.ones((1, 1024, 1024)),
+            )
 
 
 class TestSavingVirtual:
@@ -104,7 +106,7 @@ class TestSavingVirtual:
             )
             frame_num_order = frame_num_order.reshape(-1)
         else:  # Raster
-            frame_num_order =np.arange(num_pos)
+            frame_num_order = np.arange(num_pos)
 
         client["Frames Per Second"] = 100
         client["Scan - Enable"] = "On"
@@ -128,4 +130,6 @@ class TestSavingVirtual:
         print(client["Autosave Virtual Image 0 File Path"])
         fp = client["Autosave Virtual Image 0 File Path"]
         movie = hs.load(client["Autosave Virtual Image 0 File Path"])
-        np.testing.assert_array_equal(movie.data.reshape(-1), frame_num_order*(1024*1024))
+        np.testing.assert_array_equal(
+            movie.data.reshape(-1), frame_num_order * (1024 * 1024)
+        )

@@ -9,14 +9,8 @@ work.
 
 import os
 import time
-
-import blosc2
-import numpy as np
 import pytest
-import hyperspy.api as hs
-import glob
 import h5py
-
 
 
 class TestSavingHyperSpy:

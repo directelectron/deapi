@@ -595,38 +595,38 @@ class FakeServer:
             raise ValueError(f"Frame type {frame_type} not Supported in PythonDEServer")
         # map to right order...
         response_mapping = [
-            pixel_format, # pix format
-            windowWidth, # window width
-            windowHeight, # window height
-            "Test", # name
-            0, # acquisition index
-            self.acquisition_status == "Acquiring", # status
-            flat_index, # frame number
-            1, # frame count
-            0, # image min
-            2**16, # image max
-            100, # image mean
-            10, # image std
-            0, # eppix
-            0, # eps
-            0, # eppixps
-            0, # epa2
-            0, # eppixpf
-            0, # eppix_incident
-            0, # eps_incident
-            0, # eppixps_incident
-            0, # epa2_incident
-            0, # eppixpf_incident
-            0, # red sat warning
-            0, # orange sat warning
-            0, # saturation
-            time.time(), # current time
-            0, # autoStretchMin
-            0, #autoStretchMax
-            0, # autoStretchGamma
-            0, # histogram min
-            float(np.min(image)), # histogram max
-            float(np.max(image)), # histogram upper local max
+            pixel_format,  # pix format
+            windowWidth,  # window width
+            windowHeight,  # window height
+            "Test",  # name
+            0,  # acquisition index
+            self.acquisition_status == "Acquiring",  # status
+            flat_index,  # frame number
+            1,  # frame count
+            0,  # image min
+            2**16,  # image max
+            100,  # image mean
+            10,  # image std
+            0,  # eppix
+            0,  # eps
+            0,  # eppixps
+            0,  # epa2
+            0,  # eppixpf
+            0,  # eppix_incident
+            0,  # eps_incident
+            0,  # eppixps_incident
+            0,  # epa2_incident
+            0,  # eppixpf_incident
+            0,  # red sat warning
+            0,  # orange sat warning
+            0,  # saturation
+            time.time(),  # current time
+            0,  # autoStretchMin
+            0,  # autoStretchMax
+            0,  # autoStretchGamma
+            0,  # histogram min
+            float(np.min(image)),  # histogram max
+            float(np.max(image)),  # histogram upper local max
         ]
         for val in response_mapping:
             ack1 = acknowledge_return.acknowledge.add()

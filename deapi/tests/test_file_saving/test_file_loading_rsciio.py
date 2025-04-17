@@ -46,7 +46,7 @@ class TestSavingHyperSpy:
         while client.acquiring:
             time.sleep(0.1)
         time.sleep(1)
-        assert (file_format.lower() in client["Autosave Movie Frames File Path"])
+        assert file_format.lower() in client["Autosave Movie Frames File Path"]
         s = hs.load(client["Autosave Movie Frames File Path"])
         if file_format == "MRC":
             assert s.data.shape == (144, 1024, 1024)

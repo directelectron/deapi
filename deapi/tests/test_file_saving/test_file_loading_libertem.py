@@ -31,7 +31,10 @@ class TestLoadingLiberTEM:
             time.sleep(1)
 
     @pytest.mark.parametrize(
-        "file_format", ["DE5",]
+        "file_format",
+        [
+            "DE5",
+        ],
     )  # MRC file loading in LiberTEM is broken!
     @pytest.mark.server
     def test_save_4DSTEM(self, client, file_format):
@@ -52,7 +55,7 @@ class TestLoadingLiberTEM:
         while client.acquiring:
             time.sleep(0.1)
         time.sleep(1)
-        assert (file_format.lower() in client["Autosave Movie Frames File Path"])
+        assert file_format.lower() in client["Autosave Movie Frames File Path"]
         movie = glob.glob(temp_dir + "/*movie." + file_format.lower())[0]
         dataset = lt.Context().load("auto", path=movie)
         assert tuple(dataset.shape) == (8, 16, 1024, 1024)

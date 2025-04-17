@@ -296,12 +296,13 @@ class Histogram:
         self.data = data
 
     def __repr__(self):
-        return (f"Histogram(min={self.min},"
-                f" max={self.max}, "
-                f"upperMostLocalMaxima={self.upperMostLocalMaxima},"
-                f" bins={self.bins},"
-                f" data={self.data})")
-
+        return (
+            f"Histogram(min={self.min},"
+            f" max={self.max}, "
+            f"upperMostLocalMaxima={self.upperMostLocalMaxima},"
+            f" bins={self.bins},"
+            f" data={self.data})"
+        )
 
     def plot(self, ax=None):
         """Plot the histogram using matplotlib
@@ -407,7 +408,7 @@ class PropertySpec:
         options: list = None,
         default_value=None,
         current_value=None,
-        read_only = None,
+        read_only=None,
     ):
         self.dataType = data_type
         self.valueType = value_type
@@ -425,15 +426,18 @@ class PropertySpec:
     options = None  # List of options
     defaultValue = None  # default value
     currentValue = None  # current value
-    readonly = False # Read-only property
+    readonly = False  # Read-only property
 
     def __repr__(self):
-        return (f"PropertySpec(dataType={self.dataType},"
-                f" valueType={self.valueType}, "
-                f"category={self.category},"
-                f" options={self.options},"
-                f" defaultValue={self.defaultValue}, "
-                f"currentValue={self.currentValue})")
+        return (
+            f"PropertySpec(dataType={self.dataType},"
+            f" valueType={self.valueType}, "
+            f"category={self.category},"
+            f" options={self.options},"
+            f" defaultValue={self.defaultValue}, "
+            f"currentValue={self.currentValue})"
+        )
+
 
 class PropertyCollection:
     """Class to interact with collections of properties in the DE API
@@ -575,7 +579,7 @@ class VirtualMask:
 
     def __init__(self, client, index):
         self.client = client
-        self.index = index
+        self.index = index + 1  # Zero index is reserved.
 
     def __getitem__(self, item):
         full_img = self.client.get_virtual_mask(self.index)

@@ -4,12 +4,20 @@ Monitoring Bright Spot Intensity
 
 This example demonstrates how to monitor the intensity of the brightest pixel in the sensor data during acquisition.
 """
+
 import numpy as np
 
 import deapi
 import time
+import sys
+
 
 client = deapi.Client()
+
+if not sys.platform.startswith("win"):
+    client.usingMmf = (
+        False  # True if on same machine as DE Server and a Windows machine
+    )
 client.connect()
 
 # %%
@@ -49,7 +57,9 @@ client.start_acquisition(1)
 
 
 while client.acquiring:
-    image, pixelFormat, attributes, histogram = client.get_result("singleframe_integrated")
+    image, pixelFormat, attributes, histogram = client.get_result(
+        "singleframe_integrated"
+    )
     print(f"Max intensity: {image.max()}")
     time.sleep(0.1)
 
@@ -58,3 +68,4 @@ while client.acquiring:
 # ------------------
 
 client["Camera Position Control"] = "Retract"
+client.disconnect()

@@ -19,15 +19,23 @@ Note: Using the qt matplotlib backend will make the plotting update.
 from deapi import Client
 import matplotlib.pyplot as plt
 import numpy as np
+import sys
+import time
 
 client = Client()
+
+if not sys.platform.startswith("win"):
+    client.usingMmf = (
+        False  # True if on same machine as DE Server and a Windows machine
+    )
 client.usingMmf = False
 
-client.connect(port=13241)  # connect to the running DE Server
+client.connect(port=13240)  # connect to the running DE Server
 client["Frames Per Second"] = 500
 client.scan(size_x=64, size_y=64, enable="On")
 client.start_acquisition(1)
 
+time.sleep(1)  # wait for the acquisition to start
 
 fig, axs = plt.subplots(1, 2)
 data, _, _, _ = client.get_result("virtual_image0")
@@ -55,3 +63,5 @@ while client.acquiring:
     # use blitting in matplotlib. (up to ~500 fps)
     live_im.autoscale()
     live_virt_im.autoscale()
+
+client.disconnect()

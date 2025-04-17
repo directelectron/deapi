@@ -29,10 +29,14 @@ from scipy.ndimage import gaussian_filter
 from skimage.segmentation import flood
 from skimage.morphology import dilation, disk
 import matplotlib.pyplot as plt
+import sys
 
 client = Client()
-client.usingMmf = False  # True if on same machine as DE Server and a Windows machine
-client.connect(port=13241)  # connect to the running DE Server
+if not sys.platform.startswith("win"):
+    client.usingMmf = (
+        False  # True if on same machine as DE Server and a Windows machine
+    )
+client.connect(port=13240)  # connect to the running DE Server
 
 # %%
 # Get A Single Diffraction Pattern
@@ -99,3 +103,5 @@ for a, virt in zip(axs, ["virtual_image0", "virtual_image1", "virtual_image2"]):
     data, _, _, _ = client.get_result(virt)
     a.imshow(data)
     a.set_title(virt)
+
+client.disconnect()
