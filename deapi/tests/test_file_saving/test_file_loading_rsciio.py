@@ -35,19 +35,22 @@ class TestSavingHyperSpy:
         temp_dir = "D:\Temp"
         client["Frames Per Second"] = 100
         client["Scan - Enable"] = "On"
-        client.scan["Size X"] = 8
-        client.scan["Size Y"] = 8
+        client["Scan - Size X"] = 12
+        client["Scan - Size Y"] = 12
+        assert client["Scan - Size X"] == 12
+        assert client["Scan - Size Y"] == 12
         client["Autosave Movie"] = "On"
         client["Autosave 4D File Format"] = file_format
         client["Autosave Directory"] = temp_dir
-        client
         client.start_acquisition(1)
         while client.acquiring:
             time.sleep(0.1)
+        time.sleep(1)
+        assert (file_format.lower() in client["Autosave Movie Frames File Path"])
         s = hs.load(client["Autosave Movie Frames File Path"])
         if file_format == "MRC":
-            assert s.data.shape == (64, 1024, 1024)
+            assert s.data.shape == (144, 1024, 1024)
         elif file_format == "DE5":
-            assert s.data.shape == (1024, 1024, 8, 8)
+            assert s.data.shape == (1024, 1024, 12, 12)
         else:
-            assert s.data.shape == (8, 8, 1024, 1024)
+            assert s.data.shape == (12, 12, 1024, 1024)

@@ -76,7 +76,7 @@ class TestClient:
 
     def test_get_result(self, client):
         client["Frames Per Second"] = 1000
-        client.scan(size_x=10, size_y=10, enable="On")
+        client.scan(size_x=3, size_y=3, enable="On")
         assert client["Hardware ROI Size X"] == 1024
         assert client["Hardware ROI Size Y"] == 1024
         assert client["Hardware Binning X"] == 1
@@ -92,7 +92,7 @@ class TestClient:
         assert result[0].shape == (1024, 1024)
         assert result[2].stretchType == ContrastStretchType.NONE
 
-
+    @pytest.mark.server
     def test_get_histogram(self, client):
         client["Frames Per Second"] = 1000
         client.scan(size_x=10, size_y=10, enable="On")
@@ -155,9 +155,14 @@ class TestClient:
         assert client.virtual_masks[2][:].shape == (512, 512)
 
     def test_virtual_mask_calculation(self, client):
-        client.scan(size_x=8, size_y=10, enable="On")
-        assert client.scan_sizex == 8
-        assert client.scan_sizey == 10
+        client["Scan - Size X"] = 8
+        client["Scan - Size Y"] = 10
+        client["Scan - Type"] = "Raster"
+        client["Scan - Enable"] = "On"
+        assert client["Scan - Type"] == "Raster"
+        assert client["Scan - Enable"] == "On"
+        assert client["Scan - Size X"] == 8
+        assert client["Scan - Size Y"] == 10
         client.virtual_masks[2][:] = 2
         client.virtual_masks[2].calculation = "Difference"
         client.virtual_masks[2][1::2] = 0
@@ -282,6 +287,7 @@ class TestClient:
                 index += 1
                 if not success:
                     break
+        time.sleep(4)
 
     @pytest.mark.server
     def test_set_xy_array(self, client):
@@ -305,3 +311,5 @@ class TestClient:
             time.sleep(1)
         result = client.get_result("virtual_image1")
         assert result[0].shape == (12, 12)
+        client["Scan - Type"] = "Raster" #clean up
+

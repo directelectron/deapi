@@ -1403,19 +1403,19 @@ class Client:
                             log.debug("Hist %d: %d" % (j, values[i + j]))
                             histogram.data[j] = values[i + j]
 
-                    if pixelFormat == PixelFormat.FLOAT32:
-                        imageDataType = numpy.float32
-                    elif pixelFormat == PixelFormat.UINT16:
-                        imageDataType = numpy.uint16
-                    else:
-                        imageDataType = numpy.uint8
-
                     self.width = attributes.frameWidth
                     self.height = attributes.frameHeight
 
                 recvbyteSizeString = self._recvFromSocket(
                     self.socket, 4
                 )  # get the first 4 bytes
+
+                if pixelFormat == PixelFormat.FLOAT32:
+                    imageDataType = numpy.float32
+                elif pixelFormat == PixelFormat.UINT16:
+                    imageDataType = numpy.uint16
+                else:
+                    imageDataType = numpy.uint8
                 if len(recvbyteSizeString) == 4:
                     recvbyteSize = struct.unpack(
                         "I", recvbyteSizeString

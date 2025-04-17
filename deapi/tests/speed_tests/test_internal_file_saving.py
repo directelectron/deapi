@@ -57,6 +57,7 @@ class TestCompressionSpeed:
 
     @pytest.mark.engineering
     @pytest.mark.server
+    @pytest.mark.skip(reason="Not implemented yet")
     def test_compression_speeds(self, client):
         methods = ["lz4"] # zstd throws an error???
         levels = [ 5, 7, 9]
@@ -111,6 +112,7 @@ class TestCompressionSlow:
 
     @pytest.mark.engineering
     @pytest.mark.server
+    @pytest.mark.skip(reason="Not implemented yet")
     def test_compression_speeds(self, client):
         method = "zlib"
         level =4

@@ -536,7 +536,6 @@ class FakeServer:
         acknowledge_return.type = pb.DEPacket.P_ACKNOWLEDGE
         ack1 = acknowledge_return.acknowledge.add()
         ack1.command_id = command.command[0].command_id
-
         frame_type = command.command[0].parameter[0].p_int
         pixel_format = command.command[0].parameter[1].p_int
         center_x = command.command[0].parameter[2].p_int
@@ -550,9 +549,10 @@ class FakeServer:
         stretch_max = command.command[0].parameter[10].p_float
         stretch_gama = command.command[0].parameter[11].p_float
         outlier = command.command[0].parameter[12].p_float
-        histo_min = command.command[0].parameter[13].p_float
-        histo_max = command.command[0].parameter[14].p_float
-        histo_bins = command.command[0].parameter[15].p_int
+        timeout = command.command[0].parameter[13].p_int
+        histo_min = command.command[0].parameter[14].p_float
+        histo_max = command.command[0].parameter[15].p_float
+        histo_bins = command.command[0].parameter[16].p_int
 
         pixel_format_dict = {1: np.int8, 5: np.int16, 13: np.float32}
 
@@ -614,19 +614,23 @@ class FakeServer:
             0, # eppixpf
             0, # eppix_incident
             0, # eps_incident
+            0, # eppixps_incident
             0, # epa2_incident
             0, # eppixpf_incident
+            0, # red sat warning
+            0, # orange sat warning
             0, # saturation
             time.time(), # current time
             0, # autoStretchMin
             0, #autoStretchMax
             0, # autoStretchGamma
             0, # histogram min
-            np.max(image), # histogram max
-            np.max(image), # histogram upper local max
+            float(np.min(image)), # histogram max
+            float(np.max(image)), # histogram upper local max
         ]
         for val in response_mapping:
-            ack1 = add_parameter(ack1, val)
+            ack1 = acknowledge_return.acknowledge.add()
+            add_parameter(ack1, val)
         ans = (acknowledge_return,)
         # add the data header packet for how many bytes are in the data
         pack = pb.DEPacket()
