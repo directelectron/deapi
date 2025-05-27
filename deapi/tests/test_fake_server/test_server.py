@@ -32,4 +32,4 @@ class TestFakeServer:
         assert fake_server["Scan - Virtual Detector 1 Calculation"] == "Sum"
 
     def test_server_software_version(self, fake_server):
-        assert fake_server["Server Software Version"] == "3.7.8893"
+        assert fake_server["Server Software Version"] == '2.7.4.1352'

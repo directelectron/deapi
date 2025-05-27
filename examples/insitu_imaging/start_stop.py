@@ -13,8 +13,9 @@ import sys
 
 
 c = deapi.Client()
-if not sys.platform.startswith("win"):
-    c.usingMmf = False  # True if on same machine as DE Server and a Windows machine
+#if not sys.platform.startswith("win"):
+#    c.usingMmf = False  # True if on same machine as DE Server and a Windows machine
+c.usingMmf = False  # False for testing with pyDEServer
 c.connect()
 
 

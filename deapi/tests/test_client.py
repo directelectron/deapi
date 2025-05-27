@@ -160,6 +160,10 @@ class TestClient:
         assert client.virtual_masks[2][:].shape == (512, 512)
 
     def test_virtual_mask_calculation(self, client):
+        client.virtual_masks[0][:] = 1  # Set everything to 1
+        print("Virtual Mask 0: ", client.virtual_masks[0][:].shape)
+
+    def test_virtual_mask_calculation(self, client):
         client["Scan - Size X"] = 8
         client["Scan - Size Y"] = 10
         client["Scan - Type"] = "Raster"

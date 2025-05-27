@@ -29,7 +29,7 @@ c.connect(port=13240)  # connect to the running DE Server
 
 c.virtual_masks[0][:] = 1  # Set everything to 1
 c.virtual_masks[0].plot()  # plot the current v0 mask
-print("Virtual Mask 0: ", c.virtual_masks[0][:].shape)
+print("Virtual Mask 0: ", c.virtual_masks[1][:].shape)
 # %%
 # Changing the virtual mask
 # -------------------------

@@ -216,9 +216,13 @@ class FakeServer:
 
     @property
     def acquisition_status(self):
+        print("Getting acquisition status")
+        print((time.time() < self.end_time))
         if time.time() < self.end_time:
+            print("Acquiring")
             return "Acquiring"
         else:
+            print("Idle")
             return "Idle"
 
     @property
@@ -317,6 +321,7 @@ class FakeServer:
         mask_id = command.command[0].parameter[0].p_int
         w = command.command[0].parameter[1].p_int
         h = command.command[0].parameter[2].p_int
+        print(f"Setting virtual mask {mask_id} with size {w}x{h}")
 
         total_bytes = w * h
         buffer = self.socket.recv(total_bytes)
@@ -331,6 +336,7 @@ class FakeServer:
         buffer = buffer
         mask = np.frombuffer(buffer, dtype=np.int8).reshape((w, h))
         self.virtual_masks[mask_id] = mask
+        print(f"Virtual mask {mask_id} set with {mask}")
         return (acknowledge_return,)
 
     def _fake_list_cameras(self, command):
@@ -463,7 +469,7 @@ class FakeServer:
         ack1.command_id = command.command[0].command_id
         name = command.command[0].parameter[0].p_string
         name = name.replace(" ", "_").lower().replace("(", "").replace(")", "")
-        val = self._values[name]
+        val = self._values.get(name, "Not Implemented")
 
         if val.data_type == "String":
             val = val.value
@@ -577,6 +583,7 @@ class FakeServer:
             result = image.tobytes()
         elif 11 < frame_type < 17:  # virtual image
             image = self.virtual_masks[frame_type - 12]
+            print(image)
             if image.shape != (windowWidth, windowHeight):
                 image = resize(
                     image, (windowWidth, windowHeight), preserve_range=True
@@ -595,39 +602,43 @@ class FakeServer:
             raise ValueError(f"Frame type {frame_type} not Supported in PythonDEServer")
         # map to right order...
         response_mapping = [
-            pixel_format,  # pix format
-            windowWidth,  # window width
-            windowHeight,  # window height
-            "Test",  # name
-            0,  # acquisition index
-            self.acquisition_status == "Acquiring",  # status
-            flat_index,  # frame number
-            1,  # frame count
-            0,  # image min
-            2**16,  # image max
-            100,  # image mean
-            10,  # image std
-            0,  # eppix
-            0,  # eps
-            0,  # eppixps
-            0,  # epa2
-            0,  # eppixpf
-            0,  # eppix_incident
-            0,  # eps_incident
-            0,  # eppixps_incident
-            0,  # epa2_incident
-            0,  # eppixpf_incident
-            0,  # red sat warning
-            0,  # orange sat warning
-            0,  # saturation
-            time.time(),  # current time
-            0,  # autoStretchMin
-            0,  # autoStretchMax
-            0,  # autoStretchGamma
-            0,  # histogram min
-            float(np.min(image)),  # histogram max
-            float(np.max(image)),  # histogram upper local max
+            int(pixel_format),  # pix format 0
+            int(windowWidth),  # window width 1
+            int(windowHeight),  # window height 2
+            "Test",  # name 3
+            int(0),  # acquisition index 4
+            bool(self.acquisition_status == "Acquiring"),  # status 5
+            int(flat_index),  # frame number 6
+            int(1),  # frame count 7
+            float(0),  # image min 8
+            float(2**16),  # image max 9
+            float(100),  # image mean 10
+            float(10),  # image std 11
+            float(0),  # eppix 12
+            float(0),  # eps 13
+            float(0),  # eppixps 14
+            float(0),  # epa2 15
+            float(0),  # eppixpf 16
+            float(0),  # eppix_incident 17
+            float(0),  # eps_incident 18
+            float(0),  # eppixps_incident 19
+            float(0),  # epa2_incident 20
+            float(0),  # eppixpf_incident 21
+            float(0),  # red sat warning 22
+            float(0),  # orange sat warning 23
+            float(0),  # saturation 24
+            "2.187026",  # current time 25
+            float(0),  # autoStretchMin 26
+            float(0),  # autoStretchMax 27
+            float(0),  # autoStretchGamma 28
+            float(0),  # histogram min 29
+            float(np.min(image)),  # histogram max 30
+            float(np.max(image)),  # histogram upper local max 31
         ]
+        print(histo_bins)
+        for i in range(histo_bins):
+            response_mapping.append(int(0))
+        # Then histogram...
         for val in response_mapping:
             ack1 = acknowledge_return.acknowledge.add()
             add_parameter(ack1, val)
@@ -639,6 +650,7 @@ class FakeServer:
         pack.data_header.bytesize = len(result)
         ans += (pack,)
         ans += (result,)
+        print(f"Sending result with size {pack.ByteSize()} and data size {len(result)}")
 
         return ans
 

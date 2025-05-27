@@ -5,7 +5,6 @@ Monitoring Bright Spot Intensity
 This example demonstrates how to monitor the intensity of the brightest pixel in the sensor data during acquisition.
 """
 
-import numpy as np
 
 import deapi
 import time
@@ -36,7 +35,7 @@ client["Hardware ROI Offset Y"] = 384
 # ---------------------------
 # We will set up a 4DSTEM acquisition with a 64x64 scan size and 100 frames per second.
 # %%
-client.scan(size_x=8, size_y=8, enable="On", points_per_camera_frame=10)
+client.scan(size_x=16, size_y=16, enable="On", points_per_camera_frame=10)
 
 
 # %%
@@ -55,17 +54,19 @@ client.start_acquisition(1)
 # of `points_per_camera_frame`.  The `histogram` is also returned which gives the data separated into
 # 256 bins.
 
-
 while client.acquiring:
     image, pixelFormat, attributes, histogram = client.get_result(
         "singleframe_integrated"
     )
     print(f"Max intensity: {image.max()}")
-    time.sleep(0.1)
+    print("Acquiring...")
+
+time.sleep(4)
 
 # %%
 # Retract the Camera
 # ------------------
+
 
 client["Camera Position Control"] = "Retract"
 client.disconnect()

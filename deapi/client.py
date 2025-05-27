@@ -43,6 +43,7 @@ from deapi.data_types import (
 from deapi.buffer_protocols import pb
 from deapi.version import version, commandVersion
 from deapi.version import commandVersion as cVersion
+from deapi.wrappers import write_only, disable_scan
 import functools
 
 
@@ -58,27 +59,7 @@ log.info("CommandVer: " + str(commandVersion))
 log.info("logLevel  : " + str(logging.getLevelName(logLevel)))
 
 
-def write_only(func):
-    def wrapper(*args, **kwargs):
-        if args[0].read_only:
-            log.error("Client is read-only. Cannot set property.")
-            return
-        else:
-            return func(*args, **kwargs)
 
-    return wrapper
-
-
-def disable_scan(func):
-    def wrapper(*args, **kwargs):
-        print("Disabling scan")
-        initial_scan = args[0]["Scan - Enable"]
-        args[0].set_property("Scan - Enable", False)
-        ans = func(*args, **kwargs)
-        args[0].set_property("Scan - Enable", initial_scan)
-        return ans
-
-    return wrapper
 
 
 class Client:
@@ -199,7 +180,6 @@ class Client:
         self.cameras = self.__getStrings(self.LIST_CAMERAS)
         if logLevel == logging.DEBUG:
             log.debug("Available cameras: %s", self.cameras)
-
         self.currCamera = self.cameras[0]
         if logLevel == logging.DEBUG:
             log.debug("Current camera: %s", self.currCamera)
@@ -235,7 +215,7 @@ class Client:
             self.commandVersion = 3
         else:
             self.commandVersion = commandVersion
-
+        print("Command Version: ", self.commandVersion)
         self._initialize_attributes()
         self.update_scan_size()
         self.update_image_size()
@@ -515,7 +495,7 @@ class Client:
     @property
     def acquiring(self):
         """Check if the camera is currently acquiring images. (bool)"""
-        return self.get_property("Acquisition Status") == "Acquiring"
+        return self["Acquisition Status"]=="Acquiring"
 
     @write_only
     def set_property(self, name: str, value):
@@ -868,6 +848,66 @@ class Client:
         return ret
 
     @write_only
+    def set_binning(self, bin_x, bin_y, useHW=True):
+        """
+        Set the binning of the current camera on DE-Server. If useHW is True, the binning will
+        use hardware binning. If useHW is False, the binning will use software binning only.
+
+        Note
+        ----
+            In almost all cases useHW should be True.  HW binning usually speeds up the camera and
+            reduces the amount of data sent to the server.  It also spreads the dose over a larger number
+            of pixels which reduces the local dose/damage for each pixel.
+
+        Parameters
+        ----------
+        bin_x : int
+            The binning in the x direction
+        bin_y : int
+            The binning in the y direction
+        useHW : bool
+            If True, use hardware binning and software binning. If False, use software binning only.
+        """
+        retval = True
+        if commandVersion < 10:
+            retval = self.SetProperty("Binning Mode",  "Hardware and Software" if useHW else "Software Only")
+            retval &= self.SetProperty("Binning X", binX)
+            retval &= self.SetProperty("Binning Y", binY)
+        else:
+            if commandVersion >= 13:
+                retval = self.SetProperty("Server Normalize Properties", "Off")
+
+            if useHW:
+                if bin_x > 1:
+                    retval &= self.SetProperty("Hardware Binning X", 2)
+                if bin_y > 1:
+                    retval &= self.SetProperty("Hardware Binning Y", 2)
+            else:
+                retval &= self.SetProperty("Hardware Binning X", 1)
+                retval &= self.SetProperty("Hardware Binning Y", 1)
+
+            propHWBinX = self.GetProperty("Hardware Binning X")
+            propHWBinY = self.GetProperty("Hardware Binning Y")
+
+            hwBinX = 1
+            hwBinY = 1
+            if propHWBinX is not False:
+                hwBinX = int(propHWBinX)
+
+            if propHWBinY is not False:
+                hwBinY = int(propHWBinY)
+
+            if bin_x > 2:
+                retval &= self.SetProperty("Binning X", bin_x / hwBinX)
+            if bin_y > 2:
+                retval &= self.SetProperty("Binning Y", bin_y / hwBinY)
+
+            if commandVersion >= 13:
+                retval &= self.SetProperty("Server Normalize Properties", "On")
+
+        return retval
+
+    @write_only
     def set_sw_roi_and_get_changed_properties(
         self, offsetX, offsetY, sizeX, sizeY, changedProperties
     ):
@@ -919,29 +959,39 @@ class Client:
         return ret
 
     @write_only
-    def set_adaptive_roi(self, offsetX, offsetY, sizeX, sizeY):
+    def set_adaptive_roi(self,
+                         size_x:int,
+                         size_y:int,
+                         offset_x:int=None,
+                         offset_y:int=None):
         """
         Automatically choose the proper HW ROI and set SW ROI of the current camera on DE-Server.
 
+        If offset_x and offset_y are not provided, they will be centered on the camera.
+
         Parameters
         ----------
-        offsetX : int
-            The x offset of the ROI
-        offsetY : int
-            The y offset of the ROI
-        sizeX : int
+        size_x : int
             The width of the ROI
-        sizeY : int
+        size_y : int
             The height of the ROI
+        offset_x : int
+            The x offset of the ROI. If None, the ROI will be centered on the camera.
+        offset_y : int
+            The y offset of the ROI. If None, the ROI will be centered on the camera.
         """
+        if offset_x is None:
+            offset_x = self.get_property("Sensor Size X (pixels)")//2 - size_x//2
+        if offset_y is None:
+            offset_y = self.get_property("Sensor Size Y (pixels)")//2 - size_y//2
 
         t0 = self.GetTime()
         ret = False
 
-        command = self.__addSingleCommand(
-            self.SET_ADAPTIVE_ROI, None, [offsetX, offsetY, sizeX, sizeY]
+        command = self._addSingleCommand(
+            self.SET_ADAPTIVE_ROI, None, [offset_x, offset_y, size_x, size_y]
         )
-        response = self.__sendCommand(command)
+        response = self._sendCommand(command)
         if response != False:
             ret = response.acknowledge[0].error != True
             self.refreshProperties = True
@@ -949,10 +999,10 @@ class Client:
         if logLevel == logging.DEBUG:
             log.debug(
                 "SetAdaptiveROI: (%i,%i,%i,%i) , completed in %.1f ms",
-                offsetX,
-                offsetY,
-                sizeX,
-                sizeY,
+                offset_x,
+                offset_y,
+                size_x,
+                size_y,
                 (self.GetTime() - t0) * 1000,
             )
 
@@ -1161,6 +1211,40 @@ class Client:
         return b"ManualMovieStop" in respond
 
     @write_only
+    def start_manual_final_saving(self):
+        """
+        Start saving movie during acquisition.
+        """
+        start_time = self.GetTime()
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
+        sock.sendto(b"PyClientManualFinalStart", (self.host, self.port))
+        respond = sock.recv(32)
+        if logLevel == logging.INFO:
+            log.info(f"{self.host} {self.port} {respond}")
+        if logLevel <= logging.DEBUG:
+            lapsed = (self.GetTime() - start_time) * 1000
+            log.debug("    Start saving during acquisition time: %.1f ms", lapsed)
+
+        return b"ManualFinalStart" in respond
+    
+    @write_only
+    def stop_manual_final_saving(self):
+        """
+        Stop saving movie during acquisition.
+        """
+        start_time = self.GetTime()
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
+        sock.sendto(b"PyClientManualFinalStop", (self.host, self.port))
+        respond = sock.recv(32);
+        if logLevel == logging.INFO:
+            log.info(f"{self.host} {self.port} {respond}")
+        if logLevel <= logging.DEBUG:
+            lapsed = (self.GetTime() - start_time) * 1000
+            log.debug("    Stop saving during acquisition time: %.1f ms", lapsed)
+
+        return b"ManualFinalStop" in respond
+
+    @write_only
     def set_xy_array(self, positions, width=None, height=None):
         """
         Set the scan array for a set of x,y positions.
@@ -1199,7 +1283,9 @@ class Client:
             self.socket.send(packet)
             ret = self.__ReceiveResponseForCommand(command) != False
         except socket.error:
-            return False
+            raise socket.error(
+                "Error sending x-y scan positions to socket. Is the server running?"
+            )
 
         try:
             x = positions[:, 0].tobytes()
@@ -1290,14 +1376,10 @@ class Client:
             log.debug(" Prepare Time: %.1f ms", lapsed)
             step_time = self.GetTime()
 
-        if histogram != None:
-            histoMin = histogram.min
-            histoMax = histogram.max
-            histoBins = histogram.bins
-        else:
-            histoMin = 0
-            histoMax = 0
-            histoBins = 0
+        histoMin = histogram.min
+        histoMax = histogram.max
+        histoBins = histogram.bins
+
 
         if self.width * self.height == 0:
             log.error("  Image size is 0! ")
@@ -1332,6 +1414,7 @@ class Client:
                 log.debug("   Build Time: %.1f ms", lapsed)
                 step_time = self.GetTime()
             response = self._sendCommand(command)
+            print("Response:", response.ByteSize())
             if logLevel == logging.DEBUG:
                 lapsed = (self.GetTime() - step_time) * 1000
                 log.debug(" Command Time: %.1f ms", lapsed)
@@ -1557,15 +1640,77 @@ class Client:
                 )
                 self.socket.send(packet)
             except socket.error as e:
+                log.error(
+                    "Error sending virtual mask to socket: %s. Is the server running?", e
+                )
                 ret = False
 
             if ret:
+                if mask.dtype != np.uint8:
+                    log.warning("Virtual mask must be a numpy array of type uint8")
+                    mask = mask.astype(np.uint8)
                 mask_bytes = mask.tobytes()
+                print("Sending mask of size", len(mask_bytes))
                 self.__sendToSocket(self.socket, mask_bytes, len(mask_bytes))
 
             ret = self.__ReceiveResponseForCommand(command) != False
 
         return ret
+
+    @write_only
+    def setROI(self,
+               offsetX,
+               offsetY,
+               sizeX,
+               sizeY,
+               useHWROI=False):
+        """
+        Set the region of interest (ROI) of the current camera on DE-Server.
+
+        Parameters
+        ----------
+        offsetX : int
+            The x offset of the ROI
+        offsetY : int
+            The y offset of the ROI
+        sizeX : int
+            The width of the ROI
+        sizeY : int
+            The height of the ROI
+        """
+        if commandVersion < 10:
+            retval = self.SetProperty("ROI Mode", "Hardware and Software" if useHWROI else "Software Only")
+            retval &= self.SetProperty("ROI Offset X", offsetX)
+            retval &= self.SetProperty("ROI Offset Y", offsetY)
+            retval &= self.SetProperty("ROI Size X", sizeX)
+            retval &= self.SetProperty("ROI Size Y", sizeY)
+        elif commandVersion < 13 and useHWROI:
+            retval = self.SetHWROI(offsetX, offsetY, sizeX, sizeY)
+            propHWOffsetX = self.GetProperty("Hardware ROI Offset X")
+            propHWOffsetY = self.GetProperty("Hardware ROI Offset Y")
+            propHWBinX = self.GetProperty("Hardware Binning X")
+            propHWBinY = self.GetProperty("Hardware Binning Y")
+            x = 0
+            y = 0
+            binX = 1
+            binY = 1
+            if (propHWOffsetX is not False):
+                x = int(propHWOffsetX)
+            if (propHWOffsetY is not False):
+                y = int(propHWOffsetY)
+            if (propHWBinX is not False):
+                binX = int(propHWBinX)
+            if (propHWBinY is not False):
+                binY = int(propHWBinY)
+            retval &= self.SetSWROI(int((offsetX - x) / binX), int((offsetY - y) / binY), int(sizeX / binX),
+                                    int(sizeY / binY))
+        elif useHWROI:
+            retval = self.set_adaptive_roi(offsetX, offsetY, sizeX, sizeY)
+        else:
+            retval = self.SetHWROI(0, 0, 99999, 99999)
+            retval &= self.SetSWROI(offsetX, offsetY, sizeX, sizeY)
+
+        return retval
 
     def get_movie_buffer_info(self, movieBufferInfo=None, timeoutMsec=5000):
         """
@@ -2127,8 +2272,8 @@ class Client:
             res = self.socket.send(packet)
             # packet.PrintDebugString()
             # log.debug("sent result = %d\n", res)
-        except:
-            log.error("Error sending %s\n", command)
+        except socket.error as e:
+            e("Error sending %s\n", command)
 
         if logLevel == logging.DEBUG:
             lapsed = (self.GetTime() - step_time) * 1000
@@ -2233,7 +2378,7 @@ class Client:
                     break
                 else:
                     pass  # continue further
-            except:
+            except socket.error as e:
                 log.error(
                     "Unknown exception occurred. Current Length: %d in %.1f ms",
                     len(buffer),
