@@ -10,6 +10,7 @@ This example shows how to take an image every minute.  The results are saved to 
 In this case we can set the "Autosave Movie Sum Count" to 10. This will sum 10 frames together
 before saving the final image.
 """
+
 from cgitb import enable
 
 import deapi
@@ -33,13 +34,13 @@ c["Autosave Directory"] = (
 c["Autosave Movie"] = "On"  # Save the individual frames
 c["Autosave Final Image"] = "On"  # Save the final summed image
 c["Exposure Time (seconds)"] = (
-    1 # The total number of frames summed for one call to `c.start_acquisition`.
+    1  # The total number of frames summed for one call to `c.start_acquisition`.
 )
 
 c.scan(enable="Off")  # Make Sure we disable the scan, we are just taking images
 results = []  # store the results in a list
 
-for i in range(5): # increase this for more images
+for i in range(5):  # increase this for more images
     print(f"Taking image {i + 1} of 10")
     c.start_acquisition(
         1

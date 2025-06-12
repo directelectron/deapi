@@ -56,9 +56,6 @@ log.info("CommandVer: " + str(commandVersion))
 log.info("logLevel  : " + str(logging.getLevelName(logLevel)))
 
 
-
-
-
 class Client:
     """A class for connecting to the DE-Server
 
@@ -315,7 +312,9 @@ class Client:
             available_properties = [p for p in available_properties if search in p]
         return available_properties
 
-    @deprecated_argument(name="propertyName", since="5.2.0", alternative="property_name")
+    @deprecated_argument(
+        name="propertyName", since="5.2.0", alternative="property_name"
+    )
     def get_property_spec(self, property_name: str):
         """
         Get a list of allowed values for a property of the current camera on DE-Server
@@ -335,12 +334,11 @@ class Client:
 
         values = self.__getParameters(response.acknowledge[0])
 
-
         prop_spec = PropertySpec()
         prop_spec.dataType = values[0]
         prop_spec.valueType = values[1]
         prop_spec.category = values[-3]
-        prop_spec.options = list(values[2 : -3])
+        prop_spec.options = list(values[2:-3])
         prop_spec.defaultValue = str(values[-2])
         prop_spec.currentValue = str(values[-1])
 
@@ -372,12 +370,16 @@ class Client:
         if "allow_all" in prop_spec.valueType:
             prop_spec.options = ""
         elif prop_spec.dataType == "String":
-            prop_spec.options = str(list(map(lambda a: str(a), prop_spec.options)))[1:-1]
+            prop_spec.options = str(list(map(lambda a: str(a), prop_spec.options)))[
+                1:-1
+            ]
         else:
             prop_spec.options = str(prop_spec.options)[1:-1]
         return prop_spec
 
-    @deprecated_argument(name="propertyName", since="5.2.0", alternative="property_name")
+    @deprecated_argument(
+        name="propertyName", since="5.2.0", alternative="property_name"
+    )
     def get_property_specifications(self, property_name):
         """
         Get a list of allowed values for a property of the current camera on DE-Server
@@ -442,7 +444,9 @@ class Client:
 
         return propSpec
 
-    @deprecated_argument(name="propertyName", since="5.2.0", alternative="property_name")
+    @deprecated_argument(
+        name="propertyName", since="5.2.0", alternative="property_name"
+    )
     def get_property(self, property_name: str):
         """
         Get the value of a property of the current camera on DE-Server
@@ -495,7 +499,7 @@ class Client:
     @property
     def acquiring(self):
         """Check if the camera is currently acquiring images. (bool)"""
-        return self["Acquisition Status"]=="Acquiring"
+        return self["Acquisition Status"] == "Acquiring"
 
     @write_only
     def set_property(self, name: str, value):
@@ -531,7 +535,9 @@ class Client:
         return ret
 
     @write_only
-    @deprecated_argument(name="changedProperties", since="5.2.0", alternative="changed_properties")
+    @deprecated_argument(
+        name="changedProperties", since="5.2.0", alternative="changed_properties"
+    )
     def set_property_and_get_changed_properties(self, name, value, changed_properties):
         """
         Set the value of a property of the current camera on DE-Server and get all
@@ -685,7 +691,9 @@ class Client:
     @write_only
     @deprecated_argument(name="sizeX", since="5.2.0", alternative="size_x")
     @deprecated_argument(name="sizeY", since="5.2.0", alternative="size_y")
-    @deprecated_argument(name="changedProperties", since="5.2.0", alternative="changed_properties")
+    @deprecated_argument(
+        name="changedProperties", since="5.2.0", alternative="changed_properties"
+    )
     def SetScanSizeAndGetChangedProperties(self, size_x, size_y, changed_properties):
         t0 = self.GetTime()
         ret = False
@@ -886,7 +894,9 @@ class Client:
         """
         retval = True
         if commandVersion < 10:
-            retval = self.SetProperty("Binning Mode",  "Hardware and Software" if useHW else "Software Only")
+            retval = self.SetProperty(
+                "Binning Mode", "Hardware and Software" if useHW else "Software Only"
+            )
             retval &= self.SetProperty("Binning X", bin_x)
             retval &= self.SetProperty("Binning Y", bin_y)
         else:
@@ -975,11 +985,9 @@ class Client:
         return ret
 
     @write_only
-    def set_adaptive_roi(self,
-                         size_x:int,
-                         size_y:int,
-                         offset_x:int=None,
-                         offset_y:int=None):
+    def set_adaptive_roi(
+        self, size_x: int, size_y: int, offset_x: int = None, offset_y: int = None
+    ):
         """
         Automatically choose the proper HW ROI and set SW ROI of the current camera on DE-Server.
 
@@ -997,9 +1005,9 @@ class Client:
             The y offset of the ROI. If None, the ROI will be centered on the camera.
         """
         if offset_x is None:
-            offset_x = self.get_property("Sensor Size X (pixels)")//2 - size_x//2
+            offset_x = self.get_property("Sensor Size X (pixels)") // 2 - size_x // 2
         if offset_y is None:
-            offset_y = self.get_property("Sensor Size Y (pixels)")//2 - size_y//2
+            offset_y = self.get_property("Sensor Size Y (pixels)") // 2 - size_y // 2
 
         t0 = self.GetTime()
         ret = False
@@ -1090,13 +1098,17 @@ class Client:
         return movieBufferInfo, buffer, totalBytes, imageType
 
     @write_only
-    @deprecated_argument(name="numberOfAcquisitions", since="5.2.0", alternative="number_of_acquisitions")
-    @deprecated_argument(name="requestMovieBuffer", since="5.2.0", alternative="request_movie_buffer")
+    @deprecated_argument(
+        name="numberOfAcquisitions", since="5.2.0", alternative="number_of_acquisitions"
+    )
+    @deprecated_argument(
+        name="requestMovieBuffer", since="5.2.0", alternative="request_movie_buffer"
+    )
     def start_acquisition(
         self,
         number_of_acquisitions: int = 1,
-        request_movie_buffer: bool=False,
-        update:bool=True,
+        request_movie_buffer: bool = False,
+        update: bool = True,
     ):
         """
         Start acquiring images. Make sure all of the properties are set to the desired values.
@@ -1138,7 +1150,9 @@ class Client:
         else:
             bytesize = 0
             command = self._addSingleCommand(
-                self.START_ACQUISITION, None, [number_of_acquisitions, request_movie_buffer]
+                self.START_ACQUISITION,
+                None,
+                [number_of_acquisitions, request_movie_buffer],
             )
 
             if logLevel == logging.DEBUG:
@@ -1234,7 +1248,7 @@ class Client:
         Start saving movie during acquisition.
         """
         start_time = self.GetTime()
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
         sock.sendto(b"PyClientManualFinalStart", (self.host, self.port))
         respond = sock.recv(32)
         if logLevel == logging.INFO:
@@ -1244,14 +1258,14 @@ class Client:
             log.debug("    Start saving during acquisition time: %.1f ms", lapsed)
 
         return b"ManualFinalStart" in respond
-    
+
     @write_only
     def stop_manual_final_saving(self):
         """
         Stop saving movie during acquisition.
         """
         start_time = self.GetTime()
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
         sock.sendto(b"PyClientManualFinalStop", (self.host, self.port))
         respond = sock.recv(32)
         if logLevel == logging.INFO:
@@ -1322,8 +1336,8 @@ class Client:
     @deprecated_argument(name="pixelFormat", since="5.2.0", alternative="pixel_format")
     def get_result(
         self,
-        frame_type: Union[FrameType, str]="singleframe_integrated",
-        pixel_format: Union[PixelFormat, DataType, str]="UINT16",
+        frame_type: Union[FrameType, str] = "singleframe_integrated",
+        pixel_format: Union[PixelFormat, DataType, str] = "UINT16",
         attributes="auto",
         histogram=None,
     ):
@@ -1399,7 +1413,6 @@ class Client:
         histo_min = histogram.min
         histo_max = histogram.max
         histo_bins = histogram.bins
-
 
         if self.width * self.height == 0:
             log.error("  Image size is 0! ")
@@ -1642,9 +1655,7 @@ class Client:
         """
 
         if id < 1 or id > 4:
-            raise ValueError(
-                "set_virtual_mask The mask id must be between 1 and 4"
-            )
+            raise ValueError("set_virtual_mask The mask id must be between 1 and 4")
         elif w < 0 or h < 0:
             raise ValueError(
                 "set_virtual_mask The mask width and height must be greater than 0"
@@ -1652,9 +1663,7 @@ class Client:
         else:
             command = self._addSingleCommand(self.SET_VIRTUAL_MASK, None, [id, w, h])
             ret = True
-            packet = (
-                struct.pack("I", command.ByteSize()) + command.SerializeToString()
-            )
+            packet = struct.pack("I", command.ByteSize()) + command.SerializeToString()
             self.socket.send(packet)
 
             if ret:
@@ -1670,12 +1679,7 @@ class Client:
         return ret
 
     @write_only
-    def setROI(self,
-               offsetX,
-               offsetY,
-               sizeX,
-               sizeY,
-               useHWROI=False):
+    def setROI(self, offsetX, offsetY, sizeX, sizeY, useHWROI=False):
         """
         Set the region of interest (ROI) of the current camera on DE-Server.
 
@@ -1691,7 +1695,9 @@ class Client:
             The height of the ROI
         """
         if commandVersion < 10:
-            retval = self.SetProperty("ROI Mode", "Hardware and Software" if useHWROI else "Software Only")
+            retval = self.SetProperty(
+                "ROI Mode", "Hardware and Software" if useHWROI else "Software Only"
+            )
             retval &= self.SetProperty("ROI Offset X", offsetX)
             retval &= self.SetProperty("ROI Offset Y", offsetY)
             retval &= self.SetProperty("ROI Size X", sizeX)
@@ -1706,16 +1712,20 @@ class Client:
             y = 0
             binX = 1
             binY = 1
-            if (propHWOffsetX is not False):
+            if propHWOffsetX is not False:
                 x = int(propHWOffsetX)
-            if (propHWOffsetY is not False):
+            if propHWOffsetY is not False:
                 y = int(propHWOffsetY)
-            if (propHWBinX is not False):
+            if propHWBinX is not False:
                 binX = int(propHWBinX)
-            if (propHWBinY is not False):
+            if propHWBinY is not False:
                 binY = int(propHWBinY)
-            retval &= self.SetSWROI(int((offsetX - x) / binX), int((offsetY - y) / binY), int(sizeX / binX),
-                                    int(sizeY / binY))
+            retval &= self.SetSWROI(
+                int((offsetX - x) / binX),
+                int((offsetY - y) / binY),
+                int(sizeX / binX),
+                int(sizeY / binY),
+            )
         elif useHWROI:
             retval = self.set_adaptive_roi(offsetX, offsetY, sizeX, sizeY)
         else:
@@ -2146,8 +2156,7 @@ class Client:
 
     @deprecated_argument("frameRate", alternative="frame_rate", since="1.0.0")
     @disable_scan
-    def take_dark_reference(self, frame_rate: float = 20,
-                            acquisitions:int = 20):
+    def take_dark_reference(self, frame_rate: float = 20, acquisitions: int = 20):
         """
         Take dark reference images. By default, the "Take Dark References" function will force the exposure time
         to be 1 second so acquisitions is equal to the number of seconds to take dark references.
@@ -2186,18 +2195,17 @@ class Client:
                 print("done.")
                 break
 
-
-
         self.SetProperty("Exposure Mode", prevExposureMode)
         self.SetProperty("Exposure Time (seconds)", prevExposureTime)
 
     @disable_scan
     @write_only
-    def take_trial_gain_reference(self,
-                                  frame_rate: float = 20,
-                                  target_electrons_per_pixel: float = None,
-                                  counting: bool = False,
-                                  ) -> Tuple[float, int, float]:
+    def take_trial_gain_reference(
+        self,
+        frame_rate: float = 20,
+        target_electrons_per_pixel: float = None,
+        counting: bool = False,
+    ) -> Tuple[float, int, float]:
         """Take a trial gain reference.
 
         This function will take a single gain reference image and return the number of electrons per pixel per second
@@ -2220,25 +2228,28 @@ class Client:
         prevExposureMode = self.GetProperty("Exposure Mode")
         prevExposureTime = self.GetProperty("Exposure Time (seconds)")
 
-
         if counting:
             self["Image Processing - Mode"] = "Counting"
-            self["Reference - Counting Gain Target (ADU/pix)"] = (2000 if target_electrons_per_pixel is None
-                                                                  else target_electrons_per_pixel)
+            self["Reference - Counting Gain Target (ADU/pix)"] = (
+                2000
+                if target_electrons_per_pixel is None
+                else target_electrons_per_pixel
+            )
         else:
             self["Image Processing - Mode"] = "Integrating"
-            self["Reference - Integrating Gain Target (ADU/pix)"] = (16000 if target_electrons_per_pixel is None
-                                                                     else target_electrons_per_pixel)
+            self["Reference - Integrating Gain Target (ADU/pix)"] = (
+                16000
+                if target_electrons_per_pixel is None
+                else target_electrons_per_pixel
+            )
 
         self.SetProperty("Exposure Mode", "Trial")
         self.SetProperty("Frames Per Second", frame_rate)
-        self.SetProperty("Exposure Time (seconds)", 0) # set to the frame rate.
+        self.SetProperty("Exposure Time (seconds)", 0)  # set to the frame rate.
 
-        self.StartAcquisition(40) # just quickly take 40 frames.
+        self.StartAcquisition(40)  # just quickly take 40 frames.
         while self.acquiring:
             time.sleep(2)
-
-
 
         if counting:
             exposure_time = self["Reference - Counting Gain Exposure Time (seconds)"]
@@ -2252,28 +2263,34 @@ class Client:
 
         self.SetProperty("Exposure Time (seconds)", prevExposureTime)
 
-        num_el = np.max([attr.eppixpf* frame_rate, attr.eppixps])
-        print("The number of electrons per pixel per second (eppixps): {:.2f}".format(num_el))
+        num_el = np.max([attr.eppixpf * frame_rate, attr.eppixps])
+        print(
+            "The number of electrons per pixel per second (eppixps): {:.2f}".format(
+                num_el
+            )
+        )
 
-        if attr.saturation > 0.0001: # Nothing should be saturated in a gain image.
+        if attr.saturation > 0.0001:  # Nothing should be saturated in a gain image.
             raise ValueError(
                 "The trial gain reference image has pixels that are close to saturation. "
                 "Please reduce the beam intensity or exposure time."
             )
         # recalculating to check...
-        total_acquisitions = int(np.ceil(target_electrons_per_pixel/(exposure_time * num_el)))
-
+        total_acquisitions = int(
+            np.ceil(target_electrons_per_pixel / (exposure_time * num_el))
+        )
 
         return exposure_time, total_acquisitions, num_el
 
     @disable_scan
     @write_only
-    def take_gain_reference(self,
-                            frame_rate: float,
-                            target_electrons_per_pixel: float = None,
-                            timeout: int = 600,
-                            counting: bool = False,
-                            ):
+    def take_gain_reference(
+        self,
+        frame_rate: float,
+        target_electrons_per_pixel: float = None,
+        timeout: int = 600,
+        counting: bool = False,
+    ):
         """Take a gain reference.
 
         Note that this function will first call the ``take_trial_gain_reference`` function which returns the
@@ -2305,12 +2322,14 @@ class Client:
         elif target_electrons_per_pixel is None and counting:
             target_electrons_per_pixel = 2000
 
-        exposure_time, num_acquisitions, _ = self.take_trial_gain_reference(frame_rate,
-                                                                        target_electrons_per_pixel,
-                                                                        counting)
+        exposure_time, num_acquisitions, _ = self.take_trial_gain_reference(
+            frame_rate, target_electrons_per_pixel, counting
+        )
 
-        print(f"Gain reference: {exposure_time:.2f} seconds, "
-              f"total acquisitions: {num_acquisitions}, ")
+        print(
+            f"Gain reference: {exposure_time:.2f} seconds, "
+            f"total acquisitions: {num_acquisitions}, "
+        )
 
         if exposure_time * num_acquisitions > timeout:
             raise ValueError(
@@ -2318,8 +2337,6 @@ class Client:
                 f"is longer than the timeout ({timeout} seconds). "
                 "Please increase the beam intensity, increase the timeout, or decrease the target electrons per pixel."
             )
-
-
 
         prevExposureMode = self.GetProperty("Exposure Mode")
         prevExposureTime = self.GetProperty("Exposure Time (seconds)")
@@ -2420,7 +2437,7 @@ class Client:
         return command
 
     # send single command and get a response, if error occurred, return False
-    def _sendCommand(self, command:pb.DEPacket=None):
+    def _sendCommand(self, command: pb.DEPacket = None):
         step_time = self.GetTime()
 
         if command is None:
@@ -2571,9 +2588,7 @@ class Client:
                 sock.send(buffer[i : min(len(buffer), i + chunkSize)])
             except socket.timeout:
 
-                log.debug(
-                    f" __sendToSocket : timeout in trying to send {bytes} bytes"
-                )
+                log.debug(f" __sendToSocket : timeout in trying to send {bytes} bytes")
                 if self.GetTime() - startTime > timeout:
                     log.error(" __recvFromSocket: max timeout %d seconds", timeout)
                     retval = False

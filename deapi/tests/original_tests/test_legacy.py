@@ -47,9 +47,11 @@ class TestFPS01:
         deClient = client
         deClient.SetProperty("Frames Per Second", fps)
         deClient.SetProperty("Exposure Time (seconds)", exposure)
-        new_exposure = deClient.GetProperty("Exposure Time (seconds)") # this will round to account for fps
+        new_exposure = deClient.GetProperty(
+            "Exposure Time (seconds)"
+        )  # this will round to account for fps
         frameCount = deClient.GetProperty("Frame Count")
-        frames  =  np.round(fps * new_exposure)
+        frames = np.round(fps * new_exposure)
         extra_frames = deClient["Actual Frames to Ignore"]
         assert frameCount == frames + extra_frames
 

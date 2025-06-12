@@ -579,7 +579,6 @@ class FakeServer:
 
         pixel_format_dict = {1: np.int8, 5: np.int16, 13: np.float32}
 
-
         if self.fake_data is None:
             self._initialize_data(
                 scan_size_x=1,
@@ -590,16 +589,26 @@ class FakeServer:
         curr = self.current_navigation_index
         flat_index = int(np.ravel_multi_index(curr, self.fake_data.navigator.shape))
         if 2 < frame_type < 8:
-            if self["Exposure Mode"] == "Gain" or self["Exposure Mode"] =="Trial":
-                image = np.random.poisson(np.ones((int(self["Sensor Size X (pixels)"]),
-                                                  int(self["Sensor Size X (pixels)"]))) * 100).astype(
-                    pixel_format_dict[pixel_format]
-                )
+            if self["Exposure Mode"] == "Gain" or self["Exposure Mode"] == "Trial":
+                image = np.random.poisson(
+                    np.ones(
+                        (
+                            int(self["Sensor Size X (pixels)"]),
+                            int(self["Sensor Size X (pixels)"]),
+                        )
+                    )
+                    * 100
+                ).astype(pixel_format_dict[pixel_format])
             elif self["Exposure Mode"] == "Dark":
-                image = np.random.poisson(np.ones((int(self["Sensor Size X (pixels)"]),
-                                                  int(self["Sensor Size X (pixels)"]))) * 1).astype(
-                    pixel_format_dict[pixel_format]
-                )
+                image = np.random.poisson(
+                    np.ones(
+                        (
+                            int(self["Sensor Size X (pixels)"]),
+                            int(self["Sensor Size X (pixels)"]),
+                        )
+                    )
+                    * 1
+                ).astype(pixel_format_dict[pixel_format])
             else:
                 image = self.fake_data[self.current_navigation_index].astype(
                     pixel_format_dict[pixel_format]
@@ -607,16 +616,26 @@ class FakeServer:
             result = image.tobytes()
 
         elif frame_type == 10 or frame_type == 9:  # SUMTOTAL or SUMINTERMEDIATE
-            if self["Exposure Mode"] == "Gain" or self["Exposure Mode"] =="Trial":
-                image = np.random.poisson(np.ones((int(self["Sensor Size X (pixels)"]),
-                                                  int(self["Sensor Size X (pixels)"]))) * 10000).astype(
-                    pixel_format_dict[pixel_format]
-                )
+            if self["Exposure Mode"] == "Gain" or self["Exposure Mode"] == "Trial":
+                image = np.random.poisson(
+                    np.ones(
+                        (
+                            int(self["Sensor Size X (pixels)"]),
+                            int(self["Sensor Size X (pixels)"]),
+                        )
+                    )
+                    * 10000
+                ).astype(pixel_format_dict[pixel_format])
             elif self["Exposure Mode"] == "Dark":
-                image = np.random.poisson(np.ones((int(self["Sensor Size X (pixels)"]),
-                                                  int(self["Sensor Size X (pixels)"]))) * 1).astype(
-                    pixel_format_dict[pixel_format]
-                )
+                image = np.random.poisson(
+                    np.ones(
+                        (
+                            int(self["Sensor Size X (pixels)"]),
+                            int(self["Sensor Size X (pixels)"]),
+                        )
+                    )
+                    * 1
+                ).astype(pixel_format_dict[pixel_format])
             else:
                 image = np.sum(self.fake_data.signal, axis=1).astype(
                     pixel_format_dict[pixel_format]
@@ -643,9 +662,9 @@ class FakeServer:
             raise ValueError(f"Frame type {frame_type} not Supported in PythonDEServer")
         # map to right order...
         mean_img = np.mean(image)
-        eppix = mean_img/208
-        eps = np.sum(image)/208 * float(self["Frames Per Second"])
-        eppixps = eppix*float(self["Frames Per Second"])
+        eppix = mean_img / 208
+        eps = np.sum(image) / 208 * float(self["Frames Per Second"])
+        eppixps = eppix * float(self["Frames Per Second"])
         response_mapping = [
             int(pixel_format),  # pix format 0
             int(windowWidth),  # window width 1
@@ -662,21 +681,21 @@ class FakeServer:
             float(100),  # eppix 12
             float(1000),  # eps 13
             float(500),  # eppixps 14
-            0.,  # epa2 15
+            0.0,  # epa2 15
             float(500),  # eppixpf 16
-            0.,  # eppix_incident 17
-            0.,  # eps_incident 18
-            0.,  # eppixps_incident 19
-            0.,  # epa2_incident 20
-            0.,  # eppixpf_incident 21
-            0.,  # red sat warning 22
-            0.,  # orange sat warning 23
-            0.,  # saturation 24
+            0.0,  # eppix_incident 17
+            0.0,  # eps_incident 18
+            0.0,  # eppixps_incident 19
+            0.0,  # epa2_incident 20
+            0.0,  # eppixpf_incident 21
+            0.0,  # red sat warning 22
+            0.0,  # orange sat warning 23
+            0.0,  # saturation 24
             "2.187026",  # current time 25
-            0.,  # autoStretchMin 26
-            0.,  # autoStretchMax 27
-            0.,  # autoStretchGamma 28
-            0.,  # histogram min 29
+            0.0,  # autoStretchMin 26
+            0.0,  # autoStretchMax 27
+            0.0,  # autoStretchGamma 28
+            0.0,  # histogram min 29
             float(np.min(image)),  # histogram max 30
             float(np.max(image)),  # histogram upper local max 31
         ]

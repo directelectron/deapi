@@ -13,8 +13,9 @@ from deapi.client import Client
 
 import psutil
 
+
 def close_port(port):
-    for conn in psutil.net_connections(kind='inet'):
+    for conn in psutil.net_connections(kind="inet"):
         if conn.laddr.port == port:
             print(f"Closing port {port} by terminating PID {conn.pid}")
             process = psutil.Process(conn.pid)
@@ -42,6 +43,12 @@ def pytest_addoption(parser):
     parser.addoption(
         "--engineering", action="store", default="", help="Run engineering mode"
     )
+    parser.addoption(
+        "--examples",
+        action="store_true",
+        default=False,
+        help="Run examples tests",
+    )
 
 
 def pytest_configure(config):
@@ -50,6 +57,9 @@ def pytest_configure(config):
     )
     config.addinivalue_line(
         "markers", "speed: mark tests that measure the speed of the DEServer"
+    )
+    config.addinivalue_line(
+        "markers", "examples: mark tests that run examples from the DEAPI documentation"
     )
 
 
@@ -62,6 +72,15 @@ def pytest_collection_modifyitems(config, items):
         for item in items:
             if "server" in item.keywords:
                 item.add_marker(skip_server)
+
+    if config.getoption("--examples"):
+        # Do not skip examples tests
+        return
+    else:  # pragma: no cover
+        skip_examples = pytest.mark.skip(reason="need --examples option to run")
+        for item in items:
+            if "examples" in item.keywords:
+                item.add_marker(skip_examples)
 
     if config.getoption("--engineering") and config.getoption("--engineering") != "":
         # Do not skip engineering tests
@@ -106,6 +125,7 @@ def server(xprocess, request):
     else:
         yield port
         return
+
 
 @pytest.fixture(scope="module")
 def client(xprocess, request):

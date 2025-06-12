@@ -3,6 +3,7 @@ import pathlib
 import pytest
 import threading
 
+
 def run_python_file(file_path, timeout=60):
     file_path = pathlib.Path(file_path)
     spec = importlib.util.spec_from_file_location(file_path.stem, file_path)
@@ -16,18 +17,27 @@ def run_python_file(file_path, timeout=60):
     thread.join(timeout)
 
     if thread.is_alive():
-        raise TimeoutError(f"Loading module {file_path.name} timed out after {timeout} seconds")
+        raise TimeoutError(
+            f"Loading module {file_path.name} timed out after {timeout} seconds"
+        )
 
     return module
-@pytest.mark.parametrize("file", ["setting_parameters/setting_up_stem.py",
-                                  "setting_parameters/setting_up_stem.py",
-                                  "virtual_imaging/vdf_vbf.py",
-                                  "virtual_imaging/setting_virtual_masks.py",
-                                  "live_imaging/taking_an_image_every_minute.py",
-                                  "live_imaging/viewing_the_sensor.py",
-                                  "live_imaging/viewing_the_sensor_tem.py",
-                                  "live_imaging/bright_spot_intensity.py",
-                                   ])
+
+
+@pytest.mark.examples
+@pytest.mark.parametrize(
+    "file",
+    [
+        "setting_parameters/setting_up_stem.py",
+        "setting_parameters/setting_up_stem.py",
+        "virtual_imaging/vdf_vbf.py",
+        "virtual_imaging/setting_virtual_masks.py",
+        "live_imaging/taking_an_image_every_minute.py",
+        "live_imaging/viewing_the_sensor.py",
+        "live_imaging/viewing_the_sensor_tem.py",
+        "live_imaging/bright_spot_intensity.py",
+    ],
+)
 def test_examples(server, file):
     print(f"Running examples from port {server}")
     print(f"Example file: {file}")

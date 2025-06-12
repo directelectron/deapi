@@ -5,7 +5,6 @@ Monitoring Bright Spot Intensity
 This example demonstrates how to monitor the intensity of the brightest pixel in the sensor data during acquisition.
 """
 
-
 import deapi
 import time
 import sys

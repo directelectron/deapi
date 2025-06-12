@@ -1,6 +1,13 @@
-from PyQt6.QtWidgets import (QApplication, QMainWindow,
-                             QPushButton, QHBoxLayout, QVBoxLayout,
-                             QWidget, QTextEdit, QLineEdit)
+from PyQt6.QtWidgets import (
+    QApplication,
+    QMainWindow,
+    QPushButton,
+    QHBoxLayout,
+    QVBoxLayout,
+    QWidget,
+    QTextEdit,
+    QLineEdit,
+)
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from PyQt6.QtWidgets import QMessageBox
@@ -8,43 +15,47 @@ from PyQt6 import QtCore
 import numpy as np
 from PyQt6.QtWidgets import QSlider, QLabel
 from PyQt6.QtCore import Qt
-import deapi 
+import deapi
 import time
 import os
 import shutil
 from scipy.ndimage import generic_filter
 from skimage.morphology import dilation, disk
 
+
 def var_2d(arr, factor):
     new_shape = (arr.shape[0] // factor, factor, arr.shape[1] // factor, factor)
     return np.var(arr.reshape(new_shape), axis=(1, 3))
+
 
 def rebin_2d(arr, factor):
     new_shape = (arr.shape[0] // factor, factor, arr.shape[1] // factor, factor)
     return np.mean(arr.reshape(new_shape), axis=(1, 3))
 
 
-def mask2bad_pixel_file(mask,raw, output_file:str):
-    file_str ='<?xml version="1.0" encoding="utf-8"?>\n\n<BadPixels>\n\n    <BadPixelMap CentroidMode="2">\n\n'
-    file_str += f'<!--Super-resolution & CES modes   Image Size: {mask.shape} -->\n'
+def mask2bad_pixel_file(mask, raw, output_file: str):
+    file_str = '<?xml version="1.0" encoding="utf-8"?>\n\n<BadPixels>\n\n    <BadPixelMap CentroidMode="2">\n\n'
+    file_str += f"<!--Super-resolution & CES modes   Image Size: {mask.shape} -->\n"
     positions = np.argwhere(mask)
     for p in positions:
         file_str += f'        <Defect Column="{p[1]}" Row="{p[0]}" /> <!-- Value: {raw[p[0], p[1]]} -->\n'
 
-    file_str += '    </BadPixelMap>\n'
-    file_str += '</BadPixels>'
+    file_str += "    </BadPixelMap>\n"
+    file_str += "</BadPixels>"
 
     parent_directory = os.path.abspath(os.path.join(output_file, os.pardir))
-    archive_dir = parent_directory +"\\Archive"
+    archive_dir = parent_directory + "\\Archive"
     # Create a directory along with any necessary intermediate directories
     if not os.path.exists(archive_dir):
         os.makedirs(archive_dir)
     loc_time = time.localtime()
-    shutil.copy2(output_file, archive_dir+f"\\{loc_time.tm_year}-{loc_time.tm_mon}-{loc_time.tm_mday}-{loc_time.tm_hour}-{loc_time.tm_min}-{loc_time.tm_sec}.xml")  
+    shutil.copy2(
+        output_file,
+        archive_dir
+        + f"\\{loc_time.tm_year}-{loc_time.tm_mon}-{loc_time.tm_mday}-{loc_time.tm_hour}-{loc_time.tm_min}-{loc_time.tm_sec}.xml",
+    )
     with open(output_file, "w+") as f:
-        f.write(file_str)   
-
-
+        f.write(file_str)
 
 
 class BadPixelCorrectionWindow(QMainWindow):
@@ -59,15 +70,21 @@ class BadPixelCorrectionWindow(QMainWindow):
         self.big_plot_axes = self.big_plot_canvas.figure.add_subplot(111)
         self.big_plot_axes.set_title("Big Plot")
 
-        self.big_plot_image = self.big_plot_axes.imshow(np.random.rand(512, 512), interpolation='none')
+        self.big_plot_image = self.big_plot_axes.imshow(
+            np.random.rand(512, 512), interpolation="none"
+        )
 
         # Create smaller plots
         self.small_plot_axes = []
         self.small_plot_canvases = FigureCanvas(Figure(figsize=(5, 7)))
         self.small_plot_images = []
         for i in range(9):
-            self.small_plot_axes.append(self.small_plot_canvases.figure.add_subplot(3, 3, i+1))
-            self.small_plot_images.append(self.small_plot_axes[i].imshow(np.ones((10, 10))))
+            self.small_plot_axes.append(
+                self.small_plot_canvases.figure.add_subplot(3, 3, i + 1)
+            )
+            self.small_plot_images.append(
+                self.small_plot_axes[i].imshow(np.ones((10, 10)))
+            )
             self.small_plot_axes[i].set_yticks([])
             self.small_plot_axes[i].set_xticks([])
         self.small_plot_axes[0].set_title("Uncorrected")
@@ -97,8 +114,8 @@ class BadPixelCorrectionWindow(QMainWindow):
         self.range_label_max.setMinimumWidth(50)
         self.range_label_min.setMinimumWidth(50)
 
-        self.timer  = QtCore.QTimer()
-        self.timer.setInterval(10) # Every 10ms we will check to update the plots??
+        self.timer = QtCore.QTimer()
+        self.timer.setInterval(10)  # Every 10ms we will check to update the plots??
         self.timer.timeout.connect(self.update_plots)
         self.timer.start()
 
@@ -159,8 +176,6 @@ class BadPixelCorrectionWindow(QMainWindow):
         self.test_bad_pixel.clicked.connect(self.test_bad_pixel_func)
         button_layout.addWidget(self.test_bad_pixel)
 
-
-
         self.save_correction = QPushButton("Save Bad Pixel Correction")
         self.save_correction.clicked.connect(self.save_correction_func)
         button_layout.addWidget(self.save_correction)
@@ -170,7 +185,9 @@ class BadPixelCorrectionWindow(QMainWindow):
         self.acquisition_time_input = QLineEdit()
         self.acquisition_time_input.setFixedWidth(40)
         self.acquisition_time_input.setText(str(self.acquisition_time))
-        self.acquisition_time_input.editingFinished.connect(self.update_acquisition_time)
+        self.acquisition_time_input.editingFinished.connect(
+            self.update_acquisition_time
+        )
 
         # Add the input to the layout
         button_layout.addWidget(label)
@@ -192,40 +209,43 @@ class BadPixelCorrectionWindow(QMainWindow):
         self.sub_images = []
         self.sub_images_masks = []
 
-        self.current_indexes = [0,1,2]
+        self.current_indexes = [0, 1, 2]
         self.num_rois = 15
-        self.max_threshold =1000
+        self.max_threshold = 1000
 
         self.acquisition_time = 120
         loc_time = time.localtime()
-        self.slices= []
+        self.slices = []
 
         self.directory_out = f"D:\\Service\\BadPixels\\{loc_time.tm_year}-{loc_time.tm_mon}-{loc_time.tm_mday}"
-
 
     def update_acquisition_time(self):
         try:
             self.acquisition_time = int(self.acquisition_time_input.text())
-            self.text_output.append(f"Acquisition time updated to: {self.acquisition_time} seconds")
+            self.text_output.append(
+                f"Acquisition time updated to: {self.acquisition_time} seconds"
+            )
         except ValueError:
-            self.text_output.append("Invalid acquisition time entered. Please enter a valid integer.")
-
+            self.text_output.append(
+                "Invalid acquisition time entered. Please enter a valid integer."
+            )
 
     @property
     def dilate_min(self):
         return self.dilation_button.isChecked()
+
     @property
     def dilate_max(self):
         return self.dilation_button_max.isChecked()
 
     def update_masks(self):
-        if len(self.sub_images)>0:
+        if len(self.sub_images) > 0:
             max_value = self.range_slider_max.value()
             min_value = self.range_slider_min.value()
             self.sub_images_masks = []
 
             for image in self.sub_images:
-                min = image<min_value
+                min = image < min_value
                 max = image > max_value
                 if self.dilate_min:
                     min = dilation(min, disk(2))
@@ -235,55 +255,70 @@ class BadPixelCorrectionWindow(QMainWindow):
                 mask = np.logical_or(min, max)
                 self.sub_images_masks.append(mask)
 
-            for ind,i in zip(self.current_indexes,[1,4,7],):
+            for ind, i in zip(
+                self.current_indexes,
+                [1, 4, 7],
+            ):
                 self.small_plot_images[i].set_data(self.sub_images_masks[ind])
-                #self.small_plot_images[i].set_data(np.random.rand(10,10))
-                self.small_plot_images[i].set_clim(0,1)
+                # self.small_plot_images[i].set_data(np.random.rand(10,10))
+                self.small_plot_images[i].set_clim(0, 1)
 
             self.small_plot_canvases.draw()
             self.small_plot_canvases.flush_events()
 
     def update_uncorrected_images(self):
-        if len(self.sub_images)>0:
-            for i, ind in zip([0,3,6], self.current_indexes):
-                #self.small_plot_images[i].set_data(np.random.rand(10,10))
+        if len(self.sub_images) > 0:
+            for i, ind in zip([0, 3, 6], self.current_indexes):
+                # self.small_plot_images[i].set_data(np.random.rand(10,10))
                 self.small_plot_images[i].set_data(self.sub_images[ind])
-                self.small_plot_images[i].set_clim(np.min(self.sub_images[ind]),self.max_threshold)
+                self.small_plot_images[i].set_clim(
+                    np.min(self.sub_images[ind]), self.max_threshold
+                )
             self.small_plot_canvases.draw_idle()
 
     def update_corrected_images(self):
         if self.corrected_image is not None:
-            for i, ind in zip([2,5,8], self.current_indexes):
+            for i, ind in zip([2, 5, 8], self.current_indexes):
                 sl = self.slices[ind]
-                self.small_plot_images[i].set_data(self.corrected_image[sl[0],sl[1]])
-                self.small_plot_images[i].set_clim(np.min(self.sub_images[ind]),self.max_threshold)
+                self.small_plot_images[i].set_data(self.corrected_image[sl[0], sl[1]])
+                self.small_plot_images[i].set_clim(
+                    np.min(self.sub_images[ind]), self.max_threshold
+                )
             self.small_plot_canvases.draw_idle()
 
-
     def update_plots(self):
-        if self.is_acquiring_raw and not self.client.acquiring  and self.client["Autosave Status"] not in ["Starting", "In Progress"]:
+        if (
+            self.is_acquiring_raw
+            and not self.client.acquiring
+            and self.client["Autosave Status"] not in ["Starting", "In Progress"]
+        ):
             self.text_output.append("Updating Plots")
-            frameType   = deapi.data_types.FrameType.TOTAL_SUM_INTEGRATED
+            frameType = deapi.data_types.FrameType.TOTAL_SUM_INTEGRATED
 
             image, pix, attr, hist = self.client.get_result(frameType=frameType)
 
             self.raw_image = image
 
-            self.max_threshold = int(np.mean(image)+ 10*np.std(image))
-
+            self.max_threshold = int(np.mean(image) + 10 * np.std(image))
 
             self.range_slider_min.setMinimum(np.min(image))
             self.range_slider_min.setMaximum(self.max_threshold)
-            self.range_slider_min.setValue(int(np.mean(image)- 3*np.std(image))) # 5 std away from mean
+            self.range_slider_min.setValue(
+                int(np.mean(image) - 3 * np.std(image))
+            )  # 5 std away from mean
 
             self.range_slider_max.setMinimum(np.min(image))
             self.range_slider_max.setMaximum(np.max(image))
-            self.range_slider_max.setValue(int(np.mean(image)+ 3*np.std(image))) # 5 std away from mean
+            self.range_slider_max.setValue(
+                int(np.mean(image) + 3 * np.std(image))
+            )  # 5 std away from mean
 
-            #self.big_plot_axes.imshow(image[::4,::4])
+            # self.big_plot_axes.imshow(image[::4,::4])
             binned_image = rebin_2d(image, 4)
-            self.big_plot_image.set_data(binned_image) #matplotlib is unhappy with 8k x 8k
-            self.big_plot_image.set_clim(np.min(binned_image),self.max_threshold)
+            self.big_plot_image.set_data(
+                binned_image
+            )  # matplotlib is unhappy with 8k x 8k
+            self.big_plot_image.set_clim(np.min(binned_image), self.max_threshold)
 
             self.big_plot_axes.set_yticks([])
             self.big_plot_axes.set_xticks([])
@@ -293,16 +328,20 @@ class BadPixelCorrectionWindow(QMainWindow):
             var_arg = np.argsort(panels, None)
 
             print(panels)
-            panel_args = np.unravel_index(var_arg,panels.shape)
+            panel_args = np.unravel_index(var_arg, panels.shape)
             self.slices = []
             for i in range(self.num_rois):
-                x_slice = slice(panel_args[0][::-1][i]*128, (panel_args[0][::-1][i]+1)*128)
-                y_slice = slice(panel_args[1][::-1][i]*128, (panel_args[1][::-1][i]+1)*128)
+                x_slice = slice(
+                    panel_args[0][::-1][i] * 128, (panel_args[0][::-1][i] + 1) * 128
+                )
+                y_slice = slice(
+                    panel_args[1][::-1][i] * 128, (panel_args[1][::-1][i] + 1) * 128
+                )
 
                 self.slices.append((x_slice, y_slice))
                 self.text_output.append(f"{x_slice}, {y_slice}")
                 self.sub_images.append(image[x_slice, y_slice])
-                
+
             self.update_uncorrected_images()
 
             self.update_masks()
@@ -311,19 +350,25 @@ class BadPixelCorrectionWindow(QMainWindow):
 
             self.text_output.append("Plots updated...")
             self.big_plot_canvas.draw_idle()
-            if self.start_button.text() =="Stop":
+            if self.start_button.text() == "Stop":
                 self.start_button.setText("Get Raw")
-            self.is_acquiring_raw =False
-        if self.is_acquiring_corrected and not self.client.acquiring and self.client["Autosave Status"] not in ["Starting", "In Progress"]:
+            self.is_acquiring_raw = False
+        if (
+            self.is_acquiring_corrected
+            and not self.client.acquiring
+            and self.client["Autosave Status"] not in ["Starting", "In Progress"]
+        ):
             self.text_output.append("Updating Plots")
-            frameType   = deapi.data_types.FrameType.TOTAL_SUM_INTEGRATED
+            frameType = deapi.data_types.FrameType.TOTAL_SUM_INTEGRATED
 
             image, pix, attr, hist = self.client.get_result(frameType=frameType)
             self.corrected_image = image
-            self.max_threshold = int(np.mean(image)+ 10*np.std(image))
+            self.max_threshold = int(np.mean(image) + 10 * np.std(image))
             binned_image = rebin_2d(image, 4)
-            self.big_plot_image.set_data(binned_image) #matplotlib is unhappy with 8k x 8k
-            self.big_plot_image.set_clim(np.min(binned_image),self.max_threshold)
+            self.big_plot_image.set_data(
+                binned_image
+            )  # matplotlib is unhappy with 8k x 8k
+            self.big_plot_image.set_clim(np.min(binned_image), self.max_threshold)
 
             self.big_plot_axes.set_yticks([])
             self.big_plot_axes.set_xticks([])
@@ -332,14 +377,12 @@ class BadPixelCorrectionWindow(QMainWindow):
 
             self.text_output.append("Plots updated...")
             self.big_plot_canvas.draw_idle()
-            if self.test_bad_pixel.text() =="Stop":
+            if self.test_bad_pixel.text() == "Stop":
                 self.test_bad_pixel.setText("Test Bad Pixel Mask")
-            self.is_acquiring_corrected =False
-
-
+            self.is_acquiring_corrected = False
 
     def update_range_labels(self):
-        if self.range_slider_min.value()>self.range_slider_max.value():
+        if self.range_slider_min.value() > self.range_slider_max.value():
             self.range_slider_min.setValue(self.range_slider_max.value())
 
         self.range_label_min.setText(f"Min: {self.range_slider_min.value()}")
@@ -356,7 +399,9 @@ class BadPixelCorrectionWindow(QMainWindow):
         self.update_corrected_images()
 
     def toggle_dilate(self):
-        self.text_output.append(f"Setting Dilate(min, max): {self.dilate_min} {self.dilate_max}")
+        self.text_output.append(
+            f"Setting Dilate(min, max): {self.dilate_min} {self.dilate_max}"
+        )
 
         self.update_uncorrected_images()
         self.update_masks()
@@ -379,7 +424,7 @@ class BadPixelCorrectionWindow(QMainWindow):
     def test_bad_pixel_func(self):
         if self.test_bad_pixel.text() == "Test Bad Pixel Mask":
             if self.start_button.text() == " Stop":
-                pass # Do Nothing
+                pass  # Do Nothing
             else:
                 self.test_bad_pixel.setText("Stop")
                 self.text_output.append("Creating Bad Pixel Mask")
@@ -388,7 +433,7 @@ class BadPixelCorrectionWindow(QMainWindow):
                 file = self.client["File Path - Bad Pixels"]
 
                 mask2bad_pixel_file(mask, self.raw_image, file)
-                #self.client["Image Processing - Bad Pixel Correction"] = "Off"
+                # self.client["Image Processing - Bad Pixel Correction"] = "Off"
                 self.text_output.append(f"Writing Temperary Bad Pixel file to:{file}")
 
                 bad_pixel_file = self.client["File Path - Bad Pixels"]
@@ -399,10 +444,12 @@ class BadPixelCorrectionWindow(QMainWindow):
 
                 self.client["Autosave Directory"] = self.directory_out
                 self.client["Autosave Final Image"] = "On"
-                self.client["Exposure Time (seconds)"] = self.acquisition_time 
-                #self.client["Frame Count"] = num_frames
+                self.client["Exposure Time (seconds)"] = self.acquisition_time
+                # self.client["Frame Count"] = num_frames
                 self.client["Autosave Filename Suffix"] = "BadPixelCorrected"
-                self.text_output.append(f"Starting Acquiring: For {self.acquisition_time} sec")
+                self.text_output.append(
+                    f"Starting Acquiring: For {self.acquisition_time} sec"
+                )
 
                 self.client.start_acquisition(1)
                 self.is_acquiring_corrected = True
@@ -413,7 +460,6 @@ class BadPixelCorrectionWindow(QMainWindow):
             self.client.stop_acquisition()
             # Add logic for stopping the process here
 
-
     def save_correction_func(self):
         self.text_output.append("Saving Bad Pixel Correction")
         # Add logic for saving the correction here
@@ -423,33 +469,36 @@ class BadPixelCorrectionWindow(QMainWindow):
         file = self.client["File Path - Bad Pixels"]
         mask2bad_pixel_file(mask, self.raw_image, file)
 
-
-
     def toggle_start_stop_bad_pixel(self):
         if self.start_button.text() == "Get Raw":
-            if self.test_bad_pixel.text() =="Stop":
-                pass # Do nothing
+            if self.test_bad_pixel.text() == "Stop":
+                pass  # Do nothing
             else:
                 self.start_button.setText("Stop")
-                
+
                 # Show a pop-up message
                 msg_box = QMessageBox()
                 msg_box.setIcon(QMessageBox.Icon.Warning)
                 msg_box.setWindowTitle("Flat Illumination Warning")
                 msg_box.setText(
-                    "Make sure there is a flat illumination on the detector of somewhere from 5-30 electrons/pixel/sec")
+                    "Make sure there is a flat illumination on the detector of somewhere from 5-30 electrons/pixel/sec"
+                )
                 msg_box.exec()
                 self.text_output.append("Starting Bad Pixel Correction...")
                 self.text_output.append("Setting output Directory")
 
                 self.client["Autosave Directory"] = self.directory_out
                 self.client["Autosave Final Image"] = "On"
-                self.client["Exposure Time (seconds)"] = self.acquisition_time 
+                self.client["Exposure Time (seconds)"] = self.acquisition_time
                 self.client["Autosave Filename Suffix"] = "BadPixelUnCorrected"
                 self.client["Image Processing - Flatfield Correction"] = "None"
 
-                self.client["Image Processing - Bad Pixel Correction"] = "Off" # set Bad Pixel Correction Off
-                self.text_output.append(f"Starting Acquiring: For {self.acquisition_time} sec")
+                self.client["Image Processing - Bad Pixel Correction"] = (
+                    "Off"  # set Bad Pixel Correction Off
+                )
+                self.text_output.append(
+                    f"Starting Acquiring: For {self.acquisition_time} sec"
+                )
                 self.client.start_acquisition(1)
                 self.is_acquiring_raw = True
 

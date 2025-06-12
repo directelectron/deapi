@@ -81,7 +81,9 @@ print("Setting calculation")
 client.virtual_masks[1].name = "VBF"
 client.virtual_masks[1][:] = 1  # Set to 1
 client.virtual_masks[1][mask] = 2  # Set mask to 2
-print("Virtual Mask 1:", client.virtual_masks[1].name, client.virtual_masks[1].calculation)
+print(
+    "Virtual Mask 1:", client.virtual_masks[1].name, client.virtual_masks[1].calculation
+)
 client.virtual_masks[1].plot()
 
 client.virtual_masks[2].calculation = "Sum"
@@ -90,9 +92,11 @@ client.virtual_masks[2][:] = 2
 client.virtual_masks[2][mask] = 1
 client.virtual_masks[2].plot()
 
-print("Virtual Masks:"
-      f"\nVBF: {client.virtual_masks[1].name} ({client.virtual_masks[1].calculation})"
-      f"\nVDF: {client.virtual_masks[2].name} ({client.virtual_masks[2].calculation})")
+print(
+    "Virtual Masks:"
+    f"\nVBF: {client.virtual_masks[1].name} ({client.virtual_masks[1].calculation})"
+    f"\nVDF: {client.virtual_masks[2].name} ({client.virtual_masks[2].calculation})"
+)
 # %%
 # Acquire the Virtual Images
 # --------------------------

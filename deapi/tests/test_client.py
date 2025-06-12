@@ -144,8 +144,8 @@ class TestClient:
         np.testing.assert_allclose(client.virtual_masks[1][:], 1)
 
     def test_set_virtual_mask(self, client):
-        #client.virtual_masks[0][:] = 1
-        #np.testing.assert_allclose(client.virtual_masks[0][:], 1)
+        # client.virtual_masks[0][:] = 1
+        # np.testing.assert_allclose(client.virtual_masks[0][:], 1)
         client.virtual_masks[1][:] = 1
         np.testing.assert_allclose(client.virtual_masks[1][:], 1)
         client.virtual_masks[2][:] = 2
@@ -163,7 +163,7 @@ class TestClient:
         client.virtual_masks[1].calculation = "Sum"
         client.virtual_masks[1].name = "VBF"
         client.virtual_masks[1][:] = 1  # Set to 1
-        client.virtual_masks[1][10:20,:] = 2  # Set mask to 2
+        client.virtual_masks[1][10:20, :] = 2  # Set mask to 2
 
     def test_virtual_mask_calculation(self, client):
         client["Scan - Size X"] = 8
@@ -329,9 +329,7 @@ class TestClient:
         client["Test Pattern"] = "SW Constant 400"
         client.TakeDarkReference(100)  # take a dark reference first with 400 ADU
         client["Test Pattern"] = "SW Constant 1600"
-        client.take_gain_reference(100,
-                                   target_electrons_per_pixel=1000,
-                                   counting=False)
+        client.take_gain_reference(100, target_electrons_per_pixel=1000, counting=False)
 
     @pytest.mark.server
     def test_gain_reference_too_bright(self, client):
@@ -340,9 +338,9 @@ class TestClient:
         client["Test Pattern"] = "SW Gaussian M1600 D200"
 
         with pytest.raises(ValueError):
-            client.take_gain_reference(100,
-                                       target_electrons_per_pixel=1000,
-                                       counting=False)
+            client.take_gain_reference(
+                100, target_electrons_per_pixel=1000, counting=False
+            )
 
     @pytest.mark.server
     def test_get_epix_sec(self, client):
@@ -356,17 +354,18 @@ class TestClient:
         client.start_acquisition(1)
         while client.acquiring:
             time.sleep(1)
-        image, pixel_format, attributes, histogram = client.get_result("singleframe_integrated")
+        image, pixel_format, attributes, histogram = client.get_result(
+            "singleframe_integrated"
+        )
         assert attributes.eppixps > 0
 
     @pytest.mark.server
     def test_get_trial_gain_reference(self, client):
         client["Test Pattern"] = "SW Constant 400"
-        client.take_dark_reference(10) # take a dark reference first with 400 ADU
-        client["Test Pattern"] = "SW Constant 1600" #others don't work??
+        client.take_dark_reference(10)  # take a dark reference first with 400 ADU
+        client["Test Pattern"] = "SW Constant 1600"  # others don't work??
         exposure, num_acquire = client.take_trial_gain_reference(10)
         assert exposure == 1
-
 
     @pytest.mark.server
     def test_flip_dark_reference(self, client):
