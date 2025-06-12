@@ -192,6 +192,16 @@ class FakeServer:
             server=self,
         )
 
+        self._values["remaining_number_of_acquisitions"] = Property(
+            name="Remaining Number of Acquisitions",
+            value="Idle",
+            data_type="Integer",
+            category="Server",
+            value_type="Read Only",
+            options=None,
+            server=self,
+        )
+
         self.virtual_masks = []
         for i in range(4):
             self.virtual_masks.append(
@@ -231,6 +241,13 @@ class FakeServer:
             return self["Scan - Size X"] * self["Scan - Size Y"]
         else:
             return self._number_of_frames_requested
+
+    @property
+    def remaining_number_of_acquisitions(self):
+        if self.acquisition_status == "Idle":
+            return 0
+        if self.acquisition_status == "Acquiring":
+            return 2  # for fake server we always return 2 acquisitions
 
     @number_of_frames_requested.setter
     def number_of_frames_requested(self, value):
@@ -562,6 +579,7 @@ class FakeServer:
 
         pixel_format_dict = {1: np.int8, 5: np.int16, 13: np.float32}
 
+
         if self.fake_data is None:
             self._initialize_data(
                 scan_size_x=1,
@@ -572,14 +590,37 @@ class FakeServer:
         curr = self.current_navigation_index
         flat_index = int(np.ravel_multi_index(curr, self.fake_data.navigator.shape))
         if 2 < frame_type < 8:
-            image = self.fake_data[self.current_navigation_index].astype(
-                pixel_format_dict[pixel_format]
-            )
+            if self["Exposure Mode"] == "Gain" or self["Exposure Mode"] =="Trial":
+                image = np.random.poisson(np.ones((int(self["Sensor Size X (pixels)"]),
+                                                  int(self["Sensor Size Y (pixels)"]))) * 100).astype(
+                    pixel_format_dict[pixel_format]
+                )
+            elif self["Exposure Mode"] == "Dark":
+                image = np.random.poisson(np.ones((int(self["Sensor Size X (pixels)"]),
+                                                  int(self["Sensor Size Y (pixels)"]))) * 1).astype(
+                    pixel_format_dict[pixel_format]
+                )
+            else:
+                image = self.fake_data[self.current_navigation_index].astype(
+                    pixel_format_dict[pixel_format]
+                )
             result = image.tobytes()
+
         elif frame_type == 10:
-            image = np.sum(self.fake_data.signal, axis=1).astype(
-                pixel_format_dict[pixel_format]
-            )
+            if self["Exposure Mode"] == "Gain" or self["Exposure Mode"] =="Trial":
+                image = np.random.poisson(np.ones((int(self["Sensor Size X (pixels)"]),
+                                                  int(self["Sensor Size Y (pixels)"]))) * 1000).astype(
+                    pixel_format_dict[pixel_format]
+                )
+            elif self["Exposure Mode"] == "Dark":
+                image = np.random.poisson(np.ones((int(self["Sensor Size X (pixels)"]),
+                                                  int(self["Sensor Size Y (pixels)"]))) * 1).astype(
+                    pixel_format_dict[pixel_format]
+                )
+            else:
+                image = np.sum(self.fake_data.signal, axis=1).astype(
+                    pixel_format_dict[pixel_format]
+                )
             result = image.tobytes()
         elif 11 < frame_type < 17:  # virtual image
             image = self.virtual_masks[frame_type - 12]
@@ -601,6 +642,10 @@ class FakeServer:
         else:
             raise ValueError(f"Frame type {frame_type} not Supported in PythonDEServer")
         # map to right order...
+        mean_img = np.mean(image)
+        eppix = mean_img/208
+        eps = np.sum(image)/208 * float(self["Frames Per Second"])
+
         response_mapping = [
             int(pixel_format),  # pix format 0
             int(windowWidth),  # window width 1
@@ -610,18 +655,18 @@ class FakeServer:
             bool(self.acquisition_status == "Acquiring"),  # status 5
             int(flat_index),  # frame number 6
             int(1),  # frame count 7
-            float(0),  # image min 8
-            float(2**16),  # image max 9
-            float(100),  # image mean 10
-            float(10),  # image std 11
-            float(0),  # eppix 12
-            float(0),  # eps 13
-            float(0),  # eppixps 14
+            float(np.min(image)),  # image min 8
+            float(np.max(image)),  # image max 9
+            float(mean_img),  # image mean 10
+            float(np.std(image)),  # image std 11
+            float(eppix),  # eppix 12
+            float(eps),  # eps 13
+            float(eppix*float(self["Frames Per Second"])),  # eppixps 14
             float(0),  # epa2 15
-            float(0),  # eppixpf 16
+            float(eppix),  # eppixpf 16
             float(0),  # eppix_incident 17
             float(0),  # eps_incident 18
-            float(0),  # eppixps_incident 19
+            float(eppix*float(self["Frames Per Second"])),  # eppixps_incident 19
             float(0),  # epa2_incident 20
             float(0),  # eppixpf_incident 21
             float(0),  # red sat warning 22

@@ -14,6 +14,14 @@
     "options":"1.0, 1000.0, '1 - 1000'",
     "default_value":"1"
   },
+    "Frame Count":{
+    "value":"1",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Advanced",
+    "options":"1.0, 1000.0, '1 - 1000'",
+    "default_value":"1"
+  },
   "Hardware Binning X":{
     "value":"1",
     "data_type":"Integer",
@@ -454,5 +462,53 @@
     "category":"Basic",
     "options":"'Extend', 'Retract'",
     "default_value":"Retract"
-  }
+  },
+    "Exposure Mode":{
+    "value":"Normal",
+    "data_type":"String",
+    "value_type":"Set",
+    "category":"Advanced",
+    "options":"'Dark', 'Gain', 'Normal*', 'Trial', `Vacuum`",
+    "default_value":"Normal"
+  },
+    "Remaining Number of Acquisitions":{
+    "value":"Normal",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Basic",
+    "options":"0.0, 999999.0, '0 - 999999'",
+    "default_value":"0"
+  },
+    "Autosave Movie Sum Count":{
+    "value":"Normal",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Basic",
+    "options":"0.0, 999999.0, '0 - 999999'",
+    "default_value":"0"
+  },
+    "Autosave Directory":{
+    "value":"Normal",
+    "data_type":"String",
+    "value_type":"AllowAll",
+    "category":"Basic",
+    "options":"",
+    "default_value":"D:\\"
+  },
+    "Autosave Movie": {
+      "value": "Normal",
+      "data_type": "String",
+      "value_type": "Set",
+      "category": "Basic",
+      "options": "'On*', 'Off'",
+      "default_value": "Off"
+    },
+    "Autosave Final Image": {
+      "value": "Normal",
+      "data_type": "String",
+      "value_type": "Set",
+      "category": "Basic",
+      "options": "'On*', 'Off'",
+      "default_value": "Off"
+    }
 }

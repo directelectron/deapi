@@ -22,6 +22,7 @@ jobs:
           pip install -U -e .'[doc]'
 
       - name: Sphinx build
+        timeout-minutes: 15
         run: |
           python deapi/simulated_server/initialize_server.py 13240 &
           sleep 5 &&

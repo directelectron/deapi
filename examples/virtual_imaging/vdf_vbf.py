@@ -43,12 +43,15 @@ client.connect(port=13240)  # connect to the running DE Server
 # --------------------------------
 # We will acquire a single diffraction pattern to guide the virtual masks.
 # We can then use the brightest disk in the diffraction pattern to generate the VDF/VBF masks.
+print("Acquiring a single diffraction pattern...")
+client.scan(enable="Off")  # Disable scanning
 
 client.start_acquisition(1)
 
 # wait for the acquisition to finish
 while client.acquiring:
     time.sleep(1)
+print("Acquisition finished.")
 
 img = client.get_result("singleframe_integrated")[0]
 
@@ -72,11 +75,13 @@ mask = auto_find_bf(img)
 # Create the Virtual Masks
 # ------------------------
 # We will create the VDF and VBF masks by setting the pixel values in the masks.
-
+print("Creating virtual masks...")
 client.virtual_masks[1].calculation = "Sum"
+print("Setting calculation")
 client.virtual_masks[1].name = "VBF"
 client.virtual_masks[1][:] = 1  # Set to 1
 client.virtual_masks[1][mask] = 2  # Set mask to 2
+print("Virtual Mask 1:", client.virtual_masks[1].name, client.virtual_masks[1].calculation)
 client.virtual_masks[1].plot()
 
 client.virtual_masks[2].calculation = "Sum"
@@ -85,6 +90,9 @@ client.virtual_masks[2][:] = 2
 client.virtual_masks[2][mask] = 1
 client.virtual_masks[2].plot()
 
+print("Virtual Masks:"
+      f"\nVBF: {client.virtual_masks[1].name} ({client.virtual_masks[1].calculation})"
+      f"\nVDF: {client.virtual_masks[2].name} ({client.virtual_masks[2].calculation})")
 # %%
 # Acquire the Virtual Images
 # --------------------------
@@ -92,9 +100,9 @@ client.virtual_masks[2].plot()
 
 
 client["Frames Per Second"] = 5000  # 5000 frames per second
-client.scan(enable="On", size_x=128, size_y=128)
+client.scan(enable="On", size_x=32, size_y=32)
 client.start_acquisition()
-
+print("Acquiring virtual images...")
 while client.acquiring:  # wait for acquisition to finish and then plot the results
     time.sleep(1)
 

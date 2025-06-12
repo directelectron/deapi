@@ -38,7 +38,7 @@ class deprecated_argument:
     <https://github.com/scikit-image/scikit-image/blob/main/skimage/_shared/utils.py>`_.
     """
 
-    def __init__(self, name, since, removal, alternative=None):
+    def __init__(self, name, since, removal=None, alternative=None):
         self.name = name
         self.since = since
         self.removal = removal
