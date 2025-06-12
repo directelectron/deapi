@@ -14,6 +14,14 @@
     "options":"1.0, 1000.0, '1 - 1000'",
     "default_value":"1"
   },
+    "Frame Count":{
+    "value":"1",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Advanced",
+    "options":"1.0, 1000.0, '1 - 1000'",
+    "default_value":"1"
+  },
   "Hardware Binning X":{
     "value":"1",
     "data_type":"Integer",
@@ -376,7 +384,7 @@
         "get": "((hardware_roi_size_y / hardware_binning_y)/ binning_y)-crop_offset_y"
     },
   "Server Software Version":{
-    "value":"3.7.8893",
+    "value":"2.7.4.1352",
     "data_type":"String",
     "value_type":"ReadOnly",
     "category":"Basic",
@@ -446,5 +454,117 @@
     "category":"Basic",
     "options":"",
     "default_value":"Camera"
+  },
+    "Camera Position Control":{
+    "value":"Retract",
+    "data_type":"String",
+    "value_type":"Set",
+    "category":"Basic",
+    "options":"'Extend', 'Retract'",
+    "default_value":"Retract"
+  },
+    "Exposure Mode":{
+    "value":"Normal",
+    "data_type":"String",
+    "value_type":"Set",
+    "category":"Advanced",
+    "options":"'Dark', 'Gain', 'Normal', 'Trial', `Vacuum`",
+    "default_value":"Normal"
+  },
+    "Remaining Number of Acquisitions":{
+    "value":"2",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Basic",
+    "options":"0.0, 999999.0, '0 - 999999'",
+    "default_value":"0"
+  },
+    "Autosave Movie Sum Count":{
+    "value":"2",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Basic",
+    "options":"0.0, 999999.0, '0 - 999999'",
+    "default_value":"0"
+  },
+    "Autosave Directory":{
+    "value":"D:\\",
+    "data_type":"String",
+    "value_type":"AllowAll",
+    "category":"Basic",
+    "options":"",
+    "default_value":"D:\\"
+  },
+    "Autosave Movie": {
+      "value": "On",
+      "data_type": "String",
+      "value_type": "Set",
+      "category": "Basic",
+      "options": "'On*', 'Off'",
+      "default_value": "Off"
+    },
+    "Autosave Final Image": {
+      "value": "Off",
+      "data_type": "String",
+      "value_type": "Set",
+      "category": "Basic",
+      "options": "'On*', 'Off'",
+      "default_value": "Off"
+    },
+      "Image Processing - Mode":{
+    "value":"Integrating",
+    "data_type":"String",
+    "value_type":"Set",
+    "category":"Advanced",
+    "options":"'Integrating', 'Counting'",
+    "default_value":"Integrating"
+  },
+    "Reference - Integrating Gain Target (ADU/pix)":{
+    "value":"16000",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Basic",
+    "options":"0.0, 999999.0, '0 - 999999'",
+    "default_value":"16000"
+  },
+  "Reference - Integrating Gain Exposure Time (seconds)":{
+    "value":"1",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Basic",
+    "options":"0.0, 999999.0, '0 - 999999'",
+    "default_value":"1"
+  },
+    "Reference - Integrating Gain Acquisitions":{
+    "value":"10",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Basic",
+    "options":"0.0, 999999.0, '0 - 999999'",
+    "default_value":"10"
+  },
+    "Reference - Counting Gain Target (ADU/pix)":{
+    "value":"2000",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Basic",
+    "options":"0.0, 999999.0, '0 - 999999'",
+    "default_value":"16000"
+  },
+  "Reference - Counting Gain Exposure Time (seconds)":{
+    "value":"1",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Basic",
+    "options":"0.0, 999999.0, '0 - 999999'",
+    "default_value":"1"
+  },
+    "Reference - Counting Gain Acquisitions":{
+    "value":"10",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Basic",
+    "options":"0.0, 999999.0, '0 - 999999'",
+    "default_value":"10"
   }
 }

@@ -55,6 +55,9 @@ tests = [
     "libertem",
     "hyperspy",
 ]
+service = [
+    "pyqt6",
+]
 doc = [
     "sphinx",
     "pydata_sphinx_theme",
@@ -71,3 +74,4 @@ Source = "https://github.com/directelectron/deapi"
 
 [project.scripts]
 pydeserver = "deapi.simulated_server.initialize_server:main"
+de_service = "deapi.service.de_service:main"

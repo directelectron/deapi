@@ -10,7 +10,6 @@ class TestFPS01:
     maximum value and that the camera is able to acquire at that size.
     """
 
-    @pytest.mark.server
     @pytest.fixture(autouse=True)
     def clean_state(self, client):
         # First set the hardware ROI to a known state
@@ -48,8 +47,13 @@ class TestFPS01:
         deClient = client
         deClient.SetProperty("Frames Per Second", fps)
         deClient.SetProperty("Exposure Time (seconds)", exposure)
+        new_exposure = deClient.GetProperty(
+            "Exposure Time (seconds)"
+        )  # this will round to account for fps
         frameCount = deClient.GetProperty("Frame Count")
-        assert frameCount == fps * exposure
+        frames = np.round(fps * new_exposure)
+        extra_frames = deClient["Actual Frames to Ignore"]
+        assert frameCount == frames + extra_frames
 
 
 class TestReferences07:

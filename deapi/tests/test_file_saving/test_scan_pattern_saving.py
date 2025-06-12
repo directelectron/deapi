@@ -16,7 +16,11 @@ class TestSavingScans:
     @pytest.mark.parametrize("file_format", ["HSPY", "MRC"])
     @pytest.mark.server
     def test_save_scans(self, client, scan_type, buffer, file_format):
-        i = 8
+        if client.acquiring:
+            client.stop_acquisition()
+        time.sleep(1)
+
+        i = 16
         num_pos = i * i
         if not os.path.exists("D:\Temp"):
             os.mkdir("D:\Temp")
@@ -41,8 +45,11 @@ class TestSavingScans:
 
         client["Frames Per Second"] = 100
         client["Scan - Enable"] = "On"
-        client.scan["Size X"] = i
-        client.scan["Size Y"] = i
+        client["Scan - Size X"] = i
+        client["Scan - Size Y"] = i
+        time.sleep(1)
+        assert client["Scan - Size X"] == i
+        assert client["Scan - Size Y"] == i
 
         client["Autosave Movie"] = "On"
         client["Autosave 4D File Format"] = file_format
@@ -56,9 +63,7 @@ class TestSavingScans:
         while client.acquiring:
             time.sleep(0.1)
 
-        time.sleep(2)  # Wait for the file to be written to disk etc.
-
-
+        time.sleep(5)  # Wait for the file to be written to disk etc.
 
         if file_format == "HSPY":
             movie = hs.load(client["Autosave Movie Frames File Path"])
@@ -68,7 +73,11 @@ class TestSavingScans:
             print(client["Autosave Movie Frames File Path"])
             fp = client["Autosave Movie Frames File Path"]
             movie = hs.load(client["Autosave Movie Frames File Path"])
-            np.testing.assert_array_equal(movie.data.reshape(-1, 1024, 1024), np.arange(num_pos)[:, np.newaxis, np.newaxis] * np.ones((1, 1024, 1024)))
+            np.testing.assert_array_equal(
+                movie.data.reshape(-1, 1024, 1024),
+                np.arange(num_pos)[:, np.newaxis, np.newaxis]
+                * np.ones((1, 1024, 1024)),
+            )
 
 
 class TestSavingVirtual:
@@ -97,7 +106,7 @@ class TestSavingVirtual:
             )
             frame_num_order = frame_num_order.reshape(-1)
         else:  # Raster
-            frame_num_order =np.arange(num_pos)
+            frame_num_order = np.arange(num_pos)
 
         client["Frames Per Second"] = 100
         client["Scan - Enable"] = "On"
@@ -121,4 +130,6 @@ class TestSavingVirtual:
         print(client["Autosave Virtual Image 0 File Path"])
         fp = client["Autosave Virtual Image 0 File Path"]
         movie = hs.load(client["Autosave Virtual Image 0 File Path"])
-        np.testing.assert_array_equal(movie.data.reshape(-1), frame_num_order*(1024*1024))
+        np.testing.assert_array_equal(
+            movie.data.reshape(-1), frame_num_order * (1024 * 1024)
+        )

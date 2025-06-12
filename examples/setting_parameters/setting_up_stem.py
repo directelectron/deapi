@@ -12,12 +12,16 @@ This script will:
 """
 
 from deapi import Client
+import sys
 
 # %%
 # Connect to the DE server
 client = Client()
-client.usingMmf = False
-client.connect(port=13241)  # connect to the running DE Server
+if not sys.platform.startswith("win"):
+    client.usingMmf = (
+        False  # True if on same machine as DE Server and a Windows machine
+    )
+client.connect(port=13240)  # connect to the running DE Server
 
 # %%
 # Set the hardware ROI to 256x256
@@ -37,6 +41,4 @@ client.scan(size_x=256, size_y=256, enable="On")
 # Set the number of frames per second to 1000
 client["Frames Per Second"] = 1000
 
-
-# %%
-# Acquire a STEM image using a HAADF detector
+client.disconnect()

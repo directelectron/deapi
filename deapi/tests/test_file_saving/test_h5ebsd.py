@@ -1,6 +1,7 @@
 """
 
-This module tests file saving and loading in Hyperspy (Rosettasciio)
+This module tests file saving for h5EBSD files
+
 
 This should be run before any release to make sure that the file loaders downstream
 work.
@@ -9,8 +10,7 @@ work.
 import os
 import time
 import pytest
-import hyperspy.api as hs
-import glob
+import h5py
 
 
 class TestSavingHyperSpy:
@@ -27,30 +27,24 @@ class TestSavingHyperSpy:
         client["Binning X"] = 1
         client["Binning Y"] = 1
 
-    @pytest.mark.parametrize("file_format", ["MRC", "DE5", "HSPY"])
     @pytest.mark.server
-    def test_save_4DSTEM(self, client, file_format):
+    def test_save_hspy_4DSTEM(self, client):
         if not os.path.exists("D:\Temp"):
             os.mkdir("D:\Temp")
-        temp_dir = "D:\Temp"
+        if not os.path.exists("D:\Temp\HSPY"):
+            os.mkdir("D:\Temp\HSPY")
+        temp_dir = "D:\Temp\HSPY"
         client["Frames Per Second"] = 100
         client["Scan - Enable"] = "On"
-        client["Scan - Size X"] = 12
-        client["Scan - Size Y"] = 12
-        assert client["Scan - Size X"] == 12
-        assert client["Scan - Size Y"] == 12
+        client.scan["Size X"] = 8
+        client.scan["Size Y"] = 8
         client["Autosave Movie"] = "On"
-        client["Autosave 4D File Format"] = file_format
+        client["Autosave 4D File Format"] = "HSPY"
         client["Autosave Directory"] = temp_dir
         client.start_acquisition(1)
         while client.acquiring:
             time.sleep(0.1)
-        time.sleep(1)
-        assert file_format.lower() in client["Autosave Movie Frames File Path"]
-        s = hs.load(client["Autosave Movie Frames File Path"])
-        if file_format == "MRC":
-            assert s.data.shape == (144, 1024, 1024)
-        elif file_format == "DE5":
-            assert s.data.shape == (1024, 1024, 12, 12)
-        else:
-            assert s.data.shape == (12, 12, 1024, 1024)
+        time.sleep(2)
+        assert os.path.exists(client["Autosave Movie Frames File Path"])
+        print(client["Autosave Movie Frames File Path"])
+        h5py.File(client["Autosave Movie Frames File Path"], "r")

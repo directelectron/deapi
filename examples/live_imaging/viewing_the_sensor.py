@@ -19,18 +19,28 @@ Note: Using the qt matplotlib backend will make the plotting update.
 from deapi import Client
 import matplotlib.pyplot as plt
 import numpy as np
+import sys
+import time
 
 client = Client()
+
+if not sys.platform.startswith("win"):
+    client.usingMmf = (
+        False  # True if on same machine as DE Server and a Windows machine
+    )
 client.usingMmf = False
 
-client.connect(port=13241)  # connect to the running DE Server
+client.connect(port=13240)  # connect to the running DE Server
 client["Frames Per Second"] = 500
-client.scan(size_x=64, size_y=64, enable="On")
+client.scan(size_x=16, size_y=16, enable="On")
 client.start_acquisition(1)
 
+while not client.acquiring:
+    time.sleep(0.1)  # wait until the acquisition starts
 
 fig, axs = plt.subplots(1, 2)
 data, _, _, _ = client.get_result("virtual_image0")
+print("Got image of shape: ", data.shape)
 live_im = axs[0].imshow(np.zeros_like(data))
 
 data2, _, _, _ = client.get_result("singleframe_integrated")
@@ -43,6 +53,7 @@ live_virt_im = axs[1].imshow(np.zeros_like(data))
 # using the Qt backend, and you won't get a live view unless you initialize the plot first and then
 # update the data. If you have troubles with this please raise an issue on the github page.
 
+print("Updating plots...")
 while client.acquiring:
     data, _, _, _ = client.get_result("singleframe_integrated")
     live_im.set_data(data)
@@ -55,3 +66,5 @@ while client.acquiring:
     # use blitting in matplotlib. (up to ~500 fps)
     live_im.autoscale()
     live_virt_im.autoscale()
+
+client.disconnect()

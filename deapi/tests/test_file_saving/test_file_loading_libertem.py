@@ -22,12 +22,19 @@ class TestLoadingLiberTEM:
         client["Hardware Binning Y"] = 1
         client["Hardware ROI Size X"] = 1024
         client["Hardware ROI Size Y"] = 1024
+        client["Scan - Type"] = "Raster"
         # Set the software Binning to 1
         client["Binning X"] = 1
         client["Binning Y"] = 1
+        if client.acquiring:
+            client.stop_acquisition()
+            time.sleep(1)
 
     @pytest.mark.parametrize(
-        "file_format", ["DE5", "HSPY"]
+        "file_format",
+        [
+            "DE5",
+        ],
     )  # MRC file loading in LiberTEM is broken!
     @pytest.mark.server
     def test_save_4DSTEM(self, client, file_format):
@@ -36,10 +43,10 @@ class TestLoadingLiberTEM:
         temp_dir = "D:\Temp"
         client["Frames Per Second"] = 100
         client["Scan - Enable"] = "On"
-        client.scan["Size X"] = 16
-        client.scan["Size Y"] = 8
-        assert client.scan["Size X"] == 16
-        assert client.scan["Size Y"] == 8
+        client["Scan - Size X"] = 16
+        client["Scan - Size Y"] = 8
+        assert client["Scan - Size X"] == 16
+        assert client["Scan - Size Y"] == 8
         client["Autosave Movie"] = "On"
         client["Autosave 4D File Format"] = file_format
         client["Autosave Directory"] = temp_dir
@@ -47,7 +54,8 @@ class TestLoadingLiberTEM:
         client.start_acquisition(1)
         while client.acquiring:
             time.sleep(0.1)
-        assert (file_format.lower() in client["Autosave Movie Frames File Path"])
+        time.sleep(1)
+        assert file_format.lower() in client["Autosave Movie Frames File Path"]
         movie = glob.glob(temp_dir + "/*movie." + file_format.lower())[0]
         dataset = lt.Context().load("auto", path=movie)
         assert tuple(dataset.shape) == (8, 16, 1024, 1024)

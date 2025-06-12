@@ -192,6 +192,16 @@ class FakeServer:
             server=self,
         )
 
+        self._values["remaining_number_of_acquisitions"] = Property(
+            name="Remaining Number of Acquisitions",
+            value="Idle",
+            data_type="Integer",
+            category="Server",
+            value_type="Read Only",
+            options=None,
+            server=self,
+        )
+
         self.virtual_masks = []
         for i in range(4):
             self.virtual_masks.append(
@@ -216,9 +226,13 @@ class FakeServer:
 
     @property
     def acquisition_status(self):
+        print("Getting acquisition status")
+        print((time.time() < self.end_time))
         if time.time() < self.end_time:
+            print("Acquiring")
             return "Acquiring"
         else:
+            print("Idle")
             return "Idle"
 
     @property
@@ -227,6 +241,13 @@ class FakeServer:
             return self["Scan - Size X"] * self["Scan - Size Y"]
         else:
             return self._number_of_frames_requested
+
+    @property
+    def remaining_number_of_acquisitions(self):
+        if self.acquisition_status == "Idle":
+            return 0
+        if self.acquisition_status == "Acquiring":
+            return 2  # for fake server we always return 2 acquisitions
 
     @number_of_frames_requested.setter
     def number_of_frames_requested(self, value):
@@ -317,6 +338,7 @@ class FakeServer:
         mask_id = command.command[0].parameter[0].p_int
         w = command.command[0].parameter[1].p_int
         h = command.command[0].parameter[2].p_int
+        print(f"Setting virtual mask {mask_id} with size {w}x{h}")
 
         total_bytes = w * h
         buffer = self.socket.recv(total_bytes)
@@ -331,6 +353,7 @@ class FakeServer:
         buffer = buffer
         mask = np.frombuffer(buffer, dtype=np.int8).reshape((w, h))
         self.virtual_masks[mask_id] = mask
+        print(f"Virtual mask {mask_id} set with {mask}")
         return (acknowledge_return,)
 
     def _fake_list_cameras(self, command):
@@ -463,7 +486,7 @@ class FakeServer:
         ack1.command_id = command.command[0].command_id
         name = command.command[0].parameter[0].p_string
         name = name.replace(" ", "_").lower().replace("(", "").replace(")", "")
-        val = self._values[name]
+        val = self._values.get(name, "Not Implemented")
 
         if val.data_type == "String":
             val = val.value
@@ -536,7 +559,6 @@ class FakeServer:
         acknowledge_return.type = pb.DEPacket.P_ACKNOWLEDGE
         ack1 = acknowledge_return.acknowledge.add()
         ack1.command_id = command.command[0].command_id
-
         frame_type = command.command[0].parameter[0].p_int
         pixel_format = command.command[0].parameter[1].p_int
         center_x = command.command[0].parameter[2].p_int
@@ -550,9 +572,10 @@ class FakeServer:
         stretch_max = command.command[0].parameter[10].p_float
         stretch_gama = command.command[0].parameter[11].p_float
         outlier = command.command[0].parameter[12].p_float
-        histo_min = command.command[0].parameter[13].p_float
-        histo_max = command.command[0].parameter[14].p_float
-        histo_bins = command.command[0].parameter[15].p_int
+        timeout = command.command[0].parameter[13].p_int
+        histo_min = command.command[0].parameter[14].p_float
+        histo_max = command.command[0].parameter[15].p_float
+        histo_bins = command.command[0].parameter[16].p_int
 
         pixel_format_dict = {1: np.int8, 5: np.int16, 13: np.float32}
 
@@ -565,74 +588,132 @@ class FakeServer:
             )
         curr = self.current_navigation_index
         flat_index = int(np.ravel_multi_index(curr, self.fake_data.navigator.shape))
+        if 2 < frame_type < 8:
+            if self["Exposure Mode"] == "Gain" or self["Exposure Mode"] == "Trial":
+                image = np.random.poisson(
+                    np.ones(
+                        (
+                            int(self["Sensor Size X (pixels)"]),
+                            int(self["Sensor Size X (pixels)"]),
+                        )
+                    )
+                    * 100
+                ).astype(pixel_format_dict[pixel_format])
+            elif self["Exposure Mode"] == "Dark":
+                image = np.random.poisson(
+                    np.ones(
+                        (
+                            int(self["Sensor Size X (pixels)"]),
+                            int(self["Sensor Size X (pixels)"]),
+                        )
+                    )
+                    * 1
+                ).astype(pixel_format_dict[pixel_format])
+            else:
+                image = self.fake_data[self.current_navigation_index].astype(
+                    pixel_format_dict[pixel_format]
+                )
+            result = image.tobytes()
 
+        elif frame_type == 10 or frame_type == 9:  # SUMTOTAL or SUMINTERMEDIATE
+            if self["Exposure Mode"] == "Gain" or self["Exposure Mode"] == "Trial":
+                image = np.random.poisson(
+                    np.ones(
+                        (
+                            int(self["Sensor Size X (pixels)"]),
+                            int(self["Sensor Size X (pixels)"]),
+                        )
+                    )
+                    * 10000
+                ).astype(pixel_format_dict[pixel_format])
+            elif self["Exposure Mode"] == "Dark":
+                image = np.random.poisson(
+                    np.ones(
+                        (
+                            int(self["Sensor Size X (pixels)"]),
+                            int(self["Sensor Size X (pixels)"]),
+                        )
+                    )
+                    * 1
+                ).astype(pixel_format_dict[pixel_format])
+            else:
+                image = np.sum(self.fake_data.signal, axis=1).astype(
+                    pixel_format_dict[pixel_format]
+                )
+            result = image.tobytes()
+        elif 11 < frame_type < 17:  # virtual image
+            image = self.virtual_masks[frame_type - 12]
+            print(image)
+            if image.shape != (windowWidth, windowHeight):
+                image = resize(
+                    image, (windowWidth, windowHeight), preserve_range=True
+                ).astype(np.int8)
+            result = image.tobytes()
+        elif 17 <= frame_type < 22:
+            image = self.virtual_masks[frame_type - 17]
+            calculation_type = self[
+                f"Scan - Virtual Detector {frame_type-17} Calculation"
+            ]
+            image = self.fake_data.get_virtual_image(image, method=calculation_type)
+            image = image.astype(pixel_format_dict[pixel_format])
+            result = image.tobytes()
+
+        else:
+            raise ValueError(f"Frame type {frame_type} not Supported in PythonDEServer")
         # map to right order...
+        mean_img = np.mean(image)
+        eppix = mean_img / 208
+        eps = np.sum(image) / 208 * float(self["Frames Per Second"])
+        eppixps = eppix * float(self["Frames Per Second"])
         response_mapping = [
-            pixel_format,
-            windowWidth,
-            windowHeight,
-            "Test",
-            0,
-            self.acquisition_status == "Acquiring",
-            flat_index,
-            1,
-            0,
-            2**16,
-            100,
-            10,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            1,
-            time.time(),
-            0,
-            0,
-            0,
+            int(pixel_format),  # pix format 0
+            int(windowWidth),  # window width 1
+            int(windowHeight),  # window height 2
+            "Test",  # name 3
+            int(0),  # acquisition index 4
+            bool(self.acquisition_status == "Acquiring"),  # status 5
+            int(flat_index),  # frame number 6
+            int(1),  # frame count 7
+            float(0),  # image min 8
+            float(2**15),  # image max 9
+            float(100),  # image mean 10
+            float(5),  # image std 11
+            float(100),  # eppix 12
+            float(1000),  # eps 13
+            float(500),  # eppixps 14
+            0.0,  # epa2 15
+            float(500),  # eppixpf 16
+            0.0,  # eppix_incident 17
+            0.0,  # eps_incident 18
+            0.0,  # eppixps_incident 19
+            0.0,  # epa2_incident 20
+            0.0,  # eppixpf_incident 21
+            0.0,  # red sat warning 22
+            0.0,  # orange sat warning 23
+            0.0,  # saturation 24
+            "2.187026",  # current time 25
+            0.0,  # autoStretchMin 26
+            0.0,  # autoStretchMax 27
+            0.0,  # autoStretchGamma 28
+            0.0,  # histogram min 29
+            float(np.min(image)),  # histogram max 30
+            float(np.max(image)),  # histogram upper local max 31
         ]
+        for i in range(histo_bins):
+            response_mapping.append(int(0))
+        # Then histogram...
         for val in response_mapping:
-            ack1 = add_parameter(ack1, val)
+            ack1 = acknowledge_return.acknowledge.add()
+            add_parameter(ack1, val)
         ans = (acknowledge_return,)
         # add the data header packet for how many bytes are in the data
         pack = pb.DEPacket()
         pack.type = pb.DEPacket.P_DATA_HEADER
 
-        if 2 < frame_type < 8:
-            image = self.fake_data[self.current_navigation_index].astype(
-                pixel_format_dict[pixel_format]
-            )
-            result = image.tobytes()
-        elif frame_type == 10:
-            image = np.sum(self.fake_data.signal, axis=1).astype(
-                pixel_format_dict[pixel_format]
-            )
-            result = image.tobytes()
-        elif 11 < frame_type < 17:  # virtual image
-            mask = self.virtual_masks[frame_type - 12]
-            if mask.shape != (windowWidth, windowHeight):
-                mask = resize(
-                    mask, (windowWidth, windowHeight), preserve_range=True
-                ).astype(np.int8)
-            result = mask.tobytes()
-        elif 17 <= frame_type < 22:
-            mask = self.virtual_masks[frame_type - 17]
-            calculation_type = self[
-                f"Scan - Virtual Detector {frame_type-17} Calculation"
-            ]
-            result = self.fake_data.get_virtual_image(mask, method=calculation_type)
-            result = result.astype(pixel_format_dict[pixel_format]).tobytes()
-
-        else:
-            raise ValueError(f"Frame type {frame_type} not Supported in PythonDEServer")
         pack.data_header.bytesize = len(result)
         ans += (pack,)
         ans += (result,)
+        print(f"Sending result with size {pack.ByteSize()} and data size {len(result)}")
 
         return ans
 
