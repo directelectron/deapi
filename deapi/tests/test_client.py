@@ -138,18 +138,18 @@ class TestClient:
         assert result[0].shape[1] == 1024 // binx
 
     def test_get_virtual_mask(self, client):
-        assert isinstance(client.virtual_masks[0], VirtualMask)
-        assert isinstance(client.virtual_masks[0][:], np.ndarray)
-        np.testing.assert_allclose(client.virtual_masks[0][:], 1)
+        client.virtual_masks[1][:] = 1
+        assert isinstance(client.virtual_masks[1], VirtualMask)
+        assert isinstance(client.virtual_masks[1][:], np.ndarray)
+        np.testing.assert_allclose(client.virtual_masks[1][:], 1)
 
     def test_set_virtual_mask(self, client):
-        # client.virtual_masks[0][:] = 1
-        # np.testing.assert_allclose(client.virtual_masks[0][:], 1)
-        # client.virtual_masks[1][:] = 1
-        # np.testing.assert_allclose(client.virtual_masks[1][:], 1)
-        # client.virtual_masks[2][:] = 2
-        # np.testing.assert_allclose(client.virtual_masks[2][:], 2)
-        pass
+        #client.virtual_masks[0][:] = 1
+        #np.testing.assert_allclose(client.virtual_masks[0][:], 1)
+        client.virtual_masks[1][:] = 1
+        np.testing.assert_allclose(client.virtual_masks[1][:], 1)
+        client.virtual_masks[2][:] = 2
+        np.testing.assert_allclose(client.virtual_masks[2][:], 2)
 
     def test_resize_virtual_mask(self, client):
         client.virtual_masks[2][:] = 2
@@ -159,9 +159,11 @@ class TestClient:
         client["Hardware Binning Y"] = 1
         assert client.virtual_masks[2][:].shape == (512, 512)
 
-    def test_virtual_mask_calculation(self, client):
-        client.virtual_masks[0][:] = 1  # Set everything to 1
-        print("Virtual Mask 0: ", client.virtual_masks[0][:].shape)
+    def test_virtual_mask_calculation_1(self, client):
+        client.virtual_masks[1].calculation = "Sum"
+        client.virtual_masks[1].name = "VBF"
+        client.virtual_masks[1][:] = 1  # Set to 1
+        client.virtual_masks[1][10:20,:] = 2  # Set mask to 2
 
     def test_virtual_mask_calculation(self, client):
         client["Scan - Size X"] = 8
@@ -321,3 +323,82 @@ class TestClient:
         result = client.get_result("virtual_image1")
         assert result[0].shape == (12, 12)
         client["Scan - Type"] = "Raster"  # clean up
+
+    @pytest.mark.server
+    def test_gain_reference(self, client):
+        client["Test Pattern"] = "SW Constant 400"
+        client.TakeDarkReference(100)  # take a dark reference first with 400 ADU
+        client["Test Pattern"] = "SW Constant 1600"
+        client.take_gain_reference(100,
+                                   target_electrons_per_pixel=1000,
+                                   counting=False)
+
+    @pytest.mark.server
+    def test_gain_reference_too_bright(self, client):
+        client["Test Pattern"] = "SW Constant 1"
+        client.TakeDarkReference(100)  # take a dark reference first with 400 ADU
+        client["Test Pattern"] = "SW Gaussian M1600 D200"
+
+        with pytest.raises(ValueError):
+            client.take_gain_reference(100,
+                                       target_electrons_per_pixel=1000,
+                                       counting=False)
+
+    @pytest.mark.server
+    def test_get_epix_sec(self, client):
+        client["Test Pattern"] = "SW Constant 400"
+        client.TakeDarkReference(10)  # take a dark reference first with 400 ADU
+        client["Test Pattern"] = "SW Constant 1600"
+        client["Frames Per Second"] = 10
+        client["Exposure Time (seconds)"] = 1
+        client["Flat Field Correction"] = "Dark"
+
+        client.start_acquisition(1)
+        while client.acquiring:
+            time.sleep(1)
+        image, pixel_format, attributes, histogram = client.get_result("singleframe_integrated")
+        assert attributes.eppixps > 0
+
+    @pytest.mark.server
+    def test_get_trial_gain_reference(self, client):
+        client["Test Pattern"] = "SW Constant 400"
+        client.take_dark_reference(10) # take a dark reference first with 400 ADU
+        client["Test Pattern"] = "SW Constant 1600" #others don't work??
+        exposure, num_acquire = client.take_trial_gain_reference(10)
+        assert exposure == 1
+
+
+    @pytest.mark.server
+    def test_flip_dark_reference(self, client):
+        """Test to make sure that the dark reference is still correct after flipping."""
+        client["Image Processing - Flip Horizontally"] = "Off"
+        client["Test Pattern"] = "SW Gradient Diagonal"
+        client["Frames Per Second"] = 10
+        client.take_dark_reference(frame_rate=10)
+        client["Image Processing - Flatfield Correction"] = "Dark"
+        client.start_acquisition(1)
+        # assert that the dark reference corrects the image to zero...
+        while client.acquiring:
+            time.sleep(1)
+        image = client.get_result()[0]
+        np.testing.assert_array_equal(image, 0)
+
+        # Now flip the dark reference
+        client["Image Processing - Flip Horizontally"] = "On"
+        client["Exposure Time (seconds)"] = 1
+        client.start_acquisition(1)
+        while client.acquiring:
+            time.sleep(1)
+        image = client.get_result()[0]
+        np.testing.assert_array_equal(image, 0)
+        client["Image Processing - Flip Horizontally"] = "Off"
+
+        # test bin by a factor of 2
+
+        client["Binning X"] = 2
+        client["Binning Y"] = 2
+        client.start_acquisition(1)
+        while client.acquiring:
+            time.sleep(1)
+        image = client.get_result()[0]
+        np.testing.assert_array_equal(image, 0)
