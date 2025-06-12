@@ -11,10 +11,14 @@ only a gain reference is needed.
 
 from deapi import Client
 import matplotlib.pyplot as plt
-
+import sys
 client = Client()
+if not sys.platform.startswith("win"):
+    client.usingMmf = False  # True if on same machine as DE Server and a Windows machine
+
 client.connect(port=13240)  # connect to the running DE Server
 
+c.connect()
 # %%
 # Set the acquisition parameters
 # ==============================

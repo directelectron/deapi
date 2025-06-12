@@ -13,19 +13,19 @@ pixels are illuminated.
 """
 
 from deapi import Client
-import time
-import numpy as np
+import sys
+
 
 client = Client()
-if not client.usingMmf:
+if not sys.platform.startswith("win"):
     client.usingMmf = False  # True if on same machine as DE Server and a Windows machine
+
 client.connect(port=13240)  # connect to the running DE Server
 
 
-# For the DE Apollo the Frame Rage is always 60 fps
-eppixps, n_acq, sat_warn, to_warning = client.take_trial_gain_reference(frame_rate=100,
-                                                                         target_electrons_per_pixel=5000,
-                                                                         timeout=600,
+# For the DE Apollo the Frame Rate is always 60 fps
+exposure_time, total_acquisitions, num_el = client.take_trial_gain_reference(frame_rate=100,
+                                                                        target_electrons_per_pixel=5000,
                                                                          counting=False)
 
 # %%
