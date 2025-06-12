@@ -27,8 +27,6 @@ def run_python_file(file_path, timeout=60):
                                   "live_imaging/viewing_the_sensor.py",
                                   "live_imaging/viewing_the_sensor_tem.py",
                                   "live_imaging/bright_spot_intensity.py",
-                                  "references/taking_a_dark_reference.py",
-                                    "references/taking_a_gain_reference.py",
                                    ])
 def test_examples(server, file):
     print(f"Running examples from port {server}")

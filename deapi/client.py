@@ -1439,7 +1439,7 @@ class Client:
                 lapsed = (self.GetTime() - step_time) * 1000
                 log.debug(" Command Time: %.1f ms", lapsed)
                 step_time = self.GetTime()
-
+            ack = response.acknowledge[0]
             if response != False:
                 values = self.__getParameters(response.acknowledge[0])
                 if (
@@ -2238,8 +2238,7 @@ class Client:
         while self.acquiring:
             time.sleep(2)
 
-        self.SetProperty("Exposure Mode", prevExposureMode)
-        self.SetProperty("Exposure Time (seconds)", prevExposureTime)
+
 
         if counting:
             exposure_time = self["Reference - Counting Gain Exposure Time (seconds)"]
@@ -2248,8 +2247,10 @@ class Client:
             exposure_time = self["Reference - Integrating Gain Exposure Time (seconds)"]
             total_acquisitions = self["Reference - Integrating Gain Acquisitions"]
 
-        img, dtype, attr, _ = self.get_result(FrameType.SUMINTERMEDIATE, PixelFormat.FLOAT32)
+        img, dtype, attr, _ = self.get_result(FrameType.SUMTOTAL, PixelFormat.FLOAT32)
+        self.SetProperty("Exposure Mode", prevExposureMode)
 
+        self.SetProperty("Exposure Time (seconds)", prevExposureTime)
 
         num_el = np.max([attr.eppixpf* frame_rate, attr.eppixps])
         print("The number of electrons per pixel per second (eppixps): {:.2f}".format(num_el))

@@ -592,12 +592,12 @@ class FakeServer:
         if 2 < frame_type < 8:
             if self["Exposure Mode"] == "Gain" or self["Exposure Mode"] =="Trial":
                 image = np.random.poisson(np.ones((int(self["Sensor Size X (pixels)"]),
-                                                  int(self["Sensor Size Y (pixels)"]))) * 100).astype(
+                                                  int(self["Sensor Size X (pixels)"]))) * 100).astype(
                     pixel_format_dict[pixel_format]
                 )
             elif self["Exposure Mode"] == "Dark":
                 image = np.random.poisson(np.ones((int(self["Sensor Size X (pixels)"]),
-                                                  int(self["Sensor Size Y (pixels)"]))) * 1).astype(
+                                                  int(self["Sensor Size X (pixels)"]))) * 1).astype(
                     pixel_format_dict[pixel_format]
                 )
             else:
@@ -606,15 +606,15 @@ class FakeServer:
                 )
             result = image.tobytes()
 
-        elif frame_type == 10:
+        elif frame_type == 10 or frame_type == 9:  # SUMTOTAL or SUMINTERMEDIATE
             if self["Exposure Mode"] == "Gain" or self["Exposure Mode"] =="Trial":
                 image = np.random.poisson(np.ones((int(self["Sensor Size X (pixels)"]),
-                                                  int(self["Sensor Size Y (pixels)"]))) * 10000).astype(
+                                                  int(self["Sensor Size X (pixels)"]))) * 10000).astype(
                     pixel_format_dict[pixel_format]
                 )
             elif self["Exposure Mode"] == "Dark":
                 image = np.random.poisson(np.ones((int(self["Sensor Size X (pixels)"]),
-                                                  int(self["Sensor Size Y (pixels)"]))) * 1).astype(
+                                                  int(self["Sensor Size X (pixels)"]))) * 1).astype(
                     pixel_format_dict[pixel_format]
                 )
             else:
@@ -645,7 +645,7 @@ class FakeServer:
         mean_img = np.mean(image)
         eppix = mean_img/208
         eps = np.sum(image)/208 * float(self["Frames Per Second"])
-
+        eppixps = eppix*float(self["Frames Per Second"])
         response_mapping = [
             int(pixel_format),  # pix format 0
             int(windowWidth),  # window width 1
@@ -655,32 +655,31 @@ class FakeServer:
             bool(self.acquisition_status == "Acquiring"),  # status 5
             int(flat_index),  # frame number 6
             int(1),  # frame count 7
-            float(np.min(image)),  # image min 8
-            float(np.max(image)),  # image max 9
-            float(mean_img),  # image mean 10
-            float(np.std(image)),  # image std 11
-            float(eppix),  # eppix 12
-            float(eps),  # eps 13
-            float(eppix*float(self["Frames Per Second"])),  # eppixps 14
-            float(0),  # epa2 15
-            float(eppix),  # eppixpf 16
-            float(0),  # eppix_incident 17
-            float(0),  # eps_incident 18
-            float(eppix*float(self["Frames Per Second"])),  # eppixps_incident 19
-            float(0),  # epa2_incident 20
-            float(0),  # eppixpf_incident 21
-            float(0),  # red sat warning 22
-            float(0),  # orange sat warning 23
-            float(0),  # saturation 24
+            float(0),  # image min 8
+            float(2**15),  # image max 9
+            float(100),  # image mean 10
+            float(5),  # image std 11
+            float(100),  # eppix 12
+            float(1000),  # eps 13
+            float(500),  # eppixps 14
+            0.,  # epa2 15
+            float(500),  # eppixpf 16
+            0.,  # eppix_incident 17
+            0.,  # eps_incident 18
+            0.,  # eppixps_incident 19
+            0.,  # epa2_incident 20
+            0.,  # eppixpf_incident 21
+            0.,  # red sat warning 22
+            0.,  # orange sat warning 23
+            0.,  # saturation 24
             "2.187026",  # current time 25
-            float(0),  # autoStretchMin 26
-            float(0),  # autoStretchMax 27
-            float(0),  # autoStretchGamma 28
-            float(0),  # histogram min 29
+            0.,  # autoStretchMin 26
+            0.,  # autoStretchMax 27
+            0.,  # autoStretchGamma 28
+            0.,  # histogram min 29
             float(np.min(image)),  # histogram max 30
             float(np.max(image)),  # histogram upper local max 31
         ]
-        print(histo_bins)
         for i in range(histo_bins):
             response_mapping.append(int(0))
         # Then histogram...

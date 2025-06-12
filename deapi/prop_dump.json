@@ -468,11 +468,11 @@
     "data_type":"String",
     "value_type":"Set",
     "category":"Advanced",
-    "options":"'Dark', 'Gain', 'Normal*', 'Trial', `Vacuum`",
+    "options":"'Dark', 'Gain', 'Normal', 'Trial', `Vacuum`",
     "default_value":"Normal"
   },
     "Remaining Number of Acquisitions":{
-    "value":"Normal",
+    "value":"2",
     "data_type":"Integer",
     "value_type":"Range",
     "category":"Basic",
@@ -480,7 +480,7 @@
     "default_value":"0"
   },
     "Autosave Movie Sum Count":{
-    "value":"Normal",
+    "value":"2",
     "data_type":"Integer",
     "value_type":"Range",
     "category":"Basic",
@@ -488,7 +488,7 @@
     "default_value":"0"
   },
     "Autosave Directory":{
-    "value":"Normal",
+    "value":"D:\\",
     "data_type":"String",
     "value_type":"AllowAll",
     "category":"Basic",
@@ -496,7 +496,7 @@
     "default_value":"D:\\"
   },
     "Autosave Movie": {
-      "value": "Normal",
+      "value": "On",
       "data_type": "String",
       "value_type": "Set",
       "category": "Basic",
@@ -504,11 +504,67 @@
       "default_value": "Off"
     },
     "Autosave Final Image": {
-      "value": "Normal",
+      "value": "Off",
       "data_type": "String",
       "value_type": "Set",
       "category": "Basic",
       "options": "'On*', 'Off'",
       "default_value": "Off"
-    }
+    },
+      "Image Processing - Mode":{
+    "value":"Integrating",
+    "data_type":"String",
+    "value_type":"Set",
+    "category":"Advanced",
+    "options":"'Integrating', 'Counting'",
+    "default_value":"Integrating"
+  },
+    "Reference - Integrating Gain Target (ADU/pix)":{
+    "value":"16000",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Basic",
+    "options":"0.0, 999999.0, '0 - 999999'",
+    "default_value":"16000"
+  },
+  "Reference - Integrating Gain Exposure Time (seconds)":{
+    "value":"1",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Basic",
+    "options":"0.0, 999999.0, '0 - 999999'",
+    "default_value":"1"
+  },
+    "Reference - Integrating Gain Acquisitions":{
+    "value":"10",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Basic",
+    "options":"0.0, 999999.0, '0 - 999999'",
+    "default_value":"10"
+  },
+    "Reference - Counting Gain Target (ADU/pix)":{
+    "value":"2000",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Basic",
+    "options":"0.0, 999999.0, '0 - 999999'",
+    "default_value":"16000"
+  },
+  "Reference - Counting Gain Exposure Time (seconds)":{
+    "value":"1",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Basic",
+    "options":"0.0, 999999.0, '0 - 999999'",
+    "default_value":"1"
+  },
+    "Reference - Counting Gain Acquisitions":{
+    "value":"10",
+    "data_type":"Integer",
+    "value_type":"Range",
+    "category":"Basic",
+    "options":"0.0, 999999.0, '0 - 999999'",
+    "default_value":"10"
+  }
 }
