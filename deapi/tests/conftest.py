@@ -11,6 +11,16 @@ import numpy as np
 from deapi.client import Client
 
 
+import psutil
+
+def close_port(port):
+    for conn in psutil.net_connections(kind='inet'):
+        if conn.laddr.port == port:
+            print(f"Closing port {port} by terminating PID {conn.pid}")
+            process = psutil.Process(conn.pid)
+            process.terminate()
+
+
 # Modifying pytest run options
 def pytest_addoption(parser):
     parser.addoption(
@@ -71,6 +81,31 @@ def pytest_collection_modifyitems(config, items):
             if "speed" in item.keywords:
                 item.add_marker(skip_speed)
 
+
+@pytest.fixture(scope="function")
+def server(xprocess, request):
+    port = 13240
+    if not request.config.getoption("--server"):
+        port = 13240
+        close_port(port)
+
+        curdir = pathlib.Path(__file__).parent.parent
+
+        class Starter(ProcessStarter):
+            timeout = 10
+            pattern = "started"
+            args = [
+                sys.executable,
+                curdir / "simulated_server/initialize_server.py",
+                port,
+            ]
+
+        xprocess.ensure("server-%s" % port, Starter)
+        yield port
+        xprocess.getinfo("server-%s" % port).terminate()
+    else:
+        yield port
+        return
 
 @pytest.fixture(scope="module")
 def client(xprocess, request):
