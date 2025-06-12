@@ -28,6 +28,9 @@ exposure_time, total_acquisitions, num_el = client.take_trial_gain_reference(fra
                                                                         target_electrons_per_pixel=5000,
                                                                          counting=False)
 
+print(f"Exposure time: {exposure_time} s")
+print(f"Total acquisitions: {total_acquisitions}")
+print(f"Number of electrons per pixel: {num_el}")
 # %%
 # The `take_trial_gain_reference` method will return the number of electrons per pixel per second
 # the number of acquisitions needed to reach the target number of electrons per pixel, if the detector is saturated

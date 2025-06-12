@@ -609,7 +609,7 @@ class FakeServer:
         elif frame_type == 10:
             if self["Exposure Mode"] == "Gain" or self["Exposure Mode"] =="Trial":
                 image = np.random.poisson(np.ones((int(self["Sensor Size X (pixels)"]),
-                                                  int(self["Sensor Size Y (pixels)"]))) * 1000).astype(
+                                                  int(self["Sensor Size Y (pixels)"]))) * 10000).astype(
                     pixel_format_dict[pixel_format]
                 )
             elif self["Exposure Mode"] == "Dark":
