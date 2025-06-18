@@ -63,7 +63,6 @@ class TestSavingScans:
         client["Grabbing - Target Buffer Size (MB)"] = buffer
         client["Image Processing - Flatfield Correction"] = "None"
 
-
         client["Autosave Directory"] = temp_dir
         client["Test Pattern"] = "SW Frame Number"
         client.start_acquisition(1)
