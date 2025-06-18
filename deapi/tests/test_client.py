@@ -342,7 +342,6 @@ class TestClient:
                 100, target_electrons_per_pixel=1000, counting=False
             )
 
-
     @pytest.mark.server
     def test_get_trial_gain_reference(self, client):
         client["Scan - Enable"] = "Off"

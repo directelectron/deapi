@@ -79,9 +79,7 @@ class TestSavingScans:
             movie = hs.load(client["Autosave Movie Frames File Path"])
             movies = movie.data.reshape(-1, 1024, 1024)
             movies[1:] = movies[1:]
-            np.testing.assert_array_equal(movies[:,0,0],
-                np.arange(num_pos)
-            )
+            np.testing.assert_array_equal(movies[:, 0, 0], np.arange(num_pos))
 
 
 class TestSavingVirtual:

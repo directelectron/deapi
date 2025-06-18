@@ -2249,8 +2249,6 @@ class Client:
             exposure_time = self["Reference - Integrating Gain Exposure Time (seconds)"]
             total_acquisitions = self["Reference - Integrating Gain Acquisitions"]
 
-
-
         img, dtype, attr, _ = self.get_result(FrameType.SUMTOTAL, PixelFormat.FLOAT32)
         self.SetProperty("Exposure Mode", prevExposureMode)
 

@@ -4,6 +4,7 @@ import numpy as np
 
 log = logging.getLogger("DECameraClientLib")
 
+
 def image_adjust_gain(info_file):
     """A short utility function to read the gain file from the metadata and then perform the necessary
     adjustments to the gain image, (i.e. flipping and binning) to return the gain image in a reduced form.
@@ -32,7 +33,9 @@ def image_adjust_gain(info_file):
                     f"Each line should be in the form 'key = value'."
                 )
     if original_metadata["Image Processing - Mode"] == "Integrating":
-        gain_file = original_metadata["Reference - Integrating Gain"] # you might have to double check this for Apollo
+        gain_file = original_metadata[
+            "Reference - Integrating Gain"
+        ]  # you might have to double check this for Apollo
     else:
         gain_file = original_metadata["Reference - Counting Gain"]
     if "Valid" in gain_file:
@@ -58,8 +61,8 @@ def image_adjust_gain(info_file):
     shape = gain.shape
     if original_metadata["Binning X"] != "1":
         binx = int(original_metadata["Binning X"])
-        gain = gain.reshape(shape[0], shape[1]//binx, binx).mean(axis=2)
+        gain = gain.reshape(shape[0], shape[1] // binx, binx).mean(axis=2)
     if original_metadata["Binning Y"] != "1":
         biny = int(original_metadata["Binning Y"])
-        gain = gain.reshape(shape[0]//biny, biny, shape[1]).mean(axis=1)
+        gain = gain.reshape(shape[0] // biny, biny, shape[1]).mean(axis=1)
     return gain
