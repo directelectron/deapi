@@ -21,6 +21,8 @@ class TestUtils:
         self, client, binx, offset_y, flip_horizontal, flip_vertical
     ):
         """Test the image adjustment function."""
+        client["Image Processing - Flatfield Correction"] = "Dark and Gain"
+
         client["Scan - Enable"] = "Off"
         client["Exposure Mode"] = "Normal"
         client["Test Pattern"] = "SW Constant 1"

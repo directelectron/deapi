@@ -60,6 +60,9 @@ class TestSavingScans:
         client["Autosave Virtual Image 0"] = "On"
         client["Scan - Type"] = scan_type
         client["Grabbing - Target Buffer Size (MB)"] = buffer
+        client["Grabbing - Target Buffer Size (MB)"] = buffer
+        client["Image Processing - Flatfield Correction"] = "None"
+
 
         client["Autosave Directory"] = temp_dir
         client["Test Pattern"] = "SW Frame Number"
