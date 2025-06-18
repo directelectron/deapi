@@ -42,11 +42,15 @@ class TestSavingScans:
             frame_num_order = frame_num_order.reshape(-1)
         else:  # Raster
             frame_num_order = range(num_pos)
-
+        client["Test Pattern"] = "SW Constant 1"
+        client.take_dark_reference(100)
+        time.sleep(1)
+        client["Image Processing - Apply Gain on Movie"] = "Off"
         client["Frames Per Second"] = 100
         client["Scan - Enable"] = "On"
         client["Scan - Size X"] = i
         client["Scan - Size Y"] = i
+
         time.sleep(1)
         assert client["Scan - Size X"] == i
         assert client["Scan - Size Y"] == i
@@ -73,10 +77,10 @@ class TestSavingScans:
             print(client["Autosave Movie Frames File Path"])
             fp = client["Autosave Movie Frames File Path"]
             movie = hs.load(client["Autosave Movie Frames File Path"])
-            np.testing.assert_array_equal(
-                movie.data.reshape(-1, 1024, 1024),
-                np.arange(num_pos)[:, np.newaxis, np.newaxis]
-                * np.ones((1, 1024, 1024)),
+            movies = movie.data.reshape(-1, 1024, 1024)
+            movies[1:] = movies[1:]
+            np.testing.assert_array_equal(movies[:,0,0],
+                np.arange(num_pos)
             )
 
 

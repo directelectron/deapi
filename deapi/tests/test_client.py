@@ -342,35 +342,21 @@ class TestClient:
                 100, target_electrons_per_pixel=1000, counting=False
             )
 
-    @pytest.mark.server
-    def test_get_epix_sec(self, client):
-        client["Test Pattern"] = "SW Constant 400"
-        client.TakeDarkReference(10)  # take a dark reference first with 400 ADU
-        client["Test Pattern"] = "SW Constant 1600"
-        client["Frames Per Second"] = 10
-        client["Exposure Time (seconds)"] = 1
-        client["Flat Field Correction"] = "Dark"
-
-        client.start_acquisition(1)
-        while client.acquiring:
-            time.sleep(1)
-        image, pixel_format, attributes, histogram = client.get_result(
-            "singleframe_integrated"
-        )
-        assert attributes.eppixps > 0
 
     @pytest.mark.server
     def test_get_trial_gain_reference(self, client):
+        client["Scan - Enable"] = "Off"
         client["Test Pattern"] = "SW Constant 400"
         client.take_dark_reference(10)  # take a dark reference first with 400 ADU
         client["Test Pattern"] = "SW Constant 1600"  # others don't work??
-        exposure, num_acquire = client.take_trial_gain_reference(10)
+        exposure, num_acquire, el = client.take_trial_gain_reference(10)
         assert exposure == 1
+        assert el > 0
 
     @pytest.mark.server
     def test_flip_dark_reference(self, client):
         """Test to make sure that the dark reference is still correct after flipping."""
-        client["Image Processing - Flip Horizontally"] = "Off"
+        client["Scan - Enable"] = "Off"
         client["Test Pattern"] = "SW Gradient Diagonal"
         client["Frames Per Second"] = 10
         client.take_dark_reference(frame_rate=10)

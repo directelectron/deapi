@@ -2180,20 +2180,8 @@ class Client:
         self.SetProperty("Exposure Time (seconds)", 1)
         self.StartAcquisition(acquisitions)
 
-        while True:
-            attributes = Attributes()
-            histogram = Histogram()
-            image = self.GetResult(
-                FrameType.SUMTOTAL, PixelFormat.FLOAT32, attributes, histogram
-            )
-
-            sys.stdout.write(str(attributes.acqIndex) + " ")
-            sys.stdout.flush()
-            remaining = self.GetProperty("Remaining Number of Acquisitions")
-
-            if remaining == 0:
-                print("done.")
-                break
+        while self.acquiring:
+            time.sleep(1)
 
         self.SetProperty("Exposure Mode", prevExposureMode)
         self.SetProperty("Exposure Time (seconds)", prevExposureTime)
@@ -2222,6 +2210,8 @@ class Client:
             A tuple containing exposure time, total acquisitions, and the
             number of electrons per pixel per second (eppixps).
         """
+        if target_electrons_per_pixel is None:
+            target_electrons_per_pixel = 16000 if not counting else 2000
         sys.stdout.write("Taking trial gain reference: ")
         sys.stdout.flush()
 
@@ -2246,6 +2236,7 @@ class Client:
         self.SetProperty("Exposure Mode", "Trial")
         self.SetProperty("Frames Per Second", frame_rate)
         self.SetProperty("Exposure Time (seconds)", 0)  # set to the frame rate.
+        self["Autosave Final Image"] = "Off"
 
         self.StartAcquisition(40)  # just quickly take 40 frames.
         while self.acquiring:
@@ -2257,6 +2248,8 @@ class Client:
         else:
             exposure_time = self["Reference - Integrating Gain Exposure Time (seconds)"]
             total_acquisitions = self["Reference - Integrating Gain Acquisitions"]
+
+
 
         img, dtype, attr, _ = self.get_result(FrameType.SUMTOTAL, PixelFormat.FLOAT32)
         self.SetProperty("Exposure Mode", prevExposureMode)
@@ -2279,6 +2272,8 @@ class Client:
         total_acquisitions = int(
             np.ceil(target_electrons_per_pixel / (exposure_time * num_el))
         )
+        if total_acquisitions == 1:
+            total_acquisitions = 2
 
         return exposure_time, total_acquisitions, num_el
 
