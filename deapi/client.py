@@ -21,7 +21,7 @@ import numpy as np
 
 # External package imports
 from PIL import Image
-import numpy # importing numpy 
+import numpy  # importing numpy
 
 # Internal package imports
 from deapi.data_types import (
