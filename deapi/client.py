@@ -193,8 +193,10 @@ class Client:
 
         version = [int(part) for part in server_version[:4]]
         temp = version[2] + version[1] * 1000 + version[0] * 1000000
-
-        if temp >= 2007004:
+        if temp >= 2007005:
+            ## version after 2.7.5
+            self.commandVersion = 15
+        elif temp >= 2007004:
             ## version after 2.7.4
             self.commandVersion = 13
         elif temp >= 2007003:
@@ -1439,6 +1441,9 @@ class Client:
                     histo_min,
                     histo_max,
                     histo_bins,
+                    attributes.output_binning_x,
+                    attributes.output_binning_y,
+                    attributes.output_binning_method,
                 ],
             )
 
@@ -2119,38 +2124,69 @@ class Client:
             print(" %.1fs" % duration)
             sys.stdout.flush()
 
-    # Start acquisition and get a single image
-    # fileName: the image will be saved to disk if a file name is provided
-    # textSize: a text file with pixel values will be saved if textSize is given, for debugging/test
-    def get_image(self, pixelFormat=PixelFormat.AUTO, fileName=None, textSize=0):
+    def _get_auto_attributes(self, frame_type: FrameType):
+        """
+        Get automatic attributes for the current acquisition settings.
+        Returns
+        -------
+        Attributes
+            The automatic attributes for the current acquisition settings.
+        """
+        attributes = Attributes()
+        scan_images = [17, 18, 19, 20, 21, 22, 23, 24, 25]
+        if frame_type.value in scan_images:
+            attributes.windowWidth = self.scan_sizex
+            attributes.windowHeight = self.scan_sizey
+        else:
+            attributes.windowWidth = self.image_sizex
+            attributes.windowHeight = self.image_sizey
+        return attributes
+
+    @deprecated_argument("pixelFormat", alternative="pixel_format", since="5.2.1")
+    @deprecated_argument("fileName", alternative="file_name", since="5.2.1")
+    @deprecated_argument("textSize", alternative="text_size", since="5.2.1")
+    def get_image(
+        self,
+        frame_type: Union[FrameType, str] = FrameType.SUMTOTAL,
+        pixel_format: Union[PixelFormat, str] = PixelFormat.AUTO,
+        attributes: Union[Attributes, str] = "auto",
+        file_name: str = None,
+        text_size: int = 0,
+    ):
         """
         Get a single image and save it to disk if a file name is provided
 
         Parameters
         ----------
-        pixelFormat : PixelFormat, optional
+        frame_type : FrameType or str, optional
+            The frame type of the image, by default FrameType.SUMTOTAL
+        pixel_format : PixelFormat, optional
             The pixel format of the image, by default PixelFormat.AUTO
-        fileName : str, optional
+        file_name : str, optional
             The file name to save the image, by default None
-        textSize : int, optional
+        attributes : Attributes or "auto", optional
+            The attributes of the image, by default "auto"
+        text_size : int, optional
             The text size, by default 0
         """
+        if isinstance(frame_type, str):
+            frame_type = getattr(FrameType, frame_type.upper())
+        if attributes == "auto":
+            attributes = self._get_auto_attributes(frame_type)
 
         self.StartAcquisition(1)
-        frameType = FrameType.SUMTOTAL
 
-        if pixelFormat == "float32":
-            pixelFormat = PixelFormat.FLOAT32
+        if pixel_format == "float32":
+            pixel_format = PixelFormat.FLOAT32
 
-        elif pixelFormat == "uint16":
-            pixelFormat = PixelFormat.UINT16
+        elif pixel_format == "uint16":
+            pixel_format = PixelFormat.UINT16
 
-        attributes = Attributes()
         histogram = Histogram()
-        image = self.GetResult(frameType, pixelFormat, attributes, histogram)[0]
+        image = self.GetResult(frame_type, pixel_format, attributes, histogram)[0]
 
-        if fileName and len(fileName) > 0:
-            self.SaveImage(image, fileName, textSize)
+        if file_name and len(file_name) > 0:
+            self.SaveImage(image, file_name, text_size)
 
         return image
 
