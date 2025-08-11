@@ -1412,40 +1412,48 @@ class Client:
             log.debug(" Prepare Time: %.1f ms", lapsed)
             step_time = self.GetTime()
 
-        histo_min = histogram.min
-        histo_max = histogram.max
-        histo_bins = histogram.bins
+        # Account for different command versions
+        params = [
+            frame_type.value,
+            pixel_format.value,
+            attributes.centerX,
+            attributes.centerY,
+            attributes.zoom,
+            attributes.windowWidth,
+            attributes.windowHeight,
+            attributes.fft,
+        ]
+        if commandVersion >= 10:
+            params.extend(
+                [
+                    attributes.stretchType,
+                    attributes.manualStretchMin,
+                    attributes.manualStretchMax,
+                    attributes.manualStretchGamma,
+                ]
+            )
+        else:
+            params.append(attributes.linearStretch)
+        params.append(attributes.outlierPercentage)
+        if commandVersion > 2 and commandVersion < 10:
+            params.append(attributes.buffered)
+        if commandVersion > 3:
+            params.append(attributes.timeoutMsec)
+        params.extend([histogram.min, histogram.max, histogram.bins])
+        if commandVersion >= 15:
+            params.extend(
+                [
+                    attributes.output_binning_x,
+                    attributes.output_binning_y,
+                    attributes.output_binning_method,
+                ]
+            )
 
         if self.width * self.height == 0:
             log.error("  Image size is 0! ")
         else:
             bytesize = 0
-            command = self._addSingleCommand(
-                self.GET_RESULT,
-                None,
-                [
-                    frame_type.value,
-                    pixel_format.value,
-                    attributes.centerX,
-                    attributes.centerY,
-                    attributes.zoom,
-                    attributes.windowWidth,
-                    attributes.windowHeight,
-                    attributes.fft,
-                    attributes.stretchType,
-                    attributes.manualStretchMin,
-                    attributes.manualStretchMax,
-                    attributes.manualStretchGamma,
-                    attributes.outlierPercentage,
-                    attributes.timeoutMsec,
-                    histo_min,
-                    histo_max,
-                    histo_bins,
-                    attributes.output_binning_x,
-                    attributes.output_binning_y,
-                    attributes.output_binning_method,
-                ],
-            )
+            command = self._addSingleCommand(self.GET_RESULT, None, params=params)
 
             if logLevel == logging.DEBUG:
                 lapsed = (self.GetTime() - step_time) * 1000
