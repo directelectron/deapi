@@ -137,6 +137,13 @@ class ContrastStretchType(IntEnum):
     WIDERANGE = 7
 
 
+class BinningMethod(IntEnum):
+    NONE = 0
+    AVERAGE = 1
+    SUM = 2
+    FOURIERCROP = 3
+
+
 class Attributes:
     """Class to hold attributes for getting the result of an image acquisition
 
@@ -164,8 +171,79 @@ class Attributes:
         Maximum value for manual contrast stretching
     manual_stretch_gamma : float, optional
         Gamma value for manual contrast stretching
-
-
+    outlier_percentage : float, optional
+        Percentage of outliers to ignore in the image
+    buffered : bool, optional
+        Whether the image is buffered
+    timeout_msec : float, optional
+        Timeout in milliseconds for retrieving the image
+    frame_width : int, optional
+        Width of the frame in pixels
+    frame_height : int, optional
+        Height of the frame in pixels
+    dataset_name : str, optional
+        Name of the dataset to retrieve the image from
+    acq_index : int, optional
+        Index of the acquisition. Returned by the server with a get_result call.
+    acq_finished : bool, optional
+        Whether the acquisition is finished. Returned by the server with a get_result call.
+    image_index : int, optional
+        Index of the image in the acquisition. Returned by the server with a get_result call.
+    frame_count : int, optional
+        Number of frames in the acquisition. Returned by the server with a get_result call.
+    image_min : float, optional
+        Minimum value of the image data
+    image_max : float, optional
+        Maximum value of the image data
+    image_mean : float, optional
+        Mean value of the image data
+    image_std : float, optional
+        Standard deviation of the image data
+    eppix : float, optional
+        Electrons per pixel in the image
+    eps : float, optional
+        Electrons per second in the image
+    eppixps : float, optional
+        Electrons per pixel per second in the image
+    epa2 : float, optional
+        Electrons per area squared in the image
+    eppixpf : float, optional
+        Electrons per pixel per frame in the image
+    red_sat_warning_value : float, optional
+        Red saturation warning value for the image
+    orange_sat_warning_value : float, optional
+        Orange saturation warning value for the image
+    eppix_incident : float, optional
+        Electrons per pixel incident in the image
+    eps_incident : float, optional
+        Electrons per second incident in the image
+    eppixps_incident : float, optional
+        Electrons per pixel per second incident in the image
+    epa2_incident : float, optional
+        Electrons per area squared incident in the image
+    eppixpf_incident : float, optional
+        Electrons per pixel per frame incident in the image
+    under_exposure_rate : float, optional
+        Under exposure rate of the image
+    over_exposure_rate : float, optional
+        Over exposure rate of the image
+    timestamp : float, optional
+        Timestamp of the image acquisition
+    auto_stretch_min : float, optional
+        Minimum value for automatic contrast stretching
+    auto_stretch_max : float, optional
+        Maximum value for automatic contrast stretching
+    auto_stretch_gamma : float, optional
+        Gamma value for automatic contrast stretching
+    saturation : float, optional
+        Saturation level of the image
+    output_binning_x : int, optional
+        Binning factor in the x direction for the output image
+    output_binning_y : int, optional
+        Binning factor in the y direction for the output image
+    output_binning_method : int, optional
+        Method used for binning the output image. Defaults to BinningMethod.AVERAGE,
+        other options are BinningMethod.NONE, BinningMethod.SUM, and BinningMethod.FOURIERCROP.
     """
 
     def __init__(
@@ -214,6 +292,9 @@ class Attributes:
         auto_stretch_max=0.0,
         auto_stretch_gamma=1.0,
         saturation=0.0,
+        output_binning_x: int = 1,
+        output_binning_y: int = 1,
+        output_binning_method: int = 1,  # BinningMethod.AVERAGE
     ):
 
         self.centerX = center_x
@@ -260,6 +341,9 @@ class Attributes:
         self.autoStretchMax = auto_stretch_max
         self.autoStretchGamma = auto_stretch_gamma
         self.saturation = saturation
+        self.output_binning_x = output_binning_x
+        self.output_binning_y = output_binning_y
+        self.output_binning_method = output_binning_method
 
 
 class Histogram:

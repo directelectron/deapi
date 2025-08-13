@@ -384,7 +384,7 @@
         "get": "((hardware_roi_size_y / hardware_binning_y)/ binning_y)-crop_offset_y"
     },
   "Server Software Version":{
-    "value":"2.7.4.1352",
+    "value":"2.7.5.1352",
     "data_type":"String",
     "value_type":"ReadOnly",
     "category":"Basic",
