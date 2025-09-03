@@ -5,8 +5,11 @@ Changelog
 
 This document describes the changes in the DEAPI library.
 
+5.3.beta0
+=========
+- Add support for binning in x/ y dimensions when returning a result (#19)
 
-Unreleased
+5.2.2
 ==========
 - Initial release
 - Renamed `Client` functions from CamelCase to snake_case (Legacy functions are still available)
