@@ -10,6 +10,7 @@ Examples of usage can be found in the `Examples` directory which give an idea of
 the functionality of the package and can be used as a starting point.
 
 
+
 Installation
 ------------
 The package can be installed using pip, or with conda from the conda-forge channel.
