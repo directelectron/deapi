@@ -1,15 +1,25 @@
 name: documentation
 
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    branches: [ main ]
+  pull_request_target:
+    types: [opened, reopened, synchronize, closed]
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: write   # needed for gh-pages deployment
+  pull-requests: write  # needed to post PR comments
 
 jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -17,9 +27,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        shell: bash
-        run: |
-          pip install -U -e .'[doc]'
+        run: pip install -U -e .'[doc]'
 
       - name: Sphinx build
         timeout-minutes: 15
@@ -28,12 +36,37 @@ jobs:
           sleep 5 &&
           sphinx-build doc _build &&
           kill %1
+        env:
+          GITHUB_PR_NUMBER: ${{ github.event.number || '' }}
 
+      # Deploy to GitHub Pages for main branch
       - name: Deploy to GitHub Pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v3
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         with:
-          publish_branch: gh-pages
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
           publish_dir: _build/
           force_orphan: true
+
+      # Deploy PR preview (separate repo)
+      - name: Deploy PR preview
+        if: github.event_name == 'pull_request_target'
+        uses: rossjrw/pr-preview-action@v1
+        with:
+          source-dir: _build
+          deploy-repository: PreviewDE/deapi-preview
+          token: ${{ secrets.PREVIEW_DEPLOY_KEY }}
+          comment: false   # disable built-in sticky comment
+
+      - name: Comment
+        if: github.event_name == 'pull_request_target'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: pr-preview
+          message: |
+            **Preview for PR #${{ github.event.number }}**
+            [View the preview here](https://previewde.github.io/deapi-preview/pr-preview/pr-${{ github.event.number }}/)
+            *(Built from a fork branch and deployed to [PreviewDE/deapi-preview](https://github.com/PreviewDE/deapi-preview))*
+        env:
+          GITHUB_TOKEN: ${{ secrets.PR_COMMENT_TOKEN }}

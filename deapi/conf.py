@@ -6,7 +6,7 @@
 
 
 import sys
-
+import os
 import deapi
 
 
@@ -89,6 +89,9 @@ html_theme_options = {
     "use_edit_page_button": True,
     "navbar_start": ["navbar-logo"],
 }
+import os
+
+# -- General HTML configuration ---------------------------------------------
 
 html_context = {
     "github_user": "deapi",
@@ -97,81 +100,68 @@ html_context = {
     "doc_path": "doc",
 }
 
-# Add any paths that contain custom static files (such as style sheets) here,
-# relative to this directory. They are copied after the builtin static files, so
-# a file named "default.css" will overwrite the builtin "default.css".
-# html_static_path = ["_static"]
+# Use relative URLs for all pages and assets
+html_use_relative_urls = True
 
-# Syntax highlighting
-pygments_style = "friendly"
+# -- HTML static files (CSS/JS) --------------------------------------------
+html_static_path = ["_static"]
 
-napoleon_google_docstring = False
-napoleon_use_param = False
-napoleon_use_ivar = True
-nitpicky = True
+# Add extra CSS files if needed
+html_css_files = [
+    "custom.css",  # your custom CSS
+]
 
-# Figure references
-numfig = True
-
-# nbsphinx configuration
-# Taken from nbsphinx' own nbsphinx configuration file, with slight
-# modification to point nbviewer and Binder to the GitHub master links
-# when the documentation is launched from a deapi version with
-# "dev" in the version.
-if "dev" in version:
-    release_version = "master"
+# -- Dynamic base URL for main vs PR preview --------------------------------
+pr_number = os.environ.get("GITHUB_PR_NUMBER")
+if pr_number:
+    # PR preview URL path
+    html_baseurl = (
+        f"https://previewde.github.io/deapi-preview/pr-preview/pr-{pr_number}/"
+    )
 else:
-    release_version = "v" + version
-# https://nbsphinx.readthedocs.io/en/0.8.0/never-execute.html
-nbsphinx_execute = "never"  # auto, always, never
-nbsphinx_kernel_name = "python3"
-nbsphinx_allow_errors = True
-exclude_patterns = ["_build", "**.ipynb_checkpoints", "examples/*/*.ipynb"]
+    # Main branch URL
+    html_baseurl = "https://directelectron.github.io/deapi/"
 
-# sphinxcontrib-bibtex configuration
-bibtex_bibfiles = ["bibliography.bib"]
+# -- Theme and theme options -------------------------------------------------
+html_theme = "sphinx_rtd_theme"
+html_theme_options = {
+    "collapse_navigation": False,
+    "sticky_navigation": False,
+}
 
-
-# -- Sphinx-Gallery---------------
-# https://sphinx-gallery.github.io
+# -- Sphinx-Gallery configuration -------------------------------------------
 sphinx_gallery_conf = {
     "backreferences_dir": "reference/generated",
     "doc_module": ("deapi",),
-    "examples_dirs": "../examples",  # path to your example scripts
-    "gallery_dirs": "examples",  # path to where to save gallery generated output
-    "filename_pattern": "^((?!sgskip).)*$",  # pattern to define which will be executed
-    "ignore_pattern": "_sgskip.py",  # pattern to define which will not be executed
+    "examples_dirs": "../examples",
+    "gallery_dirs": "examples",
+    "filename_pattern": "^((?!sgskip).)*$",
+    "ignore_pattern": "_sgskip.py",
     "reference_url": {"deapi": None},
     "show_memory": True,
 }
 
-autodoc_default_options = {
-    "show-inheritance": True,
-}
-
-graphviz_output_format = "svg"
-
-
-# sphinx.ext.autodoc
-# ------------------
-# https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html
-autosummary_ignore_module_all = False
-autosummary_imported_members = True
-autodoc_typehints_format = "short"
-autodoc_default_options = {
-    "show-inheritance": True,
-}
-
+# -- Autodoc and other extensions -------------------------------------------
+autodoc_default_options = {"show-inheritance": True}
 autosummary_generate = True
+graphviz_output_format = "svg"
+pygments_style = "friendly"
+napoleon_google_docstring = False
+napoleon_use_param = False
+napoleon_use_ivar = True
+nitpicky = True
+numfig = True
+nbsphinx_execute = "never"
+nbsphinx_kernel_name = "python3"
+nbsphinx_allow_errors = True
+exclude_patterns = ["_build", "**.ipynb_checkpoints", "examples/*/*.ipynb"]
+bibtex_bibfiles = ["bibliography.bib"]
 
 
-# This is the expected signature of the handler for this event, cf doc
+# -- Autodoc skip handler ---------------------------------------------------
 def autodoc_skip_member(app, what, name, obj, skip, options):
-    # Basic approach; you might want a regex instead
     return False
 
 
-# Automatically called by sphinx at startup
 def setup(app):
-    # Connect the autodoc-skip-member event from apidoc to the callback
     app.connect("autodoc-skip-member", autodoc_skip_member)
