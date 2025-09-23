@@ -6,7 +6,7 @@
 
 
 import sys
-
+import os
 import deapi
 
 
@@ -150,6 +150,23 @@ autodoc_default_options = {
 }
 
 graphviz_output_format = "svg"
+
+
+# Use relative URLs for static files
+html_use_relative_urls = True
+
+# -- Options for HTML output -----------------------------------------------
+
+html_static_path = ["_static"]
+
+# Dynamically set the base URL for PR previews
+pr_number = os.environ.get("GITHUB_PR_NUMBER")  # set in workflow
+if pr_number:
+    html_baseurl = (
+        f"https://previewde.github.io/deapi-preview/pr-preview/pr-{pr_number}/"
+    )
+else:
+    html_baseurl = "https://directelectron.github.io/deapi/"  # main branch
 
 
 # sphinx.ext.autodoc
