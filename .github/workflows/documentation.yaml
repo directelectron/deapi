@@ -3,18 +3,23 @@ name: documentation
 on:
   push:
     branches: [ main ]
-  pull_request:
-    types: [opened, synchronize, reopened, closed]
+  pull_request_target:
+    types: [opened, reopened, synchronize, closed]
   workflow_dispatch:
 
 permissions:
   contents: write   # needed for gh-pages deployment
+  pull-requests: write  # needed to post PR comments
 
 jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -46,7 +51,7 @@ jobs:
 
       # Deploy PR preview (separate repo)
       - name: Deploy PR preview
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request_target'
         uses: rossjrw/pr-preview-action@v1
         with:
           source-dir: _build
@@ -55,12 +60,13 @@ jobs:
           comment: false   # disable built-in sticky comment
 
       - name: Comment
+        if: github.event_name == 'pull_request_target'
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           header: pr-preview
           message: |
             **Preview for PR #${{ github.event.number }}**
             [View the preview here](https://previewde.github.io/deapi-preview/pr-preview/pr-${{ github.event.number }}/)
-            *(Built from a fork branch and deployed to `[PreviewDE/deapi-preview`](https://github.com/previewde/deapi-preview)*
+            *(Built from a fork branch and deployed to [PreviewDE/deapi-preview](https://github.com/PreviewDE/deapi-preview))*
         env:
           GITHUB_TOKEN: ${{ secrets.PR_COMMENT_TOKEN }}
