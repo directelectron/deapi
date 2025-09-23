@@ -50,3 +50,15 @@ jobs:
           source-dir: _build
           deploy-repository: PreviewDE/deapi-preview
           token: ${{ secrets.PREVIEW_DEPLOY_KEY }}
+          comment: false   # disable built-in sticky comment
+
+      - name: Comment (fork)
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: pr-preview
+          message: |
+            🚀 **Preview for PR #${{ github.event.number }}**
+            👉 [View the preview here](https://previewde.github.io/deapi-preview/pr-${{ github.event.number }}/)
+            *(Built from a fork branch and deployed to `PreviewDE/deapi-preview`.)*
+        env:
+          GITHUB_TOKEN: ${{ secrets.PR_COMMENT_TOKEN }}
