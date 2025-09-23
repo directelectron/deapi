@@ -48,5 +48,5 @@ jobs:
         uses: rossjrw/pr-preview-action@v1
         with:
           source-dir: _build
-          preview-repo: PreviewDE/deapi-preview
-          deploy-token: ${{ secrets.PREVIEW_DEPLOY_KEY }}
+          deploy-repository: PreviewDE/deapi-preview
+          token: ${{ secrets.PREVIEW_DEPLOY_KEY }}
