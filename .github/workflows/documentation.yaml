@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: write   # needed for gh-pages deployment
+  issues: write     # needed for PR comments
 
 jobs:
   docs:
