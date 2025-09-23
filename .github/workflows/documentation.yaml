@@ -59,8 +59,8 @@ jobs:
         with:
           header: pr-preview
           message: |
-            🚀 **Preview for PR #${{ github.event.number }}**
-            👉 [View the preview here](https://previewde.github.io/deapi-preview/pr-preview/pr-${{ github.event.number }}/)
-            *(Built from a fork branch and deployed to `PreviewDE/deapi-preview`.)*
+            **Preview for PR #${{ github.event.number }}**
+            [View the preview here](https://previewde.github.io/deapi-preview/pr-preview/pr-${{ github.event.number }}/)
+            *(Built from a fork branch and deployed to `[PreviewDE/deapi-preview`](https://github.com/previewde/deapi-preview)*
         env:
           GITHUB_TOKEN: ${{ secrets.PR_COMMENT_TOKEN }}
