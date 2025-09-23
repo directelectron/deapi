@@ -1,9 +1,14 @@
 name: documentation
 
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: write   # needed for gh-pages deployment
 
 jobs:
   docs:
@@ -17,9 +22,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        shell: bash
-        run: |
-          pip install -U -e .'[doc]'
+        run: pip install -U -e .'[doc]'
 
       - name: Sphinx build
         timeout-minutes: 15
@@ -29,11 +32,21 @@ jobs:
           sphinx-build doc _build &&
           kill %1
 
+      # Deploy to GitHub Pages for main branch
       - name: Deploy to GitHub Pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v3
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         with:
-          publish_branch: gh-pages
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
           publish_dir: _build/
           force_orphan: true
+
+      # Deploy PR preview (separate repo)
+      - name: Deploy PR preview
+        if: github.event_name == 'pull_request'
+        uses: rossjrw/pr-preview-action@v1
+        with:
+          source-dir: _build
+          preview-repo: PreviewDE/deapi-preview
+          deploy-token: ${{ secrets.PREVIEW_DEPLOY_KEY }}
