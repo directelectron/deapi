@@ -8,7 +8,10 @@ import importlib.util
 project = "deapi"
 copyright = "2024, DE Developers"
 author = "DE Developers"
-release = "0.1.0"
+
+from deapi.version import version
+
+release = version
 
 # -- General configuration ---------------------------------------------------
 extensions = [
@@ -29,14 +32,12 @@ if importlib.util.find_spec("pydata_sphinx_theme") is None:
 pr_number = os.environ.get("GITHUB_PR_NUMBER")
 
 html_theme = "pydata_sphinx_theme"
+html_static_path = ["_static"]
+html_logo = "_static/de_api_icon.svg"
 
-if pr_number:
-    html_static_path = [f"pr-preview/pr-{pr_number}/_static"]
-    html_logo = "pr-preview/pr-{pr_number}/_static/de_api_icon.svg"
+html_baseurl = f"https://previewde.github.io/deapi-preview/pr-preview/pr-{os.environ.get('GITHUB_PR_NUMBER', '')}/"
+html_extra_path = ["_static"]
 
-else:
-    html_static_path = ["_static"]
-    html_logo = "_static/de_api_icon.svg"
 
 master_doc = "index"
 
