@@ -1,4 +1,8 @@
+# Configuration file for the Sphinx documentation builder.
+
 import os
+import pathlib
+import importlib.util
 
 # -- Project information -----------------------------------------------------
 project = "deapi"
@@ -18,35 +22,35 @@ templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # -- Options for HTML output -------------------------------------------------
+# Ensure pydata-sphinx-theme is available
+if importlib.util.find_spec("pydata_sphinx_theme") is None:
+    raise RuntimeError("pydata-sphinx-theme is not installed in this environment")
+
+pr_number = os.environ.get("GITHUB_PR_NUMBER")
+
 html_theme = "pydata_sphinx_theme"
 
-# Static files (CSS, JS, images)
-html_static_path = ["_static"]
-html_logo = "_static/de_api_icon.svg"
-
-# Use absolute URLs for PR previews
-pr_number = os.environ.get("GITHUB_PR_NUMBER")  # set in workflow
 if pr_number:
-    html_baseurl = (
-        f"https://previewde.github.io/deapi-preview/pr-preview/pr-{pr_number}/"
-    )
-    html_use_relative_urls = False
+    html_static_path = [f"pr-preview/pr-{pr_number}/_static"]
+    html_logo = "pr-preview/pr-{pr_number}/_static/de_api_icon.svg"
+
 else:
-    html_baseurl = "https://directelectron.github.io/deapi/"
-    html_use_relative_urls = True
+    html_static_path = ["_static"]
+    html_logo = "_static/de_api_icon.svg"
 
 master_doc = "index"
 
-# -- Autodoc / Autosummary --------------------------------------------------
+# --- URL handling for GitHub Pages preview ---------------------------------
+
+
+# -- Autodoc / Autosummary ---------------------------------------------------
 autosummary_ignore_module_all = False
 autosummary_imported_members = True
 autodoc_typehints_format = "short"
-autodoc_default_options = {
-    "show-inheritance": True,
-}
+autodoc_default_options = {"show-inheritance": True}
 autosummary_generate = True
 
-# -- Sphinx Gallery ---------------------------------------------------------
+# -- Sphinx Gallery ----------------------------------------------------------
 sphinx_gallery_conf = {
     "examples_dirs": "../examples",
     "gallery_dirs": "examples",
@@ -58,7 +62,20 @@ sphinx_gallery_conf = {
 }
 
 
-# -- Optional: add custom CSS if needed ------------------------------------
+# -- Optional: add custom CSS if present ------------------------------------
 def setup(app):
-    # Automatically include your CSS
-    app.add_css_file("custom.css")
+    css_file = "custom.css"
+    css_path = pathlib.Path(__file__).parent / "_static" / css_file
+    print(f"[DEBUG] Adding CSS: {css_path} → exists? {css_path.exists()}")
+    if css_path.exists():
+        app.add_css_file(css_file)
+    else:
+        print("[DEBUG] No custom.css found, skipping.")
+
+
+# -- Debug prints ------------------------------------------------------------
+static_dir = pathlib.Path(__file__).parent / "_static"
+print(
+    f"[DEBUG] Looking for static folder: {static_dir} → exists? {static_dir.exists()}"
+)
+print(f"[DEBUG] GITHUB_PR_NUMBER = {pr_number}")
