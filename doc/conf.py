@@ -29,20 +29,11 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 if importlib.util.find_spec("pydata_sphinx_theme") is None:
     raise RuntimeError("pydata-sphinx-theme is not installed in this environment")
 
-pr_number = os.environ.get("GITHUB_PR_NUMBER")
-
 html_theme = "pydata_sphinx_theme"
 html_static_path = ["_static"]
 html_logo = "_static/de_api_icon.svg"
 
-html_baseurl = f"https://previewde.github.io/deapi-preview/pr-preview/pr-{os.environ.get('GITHUB_PR_NUMBER', '')}/"
-html_extra_path = ["_static"]
-
-
 master_doc = "index"
-
-# --- URL handling for GitHub Pages preview ---------------------------------
-
 
 # -- Autodoc / Autosummary ---------------------------------------------------
 autosummary_ignore_module_all = False
@@ -61,22 +52,3 @@ sphinx_gallery_conf = {
     "doc_module": ("deapi",),
     "reference_url": {"deapi": None},
 }
-
-
-# -- Optional: add custom CSS if present ------------------------------------
-def setup(app):
-    css_file = "custom.css"
-    css_path = pathlib.Path(__file__).parent / "_static" / css_file
-    print(f"[DEBUG] Adding CSS: {css_path} → exists? {css_path.exists()}")
-    if css_path.exists():
-        app.add_css_file(css_file)
-    else:
-        print("[DEBUG] No custom.css found, skipping.")
-
-
-# -- Debug prints ------------------------------------------------------------
-static_dir = pathlib.Path(__file__).parent / "_static"
-print(
-    f"[DEBUG] Looking for static folder: {static_dir} → exists? {static_dir.exists()}"
-)
-print(f"[DEBUG] GITHUB_PR_NUMBER = {pr_number}")
