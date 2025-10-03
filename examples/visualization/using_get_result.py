@@ -10,6 +10,7 @@ leverage it to build fast/responsive visualization tools.
 The simplest usage of `get_result` is to get the most recently acquired frame.
 
 """
+
 from deapi import Client
 from deapi import ContrastStretchType
 import time
@@ -50,30 +51,33 @@ img.plot()
 # the responsiveness of your application.
 
 
-img = client.get_result("singleframe_integrated",
-                        window_width=128, # resize to 128x128
-                        window_height=128)
+img = client.get_result(
+    "singleframe_integrated", window_width=128, window_height=128  # resize to 128x128
+)
 img.plot()
 
 # %%
 # We can also apply a contrast stretch on the server side. This is much faster than sending
 # the raw image to the client and doing the contrast stretch there.
-img = client.get_result("singleframe_integrated",
-                        window_width=128, # resize to 128x128
-                        window_height=128,
-                        stretch_type=ContrastStretchType.DIFFRACTION,
-                        )
+img = client.get_result(
+    "singleframe_integrated",
+    window_width=128,  # resize to 128x128
+    window_height=128,
+    stretch_type=ContrastStretchType.DIFFRACTION,
+)
 img.plot()
 # %%
 # You'll notice that the image is now contrast stretched. The histogram continues to show the full range
 # of the data, with the color map imposed on histogram bins.
 # you can also change the color map.
 
-img = client.get_result("singleframe_integrated",
-                        window_width=128, # resize to 128x128
-                        window_height=128,
-                        stretch_type=ContrastStretchType.HIGHCONTRAST,
-                        )
-img.plot(cmap="magma",)
+img = client.get_result(
+    "singleframe_integrated",
+    window_width=128,  # resize to 128x128
+    window_height=128,
+    stretch_type=ContrastStretchType.HIGHCONTRAST,
+)
+img.plot(
+    cmap="magma",
+)
 # %%
-

@@ -670,7 +670,6 @@ class FakeServer:
 
         result = image.tobytes()
 
-
         # map to right order...
         mean_img = np.mean(image)
         eppix = mean_img / 208
@@ -715,7 +714,9 @@ class FakeServer:
         if histo_min == 0 and histo_max == 0:
             histo_min = np.min(image)
             histo_max = np.max(image)
-        image_hist, bins = np.histogram(image.flatten(), bins=histo_bins, range=(histo_min, histo_max))
+        image_hist, bins = np.histogram(
+            image.flatten(), bins=histo_bins, range=(histo_min, histo_max)
+        )
         for i in image_hist:
             response_mapping.append(int(i))
 

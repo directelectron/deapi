@@ -1335,8 +1335,10 @@ class Client:
             ret = self.__ReceiveResponseForCommand(command) != False
             self["Scan - Type"] = "XY Array"
         else:
-            log.error(f"Error sending x-y scan positions to server."
-                      f" Acquisition - Status: {self['Acquisition Status']}")
+            log.error(
+                f"Error sending x-y scan positions to server."
+                f" Acquisition - Status: {self['Acquisition Status']}"
+            )
         return ret
 
     @deprecated_argument(name="frameType", since="5.2.0", alternative="frame_type")
@@ -1411,7 +1413,7 @@ class Client:
             pixel_format = getattr(PixelFormat, pixel_format)
         elif isinstance(pixel_format, np.dtype):
             pixel_format = PixelFormat.from_numpy_dtype(pixel_format)
-        if attributes is None or attributes=="auto":
+        if attributes is None or attributes == "auto":
             attributes = Attributes(**kwargs)
             scan_images = [17, 18, 19, 20, 21, 22, 23, 24, 25]
             if frame_type.value in scan_images:
@@ -1498,26 +1500,48 @@ class Client:
 
             # bulk-assign simple sequential fields
             attributes_order = [
-                "frameWidth", "frameHeight", "datasetName", "acqIndex",
-                "acqFinished", "imageIndex", "frameCount", "imageMin",
-                "imageMax", "imageMean", "imageStd", "eppix",
-                "eps", "eppixps", "epa2", "eppixpf",
+                "frameWidth",
+                "frameHeight",
+                "datasetName",
+                "acqIndex",
+                "acqFinished",
+                "imageIndex",
+                "frameCount",
+                "imageMin",
+                "imageMax",
+                "imageMean",
+                "imageStd",
+                "eppix",
+                "eps",
+                "eppixps",
+                "epa2",
+                "eppixpf",
             ]
             if commandVersion >= 12:
-                attributes_order.extend([
-                    "eppix_incident", "eps_incident", "eppixps_incident",
-                    "epa2_incident", "eppixpf_incident", "redSatWarningValue",
-                    "orangeSatWarningValue",
-                ])
+                attributes_order.extend(
+                    [
+                        "eppix_incident",
+                        "eps_incident",
+                        "eppixps_incident",
+                        "epa2_incident",
+                        "eppixpf_incident",
+                        "redSatWarningValue",
+                        "orangeSatWarningValue",
+                    ]
+                )
             if self.commandVersion >= 11:
                 attributes_order.append("saturation")
             if self.commandVersion < 10:
                 attributes_order.extend(["underExposureRate", "overExposureRate"])
             attributes_order.append("timestamp")
             if self.commandVersion >= 10:
-                attributes_order.extend([
-                    "autoStretchMin", "autoStretchMax", "autoStretchGamma",
-                ])
+                attributes_order.extend(
+                    [
+                        "autoStretchMin",
+                        "autoStretchMax",
+                        "autoStretchGamma",
+                    ]
+                )
 
             # special casting rules
             field_casts = {
@@ -1581,7 +1605,8 @@ class Client:
                 else:
                     log.error(
                         "The size of the image does not match the expected size from "
-                        f"The header. Expected: {bytesize}, Received: {len(packet)}")
+                        f"The header. Expected: {bytesize}, Received: {len(packet)}"
+                    )
 
             if logLevel == logging.DEBUG:
                 elapsed = self.GetTime() - step_time

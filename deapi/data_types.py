@@ -370,10 +370,12 @@ class Attributes:
         self.output_binning_method = output_binning_method
 
     def __repr__(self):
-        return (f"Attributes: width = {self.frameWidth}, "
-                f"height = {self.frameHeight},"
-                f" electrons a sec/pixels = {self.eppixps},"
-                f" acqFinished = {self.acqFinished}")
+        return (
+            f"Attributes: width = {self.frameWidth}, "
+            f"height = {self.frameHeight},"
+            f" electrons a sec/pixels = {self.eppixps},"
+            f" acqFinished = {self.acqFinished}"
+        )
 
 
 class Histogram:
@@ -752,11 +754,14 @@ class VirtualMask:
         string = f"Scan - Virtual Detector {self.index} Calculation"
         self.client[string] = value
 
-ResultBase = namedtuple('ResultBase', ['image','pixel_format', 'attributes', 'histogram'])
+
+ResultBase = namedtuple(
+    "ResultBase", ["image", "pixel_format", "attributes", "histogram"]
+)
+
 
 class Result(ResultBase):
-    """Class to hold the result of an image acquisition
-    """
+    """Class to hold the result of an image acquisition"""
 
     def __repr__(self):
         return (
@@ -766,11 +771,7 @@ class Result(ResultBase):
             f" histogram={self.histogram})"
         )
 
-    def plot(self,
-             axs=None,
-             color_histogram=True,
-             colorbar=False,
-             **kwargs):
+    def plot(self, axs=None, color_histogram=True, colorbar=False, **kwargs):
         """Plot the image using matplotlib
 
         Parameters
@@ -807,8 +808,12 @@ class Result(ResultBase):
         vmin = kwargs.get("vmin", np.nanmin(self.image))
         vmax = kwargs.get("vmax", np.nanmax(self.image))
 
-        im = ax.imshow(self.image, vmin=vmin, vmax=vmax,
-                       **{k: v for k, v in kwargs.items() if k not in ("vmin", "vmax")})
+        im = ax.imshow(
+            self.image,
+            vmin=vmin,
+            vmax=vmax,
+            **{k: v for k, v in kwargs.items() if k not in ("vmin", "vmax")},
+        )
 
         if colorbar and cax is not None:
             fig.colorbar(im, cax=cax, orientation="vertical")
@@ -817,19 +822,27 @@ class Result(ResultBase):
 
         # The data can have some non-linear stretch applied.  The color bar should reflect that but the
         # histogram won't...
-        if hasattr(self, "histogram") and getattr(self, "histogram") is not None and getattr(self.histogram, "data",
-                                                                                             None) is not None:
+        if (
+            hasattr(self, "histogram")
+            and getattr(self, "histogram") is not None
+            and getattr(self.histogram, "data", None) is not None
+        ):
             hist = np.asarray(self.histogram.data)
             bins = self.histogram.bins
             bin_edges = np.linspace(self.histogram.min, self.histogram.max, bins + 1)
             bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
         else:
             bins = 256
-            hist, bin_edges = np.histogram(self.image.flatten(), bins=bins, range=(vmin, vmax))
+            hist, bin_edges = np.histogram(
+                self.image.flatten(), bins=bins, range=(vmin, vmax)
+            )
             bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
         # Plot gamma curve over the histogram
         # Normalize the bin centers to [0, 1] using vmin/vmax then apply gamma correction.
-        if self.attributes is None or self.attributes.stretchType == ContrastStretchType.NONE:
+        if (
+            self.attributes is None
+            or self.attributes.stretchType == ContrastStretchType.NONE
+        ):
             vmin = self.histogram.min
             vmax = self.histogram.max
             gamma = 1.0
@@ -872,22 +885,26 @@ class Result(ResultBase):
             colors_rgba = cmap(mapped)
             # Draw horizontal bars colored by the mapped RGBA values
             height = bin_edges[1] - bin_edges[0] if len(bin_edges) > 1 else 1.0
-            hax.barh(bin_centers, hist, height=height, color=colors_rgba, align="center", edgecolor="none")
+            hax.barh(
+                bin_centers,
+                hist,
+                height=height,
+                color=colors_rgba,
+                align="center",
+                edgecolor="none",
+            )
         else:
             hax.fill_betweenx(bin_centers, 0, hist, color="0.6")
 
         hax.set_xlim(0, scale * 1.05)
-        hax.set_ylim(self.histogram.min , self.histogram.max)
+        hax.set_ylim(self.histogram.min, self.histogram.max)
         hax.invert_xaxis()
         hax.yaxis.tick_right()
         hax.yaxis.set_label_position("right")
         hax.set_xlabel("Frequency")
         hax.set_ylabel("Detector Units")
 
-
         ax.set_yticks([])
         ax.set_xticks([])
 
         return ax
-
-
