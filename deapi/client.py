@@ -1413,6 +1413,13 @@ class Client:
             pixel_format = PixelFormat.from_numpy_dtype(pixel_format)
         if attributes is None or attributes=="auto":
             attributes = Attributes(**kwargs)
+            scan_images = [17, 18, 19, 20, 21, 22, 23, 24, 25]
+            if frame_type.value in scan_images:
+                attributes.windowWidth = self.scan_sizex
+                attributes.windowHeight = self.scan_sizey
+            else:
+                attributes.windowWidth = self.image_sizex
+                attributes.windowHeight = self.image_sizey
 
         log.debug("GetResult frameType:%s, pixelFormat:%s", frame_type, pixel_format)
         start_time = self.GetTime()
