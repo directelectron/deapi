@@ -576,6 +576,9 @@ class FakeServer:
         histo_min = command.command[0].parameter[14].p_float
         histo_max = command.command[0].parameter[15].p_float
         histo_bins = command.command[0].parameter[16].p_int
+        output_binning_x = command.command[0].parameter[17].p_int
+        output_binning_y = command.command[0].parameter[18].p_int
+        output_binning_method = command.command[0].parameter[19].p_int
 
         pixel_format_dict = {1: np.int8, 5: np.int16, 13: np.float32}
 
@@ -660,6 +663,9 @@ class FakeServer:
 
         else:
             raise ValueError(f"Frame type {frame_type} not Supported in PythonDEServer")
+
+        windowWidth = image.shape[0]
+        windowHeight = image.shape[1]
         # map to right order...
         mean_img = np.mean(image)
         eppix = mean_img / 208
@@ -703,7 +709,6 @@ class FakeServer:
             response_mapping.append(int(0))
         # Then histogram...
         for val in response_mapping:
-            ack1 = acknowledge_return.acknowledge.add()
             add_parameter(ack1, val)
         ans = (acknowledge_return,)
         # add the data header packet for how many bytes are in the data

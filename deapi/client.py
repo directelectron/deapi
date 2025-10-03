@@ -1479,12 +1479,12 @@ class Client:
             log.debug("   Build Time: %.1f ms", lapsed)
             step_time = self.GetTime()
         response = self._sendCommand(command)
-        print("Response:", response.ByteSize())
         if logLevel == logging.DEBUG:
             lapsed = (self.GetTime() - step_time) * 1000
             log.debug(" Command Time: %.1f ms", lapsed)
             step_time = self.GetTime()
         ack = response.acknowledge[0]
+
         if response:
             values = self.__getParameters(response.acknowledge[0])
             pixel_format = PixelFormat(values[0])
