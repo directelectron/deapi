@@ -1317,22 +1317,26 @@ class Client:
             packet = struct.pack("I", command.ByteSize()) + command.SerializeToString()
             self.socket.send(packet)
             ret = self.__ReceiveResponseForCommand(command) != False
+            print("response", ret)
         except socket.error:
             raise socket.error(
                 "Error sending x-y scan positions to socket. Is the server running?"
             )
+        if ret:
+            try:
+                x = positions[:, 0].tobytes()
+                self.__sendToSocket(self.socket, x, len(x))
+                y = positions[:, 1].tobytes()
+                self.__sendToSocket(self.socket, y, len(y))
+            except socket.error as e:
+                log.log(logging.ERROR, "Error sending data to socket: %s", e)
+                return False
 
-        try:
-            x = positions[:, 0].tobytes()
-            self.__sendToSocket(self.socket, x, len(x))
-            y = positions[:, 1].tobytes()
-            self.__sendToSocket(self.socket, y, len(y))
-        except socket.error as e:
-            log.log(logging.ERROR, "Error sending data to socket: %s", e)
-            return False
-
-        ret = self.__ReceiveResponseForCommand(command) != False
-        self["Scan - Type"] = "XY Array"
+            ret = self.__ReceiveResponseForCommand(command) != False
+            self["Scan - Type"] = "XY Array"
+        else:
+            log.error(f"Error sending x-y scan positions to server."
+                      f" Acquisition - Status: {self['Acquisition Status']}")
         return ret
 
     @deprecated_argument(name="frameType", since="5.2.0", alternative="frame_type")
