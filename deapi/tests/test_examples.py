@@ -36,6 +36,7 @@ def run_python_file(file_path, timeout=60):
         "live_imaging/viewing_the_sensor.py",
         "live_imaging/viewing_the_sensor_tem.py",
         "live_imaging/bright_spot_intensity.py",
+        "visualization/using_get_result.py",
     ],
 )
 def test_examples(server, file):

@@ -8,6 +8,7 @@ log = logging.getLogger("DECameraClientLib")
 
 
 def write_only(func):
+    @wraps(func)
     def wrapper(*args, **kwargs):
         if args[0].read_only:
             log.error("Client is read-only. Cannot set property.")
@@ -19,6 +20,7 @@ def write_only(func):
 
 
 def disable_scan(func):
+    @wraps(func)
     def wrapper(*args, **kwargs):
         print("Disabling scan")
         initial_scan = args[0]["Scan - Enable"]

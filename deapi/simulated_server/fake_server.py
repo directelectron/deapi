@@ -576,6 +576,9 @@ class FakeServer:
         histo_min = command.command[0].parameter[14].p_float
         histo_max = command.command[0].parameter[15].p_float
         histo_bins = command.command[0].parameter[16].p_int
+        output_binning_x = command.command[0].parameter[17].p_int
+        output_binning_y = command.command[0].parameter[18].p_int
+        output_binning_method = command.command[0].parameter[19].p_int
 
         pixel_format_dict = {1: np.int8, 5: np.int16, 13: np.float32}
 
@@ -613,7 +616,6 @@ class FakeServer:
                 image = self.fake_data[self.current_navigation_index].astype(
                     pixel_format_dict[pixel_format]
                 )
-            result = image.tobytes()
 
         elif frame_type == 10 or frame_type == 9:  # SUMTOTAL or SUMINTERMEDIATE
             if self["Exposure Mode"] == "Gain" or self["Exposure Mode"] == "Trial":
@@ -637,18 +639,15 @@ class FakeServer:
                     * 1
                 ).astype(pixel_format_dict[pixel_format])
             else:
-                image = np.sum(self.fake_data.signal, axis=1).astype(
+                image = np.sum(self.fake_data.signal, axis=0).astype(
                     pixel_format_dict[pixel_format]
                 )
-            result = image.tobytes()
         elif 11 < frame_type < 17:  # virtual image
             image = self.virtual_masks[frame_type - 12]
-            print(image)
             if image.shape != (windowWidth, windowHeight):
                 image = resize(
                     image, (windowWidth, windowHeight), preserve_range=True
                 ).astype(np.int8)
-            result = image.tobytes()
         elif 17 <= frame_type < 22:
             image = self.virtual_masks[frame_type - 17]
             calculation_type = self[
@@ -656,10 +655,21 @@ class FakeServer:
             ]
             image = self.fake_data.get_virtual_image(image, method=calculation_type)
             image = image.astype(pixel_format_dict[pixel_format])
-            result = image.tobytes()
 
         else:
             raise ValueError(f"Frame type {frame_type} not Supported in PythonDEServer")
+
+        if windowWidth == 0:
+            windowWidth = image.shape[0]
+        if windowHeight == 0:
+            windowHeight = image.shape[1]
+        if image.shape != (windowWidth, windowHeight):
+            image = resize(
+                image, (windowWidth, windowHeight), preserve_range=True
+            ).astype(pixel_format_dict[pixel_format])
+
+        result = image.tobytes()
+
         # map to right order...
         mean_img = np.mean(image)
         eppix = mean_img / 208
@@ -692,18 +702,25 @@ class FakeServer:
             0.0,  # orange sat warning 23
             0.0,  # saturation 24
             "2.187026",  # current time 25
-            0.0,  # autoStretchMin 26
-            0.0,  # autoStretchMax 27
-            0.0,  # autoStretchGamma 28
-            0.0,  # histogram min 29
-            float(np.min(image)),  # histogram max 30
+            float(np.min(image)),  # autoStretchMin 26
+            float(np.max(image)),  # autoStretchMax 27
+            float(1.0),  # autoStretchGamma 28
+            float(np.min(image)),  # histogram min 29
+            float(np.max(image)),  # histogram max 30
             float(np.max(image)),  # histogram upper local max 31
         ]
-        for i in range(histo_bins):
-            response_mapping.append(int(0))
+
         # Then histogram...
+        if histo_min == 0 and histo_max == 0:
+            histo_min = np.min(image)
+            histo_max = np.max(image)
+        image_hist, bins = np.histogram(
+            image.flatten(), bins=histo_bins, range=(histo_min, histo_max)
+        )
+        for i in image_hist:
+            response_mapping.append(int(i))
+
         for val in response_mapping:
-            ack1 = acknowledge_return.acknowledge.add()
             add_parameter(ack1, val)
         ans = (acknowledge_return,)
         # add the data header packet for how many bytes are in the data

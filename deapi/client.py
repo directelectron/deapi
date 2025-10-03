@@ -35,6 +35,7 @@ from deapi.data_types import (
     DataType,
     PropertyCollection,
     VirtualMask,
+    Result,
 )
 
 
@@ -1316,22 +1317,28 @@ class Client:
             packet = struct.pack("I", command.ByteSize()) + command.SerializeToString()
             self.socket.send(packet)
             ret = self.__ReceiveResponseForCommand(command) != False
+            print("response", ret)
         except socket.error:
             raise socket.error(
                 "Error sending x-y scan positions to socket. Is the server running?"
             )
+        if ret:
+            try:
+                x = positions[:, 0].tobytes()
+                self.__sendToSocket(self.socket, x, len(x))
+                y = positions[:, 1].tobytes()
+                self.__sendToSocket(self.socket, y, len(y))
+            except socket.error as e:
+                log.log(logging.ERROR, "Error sending data to socket: %s", e)
+                return False
 
-        try:
-            x = positions[:, 0].tobytes()
-            self.__sendToSocket(self.socket, x, len(x))
-            y = positions[:, 1].tobytes()
-            self.__sendToSocket(self.socket, y, len(y))
-        except socket.error as e:
-            log.log(logging.ERROR, "Error sending data to socket: %s", e)
-            return False
-
-        ret = self.__ReceiveResponseForCommand(command) != False
-        self["Scan - Type"] = "XY Array"
+            ret = self.__ReceiveResponseForCommand(command) != False
+            self["Scan - Type"] = "XY Array"
+        else:
+            log.error(
+                f"Error sending x-y scan positions to server."
+                f" Acquisition - Status: {self['Acquisition Status']}"
+            )
         return ret
 
     @deprecated_argument(name="frameType", since="5.2.0", alternative="frame_type")
@@ -1339,9 +1346,10 @@ class Client:
     def get_result(
         self,
         frame_type: Union[FrameType, str] = "singleframe_integrated",
-        pixel_format: Union[PixelFormat, DataType, str] = "UINT16",
+        pixel_format: Union[PixelFormat, str] = "UINT16",
         attributes="auto",
         histogram=None,
+        **kwargs,
     ):
         """
         Get the specified type of frames in the desired pixel format and associated information.
@@ -1358,16 +1366,40 @@ class Client:
         pixel_format: PixelFormat | str
             The pixel format to get. Use the PixelFormat enum or a string.
             One of the following:
-                - DE8u
-                - DE16u
-                - DE32f
-                - DE64f
+                - UINT8
+                - UINT16
+                - FLOAT32
         attributes: Attributes | str | None
             Defines the image to be returned, some members can be updated.
             Some members of this parameter are input only, some are input/output.
         histogram: Histogram | None
             Returns the histogram if desired.
             Some members of this parameter are input only, some are input/output.
+        **kwargs: Additional keyword arguments used to create an Attributes Object.
+            windowWidth: int
+                The width of the window to return.  If 0, the full width will be returned.
+            windowHeight: int
+                The height of the window to return.  If 0, the full height will be returned.
+            centerX: int
+                The x center of the window to return.
+            centerY: int
+                The y center of the window to return.
+            zoom: float
+                The zoom factor to apply to the image.
+            fft: bool
+                If True, return the FFT of the image.
+            stretchType: int
+                The type of stretch to apply to the image.  Only used if commandVersion >= 10.
+            manualStretchMin: float
+                The minimum value for manual stretch.  Only used if commandVersion >= 10.
+            manualStretchMax: float
+                The maximum value for manual stretch.  Only used if commandVersion >= 10.
+            manualStretchGamma: float
+                The gamma value for manual stretch.  Only used if commandVersion >= 10.
+            linearStretch: bool
+                If True, apply a linear stretch to the image.  Only used if commandVersion <    10.
+            outlierPercentage: float
+                The percentage of outliers to ignore when stretching the image.
 
         Note
         ----
@@ -1375,11 +1407,14 @@ class Client:
         """
         if isinstance(frame_type, str):
             frame_type = getattr(FrameType, frame_type.upper())
+        if isinstance(frame_type, str):
+            frame_type = getattr(FrameType, frame_type.upper())
         if isinstance(pixel_format, str):
             pixel_format = getattr(PixelFormat, pixel_format)
-
-        if attributes == "auto":
-            attributes = Attributes()
+        elif isinstance(pixel_format, np.dtype):
+            pixel_format = PixelFormat.from_numpy_dtype(pixel_format)
+        if attributes is None or attributes == "auto":
+            attributes = Attributes(**kwargs)
             scan_images = [17, 18, 19, 20, 21, 22, 23, 24, 25]
             if frame_type.value in scan_images:
                 attributes.windowWidth = self.scan_sizex
@@ -1392,10 +1427,7 @@ class Client:
         start_time = self.GetTime()
         step_time = self.GetTime()
 
-        if attributes == None:
-            attributes = Attributes()
-
-        if histogram == None:
+        if histogram is None:
             histogram = Histogram()
 
         if attributes.windowWidth > 0:
@@ -1405,7 +1437,6 @@ class Client:
             self.height = attributes.windowHeight
 
         image = None
-        imageDataType = numpy.uint16
 
         if logLevel == logging.DEBUG:
             lapsed = (self.GetTime() - step_time) * 1000
@@ -1449,206 +1480,171 @@ class Client:
                 ]
             )
 
-        if self.width * self.height == 0:
-            log.error("  Image size is 0! ")
-        else:
-            bytesize = 0
-            command = self._addSingleCommand(self.GET_RESULT, None, params=params)
+        bytesize = 0
+        command = self._addSingleCommand(self.GET_RESULT, None, params=params)
 
-            if logLevel == logging.DEBUG:
-                lapsed = (self.GetTime() - step_time) * 1000
-                log.debug("   Build Time: %.1f ms", lapsed)
-                step_time = self.GetTime()
-            response = self._sendCommand(command)
-            print("Response:", response.ByteSize())
-            if logLevel == logging.DEBUG:
-                lapsed = (self.GetTime() - step_time) * 1000
-                log.debug(" Command Time: %.1f ms", lapsed)
-                step_time = self.GetTime()
-            ack = response.acknowledge[0]
-            if response != False:
-                values = self.__getParameters(response.acknowledge[0])
-                if (
-                    type(values) is list and len(values) >= 20
-                ):  # This should be majorly simplified
-                    i = 0
-                    pixel_format = PixelFormat(values[i])
-                    i += 1
-                    attributes.frameWidth = values[i]
-                    i += 1
-                    attributes.frameHeight = values[i]
-                    i += 1
-                    attributes.datasetName = values[i]
-                    i += 1
-                    attributes.acqIndex = values[i]
-                    i += 1
-                    attributes.acqFinished = values[i]
-                    i += 1
-                    attributes.imageIndex = values[i]
-                    i += 1
-                    attributes.frameCount = values[i]
-                    i += 1
-                    attributes.imageMin = values[i]
-                    i += 1
-                    attributes.imageMax = values[i]
-                    i += 1
-                    attributes.imageMean = values[i]
-                    i += 1
-                    attributes.imageStd = values[i]
-                    i += 1
-                    attributes.eppix = values[i]
-                    i += 1
-                    attributes.eps = values[i]
-                    i += 1
-                    attributes.eppixps = values[i]
-                    i += 1
-                    attributes.epa2 = values[i]
-                    i += 1
-                    attributes.eppixpf = values[i]
-                    i += 1
-                    if commandVersion >= 12:
-                        attributes.eppix_incident = values[i]
-                        i += 1
-                        attributes.eps_incident = values[i]
-                        i += 1
-                        attributes.eppixps_incident = values[i]
-                        i += 1
-                        attributes.epa2_incident = values[i]
-                        i += 1
-                        attributes.eppixpf_incident = values[i]
-                        i += 1
-                        attributes.redSatWarningValue = values[i]
-                        i += 1
-                        attributes.orangeSatWarningValue = values[i]
-                        i += 1
-                    if self.commandVersion >= 11:
-                        attributes.saturation = values[i]
-                        i += 1
-                    if self.commandVersion < 10:
-                        attributes.underExposureRate = values[i]
-                        i += 1
-                        attributes.overExposureRate = values[i]
-                        i += 1
-                    attributes.timestamp = float(values[i])
-                    i += 1
-                    if self.commandVersion >= 10:
-                        attributes.autoStretchMin = values[i]
-                        i += 1
-                        attributes.autoStretchMax = values[i]
-                        i += 1
-                        attributes.autoStretchGamma = values[i]
-                        i += 1
+        if logLevel == logging.DEBUG:
+            lapsed = (self.GetTime() - step_time) * 1000
+            log.debug("   Build Time: %.1f ms", lapsed)
+            step_time = self.GetTime()
+        response = self._sendCommand(command)
+        if logLevel == logging.DEBUG:
+            lapsed = (self.GetTime() - step_time) * 1000
+            log.debug(" Command Time: %.1f ms", lapsed)
+            step_time = self.GetTime()
+        ack = response.acknowledge[0]
 
-                    if (
-                        histogram != None
-                        and histo_bins > 0
-                        and len(values) >= i + histogram.bins
-                    ):
-                        histogram.data = [0] * histogram.bins
-                        histogram.min = values[i]
-                        i += 1
-                        histogram.max = values[i]
-                        i += 1
-                        if self.commandVersion >= 11:
-                            histogram.upperMostLocalMaxima = values[i]
-                            i += 1
-                        for j in range(histogram.bins):
-                            log.debug("Hist %d: %d" % (j, values[i + j]))
-                            histogram.data[j] = values[i + j]
+        if response:
+            values = self.__getParameters(response.acknowledge[0])
+            pixel_format = PixelFormat(values[0])
 
-                    self.width = attributes.frameWidth
-                    self.height = attributes.frameHeight
+            # bulk-assign simple sequential fields
+            attributes_order = [
+                "frameWidth",
+                "frameHeight",
+                "datasetName",
+                "acqIndex",
+                "acqFinished",
+                "imageIndex",
+                "frameCount",
+                "imageMin",
+                "imageMax",
+                "imageMean",
+                "imageStd",
+                "eppix",
+                "eps",
+                "eppixps",
+                "epa2",
+                "eppixpf",
+            ]
+            if commandVersion >= 12:
+                attributes_order.extend(
+                    [
+                        "eppix_incident",
+                        "eps_incident",
+                        "eppixps_incident",
+                        "epa2_incident",
+                        "eppixpf_incident",
+                        "redSatWarningValue",
+                        "orangeSatWarningValue",
+                    ]
+                )
+            if self.commandVersion >= 11:
+                attributes_order.append("saturation")
+            if self.commandVersion < 10:
+                attributes_order.extend(["underExposureRate", "overExposureRate"])
+            attributes_order.append("timestamp")
+            if self.commandVersion >= 10:
+                attributes_order.extend(
+                    [
+                        "autoStretchMin",
+                        "autoStretchMax",
+                        "autoStretchGamma",
+                    ]
+                )
 
-                recvbyteSizeString = self._recvFromSocket(
-                    self.socket, 4
-                )  # get the first 4 bytes
+            # special casting rules
+            field_casts = {
+                "timestamp": float,
+            }
 
-                if pixel_format == PixelFormat.FLOAT32:
-                    imageDataType = numpy.float32
-                elif pixel_format == PixelFormat.UINT16:
-                    imageDataType = numpy.uint16
-                else:
-                    imageDataType = numpy.uint8
-                if len(recvbyteSizeString) == 4:
-                    recvbyteSize = struct.unpack(
-                        "I", recvbyteSizeString
-                    )  # interpret as size
-                    received_string = self._recvFromSocket(
-                        self.socket, recvbyteSize[0]
-                    )  # get the rest
-                    data_header = pb.DEPacket()
-                    data_header.ParseFromString(received_string)
-                    bytesize = data_header.data_header.bytesize
+            # assign attributes with optional casting
+            for i, field in enumerate(attributes_order):
+                val = values[i + 1]
+                if field in field_casts:
+                    val = field_casts[field](val)
+                setattr(attributes, field, val)
 
-                if self.usingMmf:
-                    image = numpy.frombuffer(
-                        self.mmf,
-                        offset=MMF_DATA_HEADER_SIZE,
-                        dtype=imageDataType,
-                        count=self.width * self.height,
-                    )
+            # histogram parsing
+            start = 1 + len(attributes_order)
+            if histogram is not None and len(values) >= start + histogram.bins:
+                histogram.min = values[start]
+                histogram.max = values[start + 1]
+                idx = start + 2
+                if self.commandVersion >= 11:
+                    histogram.upperMostLocalMaxima = values[idx]
+                    idx += 1
+                histogram.data = [values[idx + j] for j in range(histogram.bins)]
+
+            # always update width/height
+            self.width = attributes.frameWidth
+            self.height = attributes.frameHeight
+
+            recvbyteSizeString = self._recvFromSocket(
+                self.socket, 4
+            )  # get the first 4 bytes
+
+            imageDataType = pixel_format.to_numpy_dtype()
+
+            if len(recvbyteSizeString) == 4:
+                recvbyteSize = struct.unpack(
+                    "I", recvbyteSizeString
+                )  # interpret as size
+                received_string = self._recvFromSocket(
+                    self.socket, recvbyteSize[0]
+                )  # get the rest
+                data_header = pb.DEPacket()
+                data_header.ParseFromString(received_string)
+                bytesize = data_header.data_header.bytesize
+
+            if self.usingMmf:
+                image = numpy.frombuffer(
+                    self.mmf,
+                    offset=MMF_DATA_HEADER_SIZE,
+                    dtype=imageDataType,
+                    count=self.width * self.height,
+                )
+                image.shape = [self.height, self.width]
+                bytesize = self.width * self.height * 2
+            elif bytesize > 0:
+                packet = self._recvFromSocket(self.socket, bytesize)
+                if len(packet) == bytesize:
+                    image = numpy.frombuffer(packet, imageDataType)
+                    bytesize = self.height * self.width * 2
                     image.shape = [self.height, self.width]
-                    bytesize = self.width * self.height * 2
-                elif bytesize > 0:
-                    packet = self._recvFromSocket(self.socket, bytesize)
-                    if len(packet) == bytesize:
-                        image = numpy.frombuffer(packet, imageDataType)
-                        bytesize = self.height * self.width * 2
-                        image.shape = [self.height, self.width]
-                    else:
-                        log.error(
-                            "The size of the image does not match the expected size from "
-                            "The header. Expected: %d, Received: %d",
-                            bytesize,
-                            len(packet),
-                        )
-
-                if logLevel == logging.DEBUG:
-                    elapsed = self.GetTime() - step_time
-                    log.debug(
-                        "Transfer time: %.1f ms, %d bytes, %d mbps",
-                        elapsed * 1000,
-                        bytesize,
-                        bytesize * 8 / elapsed / 1024 / 1024,
+                else:
+                    log.error(
+                        "The size of the image does not match the expected size from "
+                        f"The header. Expected: {bytesize}, Received: {len(packet)}"
                     )
-                    step_time = self.GetTime()
-
-            if bytesize <= 0:
-                log.error("  GetResult failed! An empty image will be returned.")
-                image = None
 
             if logLevel == logging.DEBUG:
-                lapsed = (self.GetTime() - step_time) * 1000
-                log.debug("  Saving Time: %.1f ms", lapsed)
+                elapsed = self.GetTime() - step_time
+                log.debug(
+                    f"Transfer time: {elapsed * 1000:.1f} ms, "
+                    f"{bytesize} bytes, "
+                    f"{bytesize * 8 / elapsed / 1024 / 1024:.1f} mbps"
+                )
                 step_time = self.GetTime()
+
+        if bytesize <= 0:
+            log.error("  GetResult failed! An empty image will be returned.")
+            image = None
+
+        if logLevel == logging.DEBUG:
+            lapsed = (self.GetTime() - step_time) * 1000
+            log.debug(f"  Saving Time: {lapsed:.1f} ms", lapsed)
 
         if image is None:
             log.error("  GetResult failed!")
         else:
             image = image.astype(imageDataType)
 
-            if logLevel == logging.DEBUG:
-                lapsed = (self.GetTime() - step_time) * 1000
-                log.debug("  Typing Time: %.1f ms", lapsed)
-                step_time = self.GetTime()
-
         if logLevel <= logging.DEBUG:
             lapsed = (self.GetTime() - start_time) * 1000
             log.debug(
-                "GetResult frameType:%s, pixelFormat:%s ROI:[%d, %d] Binning:[%d, %d], Return size:[%d, %d], datasetName:%s acqCount:%d, frameCount:%d min:%.1f max:%.1f mean:%.1f std:%.1f %.1f ms",
-                frame_type,
-                pixel_format,
-                attributes.datasetName,
-                attributes.acqIndex,
-                attributes.frameCount,
-                attributes.imageMin,
-                attributes.imageMax,
-                attributes.imageMean,
-                attributes.imageStd,
-                lapsed,
+                f"GetResult frameType:{frame_type}, pixelFormat:{pixel_format} "
+                f"ROI:[{attributes.frameWidth}, {attributes.frameHeight}] "
+                f"Binning:[{attributes.eppix}, {attributes.eps}] "
+                f"Return size:[{self.width}, {self.height}], "
+                f"datasetName:{attributes.datasetName} "
+                f"acqCount:{attributes.acqIndex}, frameCount:{attributes.frameCount} "
+                f"min:{attributes.imageMin:.1f} max:{attributes.imageMax:.1f} "
+                f"mean:{attributes.imageMean:.1f} std:{attributes.imageStd:.1f} "
+                f"{lapsed:.1f} ms"
             )
 
-        return image, pixel_format, attributes, histogram
+        return Result(image, pixel_format, attributes, histogram)
 
     @write_only
     def set_virtual_mask(self, id, w, h, mask):

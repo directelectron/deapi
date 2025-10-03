@@ -123,14 +123,7 @@ class TestVirtualMasks08:
         property_name = f"Scan - Virtual Detector {maskID} Shape"
         deClient.SetProperty(property_name, "Arbitrary")
 
-        if not deClient.SetVirtualMask(maskID, 1024, 1024, mask):
-            return False
-
-        # Define attributes and frame type
-        attributes = DEAPI.Attributes()
-        frameType = getattr(DEAPI.FrameType, f"VIRTUAL_MASK{maskID}")
-
+        deClient.SetVirtualMask(maskID, 1024, 1024, mask)
         # Generate and check the first image
-        Image, _, _, _ = deClient.GetResult(
-            frameType, DEAPI.PixelFormat.AUTO, attributes
-        )
+        mask = deClient.virtual_masks[1][:]
+        assert mask.shape == (1024, 1024)

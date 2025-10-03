@@ -8,6 +8,7 @@
 from enum import Enum
 from enum import IntEnum
 import warnings
+from collections import namedtuple
 
 import numpy as np
 
@@ -102,6 +103,29 @@ class PixelFormat(Enum):
     UINT16 = 5  # 16-bit integer
     FLOAT32 = 13  # 32-bit float
     AUTO = -1  # Automatically determined by the server
+
+    def to_numpy_dtype(self):
+        """Convert the PixelFormat to a numpy dtype"""
+        if self == PixelFormat.UINT8:
+            return np.uint8
+        elif self == PixelFormat.UINT16:
+            return np.uint16
+        elif self == PixelFormat.FLOAT32:
+            return np.float32
+        else:
+            return np.uint8
+
+    @staticmethod
+    def from_numpy_dtype(dtype):
+        """Convert a numpy dtype to a PixelFormat"""
+        if dtype == np.uint8:
+            return PixelFormat.UINT8
+        elif dtype == np.uint16:
+            return PixelFormat.UINT16
+        elif dtype == np.float32:
+            return PixelFormat.FLOAT32
+        else:
+            raise ValueError(f"Unsupported numpy dtype: {dtype}")
 
 
 class DataType(Enum):
@@ -345,6 +369,14 @@ class Attributes:
         self.output_binning_y = output_binning_y
         self.output_binning_method = output_binning_method
 
+    def __repr__(self):
+        return (
+            f"Attributes: width = {self.frameWidth}, "
+            f"height = {self.frameHeight},"
+            f" electrons a sec/pixels = {self.eppixps},"
+            f" acqFinished = {self.acqFinished}"
+        )
+
 
 class Histogram:
     """Class to hold the histogram data from an image acquisition
@@ -385,7 +417,6 @@ class Histogram:
             f" max={self.max}, "
             f"upperMostLocalMaxima={self.upperMostLocalMaxima},"
             f" bins={self.bins},"
-            f" data={self.data})"
         )
 
     def plot(self, ax=None):
@@ -722,3 +753,158 @@ class VirtualMask:
         """Set the calculation mode for the virtual mask"""
         string = f"Scan - Virtual Detector {self.index} Calculation"
         self.client[string] = value
+
+
+ResultBase = namedtuple(
+    "ResultBase", ["image", "pixel_format", "attributes", "histogram"]
+)
+
+
+class Result(ResultBase):
+    """Class to hold the result of an image acquisition"""
+
+    def __repr__(self):
+        return (
+            f"Result(image shape={self.image.shape},"
+            f" pixel_format={self.pixel_format}, "
+            f" attributes={self.attributes},"
+            f" histogram={self.histogram})"
+        )
+
+    def plot(self, axs=None, color_histogram=True, colorbar=False, **kwargs):
+        """Plot the image using matplotlib
+
+        Parameters
+        ----------
+        ax : matplotlib.axes.Axes, optional
+            Axes object to plot the image on. If not provided, a new figure will be created.
+        **kwargs
+            Additional keyword arguments to pass to ax.imshow
+
+        Returns
+        -------
+        matplotlib.axes.Axes
+            Axes object containing the image plot
+        """
+        import matplotlib.pyplot as plt
+        from matplotlib import gridspec
+
+        if axs is None:
+            fig = plt.figure(figsize=(8, 6))
+            if colorbar:
+                gs = gridspec.GridSpec(1, 3, width_ratios=[20, 1.5, 5], wspace=0.05)
+                ax = fig.add_subplot(gs[0])
+                cax = fig.add_subplot(gs[1])
+                hax = fig.add_subplot(gs[2])
+            else:
+                gs = gridspec.GridSpec(1, 2, width_ratios=[20, 5], wspace=0.1)
+                ax = fig.add_subplot(gs[0])
+                hax = fig.add_subplot(gs[1])
+                cax = None
+        else:
+            ax, cax, hax = axs
+            fig = ax.figure
+
+        vmin = kwargs.get("vmin", np.nanmin(self.image))
+        vmax = kwargs.get("vmax", np.nanmax(self.image))
+
+        im = ax.imshow(
+            self.image,
+            vmin=vmin,
+            vmax=vmax,
+            **{k: v for k, v in kwargs.items() if k not in ("vmin", "vmax")},
+        )
+
+        if colorbar and cax is not None:
+            fig.colorbar(im, cax=cax, orientation="vertical")
+            cax.set_yticks([])
+            cax.set_xticks([])
+
+        # The data can have some non-linear stretch applied.  The color bar should reflect that but the
+        # histogram won't...
+        if (
+            hasattr(self, "histogram")
+            and getattr(self, "histogram") is not None
+            and getattr(self.histogram, "data", None) is not None
+        ):
+            hist = np.asarray(self.histogram.data)
+            bins = self.histogram.bins
+            bin_edges = np.linspace(self.histogram.min, self.histogram.max, bins + 1)
+            bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
+        else:
+            bins = 256
+            hist, bin_edges = np.histogram(
+                self.image.flatten(), bins=bins, range=(vmin, vmax)
+            )
+            bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
+        # Plot gamma curve over the histogram
+        # Normalize the bin centers to [0, 1] using vmin/vmax then apply gamma correction.
+        if (
+            self.attributes is None
+            or self.attributes.stretchType == ContrastStretchType.NONE
+        ):
+            vmin = self.histogram.min
+            vmax = self.histogram.max
+            gamma = 1.0
+        elif self.attributes.stretchType == ContrastStretchType.MANUAL:
+            vmin = self.attributes.manualStretchMin
+            vmax = self.attributes.manualStretchMax
+            gamma = self.attributes.manualStretchGamma
+
+        else:
+            vmin = self.attributes.autoStretchMin
+            vmax = self.attributes.autoStretchMax
+            gamma = self.attributes.autoStretchGamma
+        denom = vmax - vmin
+
+        if denom == 0:
+            norm = np.clip(bin_centers - vmin, 0.0, 1.0)
+        else:
+            norm = np.clip((bin_centers - vmin) / denom, 0.0, 1.0)
+
+        # Use a standard gamma transform (display mapping): out = in ** (1/gamma)
+        gamma_curve = norm ** (1.0 / gamma)
+
+        # Scale the gamma curve to the histogram amplitude for overlay
+        scale = float(np.max(hist)) if np.size(hist) else 1.0
+        gamma_scaled = gamma_curve * scale * 1.05
+
+        hax.plot(gamma_scaled, bin_centers, color="C1", linewidth=2)
+        # Draw histogram. If color_histogram is True, color bars using the image colormap/norm.
+        if color_histogram:
+            # Normalize bin centers to [0,1] using vmin/vmax and apply display gamma, then map to colormap
+            cmap = im.get_cmap()
+            # Compute normalized values safely
+            if denom == 0:
+                normalized = np.clip(bin_centers - vmin, 0.0, 1.0)
+            else:
+                normalized = np.clip((bin_centers - vmin) / denom, 0.0, 1.0)
+            # Apply display gamma (out = in ** (1/gamma))
+
+            mapped = np.power(normalized, gamma)
+            colors_rgba = cmap(mapped)
+            # Draw horizontal bars colored by the mapped RGBA values
+            height = bin_edges[1] - bin_edges[0] if len(bin_edges) > 1 else 1.0
+            hax.barh(
+                bin_centers,
+                hist,
+                height=height,
+                color=colors_rgba,
+                align="center",
+                edgecolor="none",
+            )
+        else:
+            hax.fill_betweenx(bin_centers, 0, hist, color="0.6")
+
+        hax.set_xlim(0, scale * 1.05)
+        hax.set_ylim(self.histogram.min, self.histogram.max)
+        hax.invert_xaxis()
+        hax.yaxis.tick_right()
+        hax.yaxis.set_label_position("right")
+        hax.set_xlabel("Frequency")
+        hax.set_ylabel("Detector Units")
+
+        ax.set_yticks([])
+        ax.set_xticks([])
+
+        return ax
