@@ -194,12 +194,15 @@ class Client:
 
         version = [int(part) for part in server_version[:4]]
         temp = version[2] + version[1] * 1000 + version[0] * 1000000
-        if temp >= 2007005:
-            ## version after 2.7.5
+        if (temp >= 2007005 and version[3] < 11274) or temp >= 2008000:
+            ## version after 2.8.0
             self.commandVersion = 15
         elif temp >= 2007004:
             ## version after 2.7.4
-            self.commandVersion = 13
+            if version[3] < 10590:
+                self.commandVersion = 12
+            else:
+                self.commandVersion = 13
         elif temp >= 2007003:
             ## version after 2.7.3
             self.commandVersion = 11
