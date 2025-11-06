@@ -318,6 +318,25 @@ class Client:
             available_properties = [p for p in available_properties if search in p]
         return available_properties
 
+    def list_registers(self, options=None, search=None):
+        """
+        Get a list of register names from the current camera on DE-Server
+
+        Parameters
+        ----------
+        options : list, optional
+            Options to pass to the server, by default None
+        """
+        available_registers = self.__getStrings(self.LIST_REGISTERS, options)
+        if available_registers != False:
+            self.available_registers = available_registers
+
+        if logLevel == logging.DEBUG:
+            log.debug("Available camera registers: %s", available_registers)
+        if search is not None:
+            available_registers = [p for p in available_registers if search in p]
+        return available_registers
+    
     @deprecated_argument(
         name="propertyName", since="5.2.0", alternative="property_name"
     )
@@ -485,6 +504,39 @@ class Client:
                     )
 
         return ret
+    
+    def get_register(self, register_name: str):
+        """
+        Get the value of a register of the current camera on DE-Server
+
+        Parameters
+        ----------
+        register_name : str
+            The name of the register to get the value of
+        """
+        t0 = self.GetTime()
+        ret = False
+
+        if register_name is not None:
+            command = self._addSingleCommand(self.GET_REGISTER, register_name)
+            response = self._sendCommand(command)
+            if response != False:
+                values = self.__getParameters(response.acknowledge[0])
+                if type(values) is list:
+                    if len(values) > 0:
+                        ret = values[0]  # always return the first value
+                    else:
+                        ret = values
+
+                if logLevel == logging.DEBUG:
+                    log.debug(
+                        "GetRegister: %s = %s, completed in %.1f ms",
+                        register_name,
+                        values,
+                        (self.GetTime() - t0) * 1000,
+                    )
+
+        return ret
 
     def get_server_version(self):
         """
@@ -583,6 +635,41 @@ class Client:
             )
 
         return ret
+    
+
+    @write_only
+    def set_register(self, name: str, value):
+        """
+        Set the value of a register of the current camera on DE-Server
+
+        Parameters
+        ----------
+        name : str
+            The name of the register to set the value of
+        value : any
+            The value to set the register to
+        """
+
+        t0 = self.GetTime()
+        ret = False
+
+        if name is not None and value is not None:
+            command = self._addSingleCommand(self.SET_REGISTER, name, [value])
+            response = self._sendCommand(command)
+            if response != False:
+                ret = response.acknowledge[0].error != True
+                self.refreshProperties = True
+
+        if logLevel == logging.DEBUG:
+            log.debug(
+                "SetRegister: %s = %s, completed in %.1f ms",
+                name,
+                value,
+                (self.GetTime() - t0) * 1000,
+            )
+
+        return ret
+
 
     @write_only
     def set_engineering_mode(self, enable, password):
@@ -2685,6 +2772,9 @@ class Client:
     GetProperty = get_property
     SetProperty = set_property
     SetPropertyAndGetChangedProperties = set_property_and_get_changed_properties
+    GetRegister = get_register 
+    SetRegister = set_register
+    ListRegisters = list_registers
     setEngMode = set_engineering_mode
     SetHWROI = set_hw_roi
     SetHWROIAndGetChangedProperties = set_hw_roi_and_get_changed_properties
@@ -2756,6 +2846,9 @@ class Client:
     SET_ADAPTIVE_ROI = 33
     SET_ADAPTIVE_ROI_AND_GET_CHANGED_PROPERTIES = 34
     GET_PROPERTY_SPECIFICATIONS = 35
+    GET_REGISTER = 38
+    SET_REGISTER = 39
+    LIST_REGISTERS = 40 
 
 
 MMF_DATA_HEADER_SIZE = 24
