@@ -321,6 +321,7 @@ class Client:
     def list_registers(self, options=None, search=None):
         """
         Get a list of register names from the current camera on DE-Server
+        for each register, it contains name of the register, address, RO or not, value of the register
 
         Parameters
         ----------
