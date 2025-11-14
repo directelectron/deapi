@@ -990,7 +990,7 @@ class Client:
         retval = True
         if commandVersion < 10:
             retval = self.SetProperty(
-                "Binning Mode", "Hardware and Software" if useHW else "Software Only"
+                "Binning Mode", "Hardware and Software" if use_hw else "Software Only"
             )
             retval &= self.SetProperty("Binning X", bin_x)
             retval &= self.SetProperty("Binning Y", bin_y)
