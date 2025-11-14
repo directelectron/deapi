@@ -1,6 +1,6 @@
 # File containing the Client for connecting to the DE-Server
 #
-# Last update: 2024-08-07
+# Last update: 2025-11-13
 # cfrancis@directelectron.com
 
 
@@ -51,12 +51,13 @@ from deapi.wrappers import write_only, disable_scan, deprecated_argument
 logLevel = logging.INFO
 logging.basicConfig(format="%(asctime)s DE %(levelname)-8s %(message)s", level=logLevel)
 log = logging.getLogger("DECameraClientLib")
-log.info(f"DEAPI Version: {version} (Command Version: {commandVersion})")
-log.info("Python    : " + sys.version.split("(")[0])
-log.info("DEClient  : " + version)
-log.info("CommandVer: " + str(commandVersion))
-log.info("logLevel  : " + str(logging.getLevelName(logLevel)))
 
+def print_info():
+    log.info(f"DEAPI Version: {version} (Command Version: {commandVersion})")
+    log.info("Python    : " + sys.version.split("(")[0])
+    log.info("DEClient  : " + version)
+    log.info("CommandVer: " + str(commandVersion))
+    log.info("logLevel  : " + str(logging.getLevelName(logLevel)))
 
 class Client:
     """A class for connecting to the DE-Server
