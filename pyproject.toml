@@ -52,7 +52,6 @@ tests = [
     "setuptools_scm",
     "pytest-cov",
     "pytest-xprocess",
-    "libertem",
     "hyperspy",
 ]
 service = [
