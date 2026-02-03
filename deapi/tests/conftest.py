@@ -196,3 +196,5 @@ def client(xprocess, request):
         c.connect(port=port)
         yield c
         xprocess.getinfo("server-%s" % port).terminate()
+
+

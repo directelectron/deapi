@@ -5,28 +5,39 @@ without errors.
 
 Expected behavior:
 """
+import os
 
 import numpy as np
 import pytest
 from time import sleep
-
+import glob
 
 class TestContinualScanning:
     """Test class for continual scanning functionality."""
 
+    @pytest.fixture
+    def tmp_path(self):
+        import tempfile
+        from pathlib import Path
+        temp_dir = Path("D:/temp") / f"test_{id(self)}"
+        temp_dir.mkdir(parents=True, exist_ok=True)
+        yield temp_dir
+        # Optional: cleanup
+        import shutil
+        shutil.rmtree(temp_dir, ignore_errors=True)
+
     @pytest.fixture(autouse=True)
     def clean_state(self, client):
         # First set the hardware ROI to a known state
-        client["Hardware ROI Offset X"] = 0
-        client["Hardware ROI Offset Y"] = 0
         client["Hardware Binning X"] = 1
         client["Hardware Binning Y"] = 1
-        client["Hardware ROI Size X"] = 1024
-        client["Hardware ROI Size Y"] = 1024
+        client.set_adaptive_roi(size=(256, 256)) # set to a reduced size for faster testing
+        client["Frames Per Second"] = 100000 # set to max (will be capped by sever)
         client["Scan - Type"] = "Raster"
         # Set the software Binning to 1
         client["Binning X"] = 1
         client["Binning Y"] = 1
+        client["Scan - Use DE Camera"] = "On"
 
     @pytest.mark.server
     def test_continual_scanning(self, client):
@@ -110,3 +121,38 @@ class TestContinualScanning:
         # After scan completion, verify the scan parameters
 
         result = client.get_result("external_image1")
+
+        assert result.attributes.acq_index == 49  # 5x5x10 - 1 = 49
+
+    @pytest.mark.server
+    def test_saving_virtual_images(self, client, tmp_path):
+        """Test that virtual images are saved correctly during continual scanning.
+
+        This should be a 3D image with dimensions (Repeats, Size Y, Size X).
+        """
+
+        client["Scan - Size X"] = 4
+        client["Scan - Size Y"] = 4
+        client["Scan - Repeats"] = 2
+        client["Scan - Enable"] = True
+        client["Virtual Image 0 - Save To File"] = "On"
+
+        client["Autosave Directory"] =  str(tmp_path)
+        client["Autosave Virtual Image 0"] = "On"
+
+        # Start the scan
+        client.start_acquisition()
+        while client.acquiring:
+            sleep(0.1)
+
+        path = client["Autosave Virtual Image 0 File Path"]
+
+        assert path.startswith(str(tmp_path))
+
+        # get the file size
+        osize = os.path.getsize(path)
+
+        HEADER_SIZE = 1024  #  Header size for a MRC file
+        expected_size = HEADER_SIZE + 2 * 4 * 4  # 2 repeats, 4x4 image, 4 bytes per pixel
+
+        assert osize == expected_size
