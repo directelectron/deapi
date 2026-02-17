@@ -1,6 +1,6 @@
 # File containing the Client for connecting to the DE-Server
 #
-# Last update: 2024-08-07
+# Last update: 2025-11-13
 # cfrancis@directelectron.com
 
 
@@ -51,11 +51,13 @@ from deapi.wrappers import write_only, disable_scan, deprecated_argument
 logLevel = logging.INFO
 logging.basicConfig(format="%(asctime)s DE %(levelname)-8s %(message)s", level=logLevel)
 log = logging.getLogger("DECameraClientLib")
-log.info("Python    : " + sys.version.split("(")[0])
-log.info("DEClient  : " + version)
-log.info("CommandVer: " + str(commandVersion))
-log.info("logLevel  : " + str(logging.getLevelName(logLevel)))
 
+def print_info():
+    log.info(f"DEAPI Version: {version} (Command Version: {commandVersion})")
+    log.info("Python    : " + sys.version.split("(")[0])
+    log.info("DEClient  : " + version)
+    log.info("CommandVer: " + str(commandVersion))
+    log.info("logLevel  : " + str(logging.getLevelName(logLevel)))
 
 class Client:
     """A class for connecting to the DE-Server
@@ -217,7 +219,7 @@ class Client:
             self.commandVersion = 3
         else:
             self.commandVersion = commandVersion
-        print("Command Version: ", self.commandVersion)
+        log.info(f"Command Version: {self.commandVersion}")
         self._initialize_attributes()
         self.update_scan_size()
         self.update_image_size()
@@ -989,7 +991,7 @@ class Client:
         retval = True
         if commandVersion < 10:
             retval = self.SetProperty(
-                "Binning Mode", "Hardware and Software" if useHW else "Software Only"
+                "Binning Mode", "Hardware and Software" if use_hw else "Software Only"
             )
             retval &= self.SetProperty("Binning X", bin_x)
             retval &= self.SetProperty("Binning Y", bin_y)
@@ -1408,7 +1410,7 @@ class Client:
             packet = struct.pack("I", command.ByteSize()) + command.SerializeToString()
             self.socket.send(packet)
             ret = self.__ReceiveResponseForCommand(command) != False
-            print("response", ret)
+            log.info(f"response {ret}")
         except socket.error:
             raise socket.error(
                 "Error sending x-y scan positions to socket. Is the server running?"
@@ -1771,7 +1773,7 @@ class Client:
                     log.warning("Virtual mask must be a numpy array of type uint8")
                     mask = mask.astype(np.uint8)
                 mask_bytes = mask.tobytes()
-                print("Sending mask of size", len(mask_bytes))
+                log.info(f"Sending mask of size {len(mask_bytes)}")
                 self.__sendToSocket(self.socket, mask_bytes, len(mask_bytes))
 
             ret = self.__ReceiveResponseForCommand(command) != False
@@ -1900,9 +1902,9 @@ class Client:
                             f"expected: {totalBytes}, received: {movieBufferSize}"
                         )
                     else:
-                        print("reading movie buffer", totalBytes)
+                        log.info(f"reading movie buffer {totalBytes}", )
                         movieBuffer = self._recvFromSocket(self.socket, totalBytes)
-                        print("Done reading movie buffer")
+                        log.info("Done reading movie buffer")
         else:
             retval = False
 
@@ -2216,7 +2218,7 @@ class Client:
 
         duration = self.GetTime() - t0
         if not quiet:
-            print(" %.1fs" % duration)
+            log.info(f" {duration:.1f}s")
             sys.stdout.flush()
 
     def _get_auto_attributes(self, frame_type: FrameType):
@@ -2386,11 +2388,7 @@ class Client:
         self.SetProperty("Exposure Time (seconds)", prevExposureTime)
 
         num_el = np.max([attr.eppixpf * frame_rate, attr.eppixps])
-        print(
-            "The number of electrons per pixel per second (eppixps): {:.2f}".format(
-                num_el
-            )
-        )
+        log.info(f"The number of electrons per pixel per second (eppixps): {num_el:.2f}")
 
         if attr.saturation > 0.0001:  # Nothing should be saturated in a gain image.
             raise ValueError(
@@ -2450,7 +2448,7 @@ class Client:
             frame_rate, target_electrons_per_pixel, counting
         )
 
-        print(
+        log.info(
             f"Gain reference: {exposure_time:.2f} seconds, "
             f"total acquisitions: {num_acquisitions}, "
         )
