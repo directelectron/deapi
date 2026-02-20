@@ -25,7 +25,7 @@ dependencies = [
     "sympy",
 ]
 description = "API for DE Server"
-version = "5.3b2"
+version = "5.3b3"
 keywords = [
     "EELS",
     "STEM",
