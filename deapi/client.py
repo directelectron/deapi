@@ -175,7 +175,7 @@ class Client:
         self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, tcp_no_delay)
         self.socket.setblocking(False)
         self.socket.settimeout(2)
-
+        print('hello,world')
         self.cameras = self.__getStrings(self.LIST_CAMERAS)
         if logLevel == logging.DEBUG:
             log.debug("Available cameras: %s", self.cameras)
