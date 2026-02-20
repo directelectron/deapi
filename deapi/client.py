@@ -999,18 +999,11 @@ class Client:
             if commandVersion >= 13:
                 retval = self.SetProperty("Server Normalize Properties", "Off")
 
-            if use_hw:
-                if bin_x > 1:
-                    retval &= self.SetProperty("Hardware Binning X", 2)
-                if bin_y > 1:
-                    retval &= self.SetProperty("Hardware Binning Y", 2)
-            else:
-                retval &= self.SetProperty("Hardware Binning X", 1)
-                retval &= self.SetProperty("Hardware Binning Y", 1)
+            retval &= self.SetProperty("Hardware Binning X", 2 if bin_x >= 2 and use_hw else 1)
+            retval &= self.SetProperty("Hardware Binning Y", 2 if bin_y >= 2 and use_hw else 1)
 
             prop_hw_bin_x = self.GetProperty("Hardware Binning X")
             prop_hw_bin_y = self.GetProperty("Hardware Binning Y")
-
             hw_bin_x = 1
             hw_bin_y = 1
             if prop_hw_bin_x is not False:
