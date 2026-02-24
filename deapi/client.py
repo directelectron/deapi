@@ -263,8 +263,7 @@ class Client:
         Deprecated function.
         List the available cameras on the server.
         """
-        if logLevel == logging.DEBUG:
-            log.debug("list_cameras is deprecated.")
+        log.error("list_cameras is deprecated.")
 
         return [self.camera]
 
@@ -296,9 +295,7 @@ class Client:
         Deprecated function.
         Set the current camera on the server.
         """
-
-        if logLevel == logging.DEBUG:
-            log.debug("set_current_camera is deprecated.")
+        log.error("set_current_camera is deprecated.")
 
         return True
 
