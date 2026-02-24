@@ -258,11 +258,15 @@ class Client:
             self.connected = False
             log.info("Disconnected.")
 
-    def get_camera(self):
+    def list_cameras(self) -> List[str]:
         """
-        Get the camera on the server.
+        Deprecated function.
+        List the available cameras on the server.
         """
-        return self.camera
+        if logLevel == logging.DEBUG:
+            log.debug("list_cameras is deprecated.")
+
+        return [self.camera]
 
     def get_virtual_mask(self, index):
         mask_name = f"virtual_mask{index}"
@@ -276,6 +280,27 @@ class Client:
             _,
         ) = self.get_result(mask_name, DataType.DE8u, attributes=a)
         return res
+    
+    def get_current_camera(self) -> str:
+        """
+        Get the current camera on the server.
+        """
+        if self.camera == "":
+            return "No current camera"
+        else:
+            return self.camera
+        
+    @write_only
+    def set_current_camera(self, camera_name: str = None):
+        """
+        Deprecated function.
+        Set the current camera on the server.
+        """
+
+        if logLevel == logging.DEBUG:
+            log.debug("set_current_camera is deprecated.")
+
+        return True
 
     def list_properties(self, options=None, search=None):
         """
@@ -2733,7 +2758,9 @@ class Client:
     GetServerVersion = get_server_version
     Connect = connect
     Disconnect = disconnect
-    GetCamera = get_camera
+    ListCameras = list_cameras
+    GetCurrentCamera = get_current_camera
+    SetCurrentCamera = set_current_camera
     ListProperties = list_properties
     GetPropertySpec = get_property_spec
     # PropertyValidValues = property_valid_values
