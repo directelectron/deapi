@@ -18,6 +18,8 @@ def compare2FloatValue(expectVal, actualVal, numPrecision, name):
             f"{name}: expect {round(expectVal, numPrecision)} actual {round(actualVal, numPrecision)}"
         )
         return False
+    else:
+        return True
 
 
 def writeLogFile(caseName, scriptName):
