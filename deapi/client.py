@@ -1465,12 +1465,14 @@ class Client:
         if ret:
             try:
                 # convert to bytes and send
-
+                tic =time.time()
                 for pos in positions:
                     x = pos[:, 0].tobytes()
                     y = pos[:, 1].tobytes()
                     self.__sendToSocket(self.socket, x, len(x))
                     self.__sendToSocket(self.socket, y, len(y))
+                toc = time.time()
+                log.info(f"Time to send {len(positions)} Scan Patterns: {toc-tic} s")
             except socket.error as e:
                 log.log(logging.ERROR, "Error sending data to socket: %s", e)
                 return False
@@ -1489,11 +1491,11 @@ class Client:
     def get_result(
         self,
         frame_type: Union[FrameType, str] = "singleframe_integrated",
-        pixel_format: Union[PixelFormat, str] = "UINT16",
+        pixel_format: Union[PixelFormat, str] = "AUTO",
         attributes="auto",
         histogram=None,
         **kwargs,
-    ):
+    ) -> Result:
         """
         Get the specified type of frames in the desired pixel format and associated information.
 

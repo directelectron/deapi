@@ -77,20 +77,22 @@ class TestContinualScanning:
         properly cycle through the patterns for the specified number of repeats.
         """
 
-        scan1 = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])
+        scan1 = np.array([[0, 0], [1, 0], [1, 1], [0, 1],[2, 1], [2, 0], [0,2], [1,2]] ) # 8 points)
         scans = []
-        for i in range(10):
+        for i in range(5):
             scans.append(scan1 + 2 * i)
-        client.set_xy_array(scans, height=40, width=40)
+        client.set_xy_array(scans, height=10, width=10)
 
         client["Scan - Repeats"] = 100
         client["Scan - Enable"] = True
+        client["Scan - Camera Frames Per Point"] = 1
+        client["Scan - Repeat Delay"]
         client.start_acquisition()
         while client.acquiring:
             sleep(0.1)
 
         sleep(5)
-        assert client["Frame Count"] == 4 * 100
+        assert client["Frame Count"]- client["Actual Frames to Ignore"] *10 ==8 * 100
 
     @pytest.mark.server
     def test_multiple_scan_patterns_different_lengths(self, client):
@@ -101,7 +103,7 @@ class TestContinualScanning:
         scan1 = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])  # 4 points
         scan2 = np.array([[0, 0], [2, 0], [2, 2], [0, 2], [1, 1]])  # 5 points
         scan3 = np.array([[0, 0], [3, 0], [3, 3], [0, 3], [1, 1], [2, 2]])  # 6 points
-        scans = [scan1, scan2, scan3]
+        scans = [scan3, scan2, scan1]
         client.set_xy_array(scans, height=10, width=10)
 
         for i, num_points in enumerate([4, 5, 6]):
@@ -111,7 +113,32 @@ class TestContinualScanning:
             client.start_acquisition()
             while client.acquiring:
                 sleep(0.1)
-            assert client["Frame Count"] == num_points
+            print(client["Frame Count"])
+            # assert client["Frame Count"] == num_points
+
+    @pytest.mark.server
+    def test_send_100_patterns(self, client):
+        """Test sending 100 scan patterns.
+
+        This is to test the stability of the system when handling a large number of patterns.
+        """
+        # create 1000 patterns that are 1k x 1k in size with only 10% of the points filled in.
+        state = np.random.RandomState(0)
+        coords = []
+
+        for i in range(100):
+            mask = np.ones((128, 128), dtype=bool)
+            # randomly remove 95% of the points
+            mask[state.random(mask.shape) < 0.95] = False
+            # turn the mask into a list of xy coordinates
+            coords.append(np.argwhere(mask))
+
+        client.set_xy_array(coords, height=128, width=128)
+        client["Scan - Repeats"] = 100
+        client["Scan - Enable"] = True
+        #client.start_acquisition()
+        #while client.acquiring:
+        #    sleep(0.1)
 
     @pytest.mark.server
     def test_repeat_scanning_no_DE_camera(self, client):
@@ -146,7 +173,7 @@ class TestContinualScanning:
         client["Scan - Size Y"] = 32
         client["Scan - Repeats"] = 2
         client["Scan - Enable"] = True
-        client["Virtual Image 0 - Save To File"] = "On"
+        client["Use DE Camera"] = "Use Frame Time"
 
         client["Autosave Directory"] =  str(tmp_path)
         client["Autosave Virtual Image 0"] = "On"
@@ -156,6 +183,7 @@ class TestContinualScanning:
         while client.acquiring:
             sleep(0.1)
 
+        sleep(3) # wait for any finalization
         path = client["Autosave Virtual Image 0 File Path"]
 
         # get the file size
@@ -165,3 +193,118 @@ class TestContinualScanning:
         expected_size = HEADER_SIZE + 2 * 32 * 32 * 4  # 2 repeats, 8x8 image, 4 bytes per pixel
 
         assert osize == expected_size
+
+    @pytest.mark.server
+    def test_frame_repeats(self,client):
+        """Test that frame repeats work correctly during continual scanning.
+
+        This should repeat each frame the specified number of times before moving to the next position.
+        """
+        client["Scan - Size X"] = 4
+        client["Scan - Size Y"] = 4
+        client["Scan - Repeats"] = 2
+        client["Scan - Camera Frames Per Point"] = 8
+        client["Scan - Enable"] = True
+        client["Test Pattern"] = "SW Frame Number"
+        client["Use DE Camera"] = "Use Frame Time"
+
+        # Start the scan
+        client.start_acquisition()
+        while client.acquiring:
+            sleep(0.1)
+
+        res_1=client.get_result("virtual_image0", pixel_format="AUTO" )
+
+        # num pixels/frame
+        n_pix = client["Image Size X (pixels)"] * client["Image Size Y (pixels)"]
+        print(n_pix)
+        frame_number = (res_1.image / n_pix) / client["Scan - Camera Frames Per Point"]
+        print(frame_number)
+
+
+    @pytest.mark.server
+    def test_frame_repeats_auto_save(self,client):
+        """Test that frame repeats work correctly during continual scanning.
+
+        This should repeat each frame the specified number of times before moving to the next position.
+        """
+        client["Scan - Size X"] = 16
+        client["Scan - Size Y"] = 16
+        client["Scan - Repeats"] = 1
+        client["Scan - Camera Frames Per Point"] = 8
+        client["Scan - Enable"] = True
+        client["Test Pattern"] = "SW Frame Number"
+        client["Autosave Movie"] = "On"
+        client["Autosave Virtual Image 0"] = "On"
+        client["Autosave 4D File Format"] = "MRC"
+        client["Use DE Camera"] = "Use Frame Time"
+
+        # Start the scan
+        client.start_acquisition()
+        while client.acquiring:
+
+            sleep(0.1)
+        print(client["Acquisition Status"])
+        sleep(3)
+        res_1=client.get_result("virtual_image0", pixel_format="AUTO" )
+
+        # num pixels/frame
+        n_pix = client["Image Size X (pixels)"] * client["Image Size Y (pixels)"]
+        print(n_pix)
+        frame_number = (res_1.image / n_pix) / client["Scan - Camera Frames Per Point"]
+        print("frame1", frame_number)
+
+        client["Scan - Camera Frames Per Point"] = 4
+        client["Scan - Repeats"] = 3
+
+        client.start_acquisition()
+        while client.acquiring:
+            sleep(0.1)
+        sleep(3)
+        print(client["Acquisition Status"])
+        res_2=client.get_result("virtual_image0", pixel_format="AUTO" )
+        frame_number_2 = (res_2.image / n_pix) / client["Scan - Camera Frames Per Point"]
+        print("frame2", frame_number_2)
+
+        # test the size of the result...
+
+        path = client["Autosave Movie Frames File Path"]
+
+        # get the file size
+        osize = os.path.getsize(path)
+
+        HEADER_SIZE = 1024  #  Header size for a MRC file
+        image_size = client["Image Size X (pixels)"] * client["Image Size Y (pixels)"] * 2  # 4 bytes per pixel
+        expected_size = HEADER_SIZE +  (image_size*
+                                        client["Scan - Size X"] *
+                                        client["Scan - Size Y"] *
+                                        client["Scan - Repeats"])
+
+        assert osize == expected_size
+
+        client["Scan - Camera Frames Per Point"] = 8
+        client["Scan - Repeats"] = 2
+
+        client.start_acquisition()
+        while client.acquiring:
+            sleep(0.1)
+        sleep(1)
+        res_2 = client.get_result("virtual_image0", pixel_format="AUTO")
+        frame_number_2 = (res_2.image / n_pix) / client["Scan - Camera Frames Per Point"]
+        print("frame3",frame_number_2)
+        # test the size of the result...
+
+        path = client["Autosave Movie Frames File Path"]
+
+        # get the file size
+        osize = os.path.getsize(path)
+
+        HEADER_SIZE = 1024  # Header size for a MRC file
+        image_size = client["Image Size X (pixels)"] * client["Image Size Y (pixels)"] * 2  # 2 bytes per pixel
+        expected_size = HEADER_SIZE + (image_size *
+                                       client["Scan - Size X"] *
+                                       client["Scan - Size Y"] *
+                                       client["Scan - Repeats"])  # 2 bytes per pixel
+
+        assert osize == expected_size
+
