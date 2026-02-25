@@ -80,7 +80,7 @@ class Client:
         return
 
     def __str__(self):
-        return f"Client(host={self.host}, port={self.port}, camera={self.get_current_camera()})"
+        return f"Client(host={self.host}, port={self.port}, camera={self.camera})"
 
     def _ipython_key_completions_(self):
         return self.list_properties()
@@ -91,12 +91,12 @@ class Client:
 			<tr>
 				<th>Host</th>
 				<th>Port</th>
-				<th>Current Camera</th>
+				<th>Camera</th>
 			</tr>
 			<tr>
 				<td>{self.host}</td>
 				<td>{self.port}</td>
-				<td>{self.currCamera}</td>
+				<td>{self.camera}</td>
 			</tr>
 		</table>
         <details>
@@ -176,12 +176,13 @@ class Client:
         self.socket.setblocking(False)
         self.socket.settimeout(2)
 
-        self.cameras = self.__getStrings(self.LIST_CAMERAS)
+        command = self._addSingleCommand(self.LIST_CAMERAS, None)
+        response = self._sendCommand(command)
+        if response != False:
+            self.camera = self.__getParameters(response.acknowledge[0])[0]
+        
         if logLevel == logging.DEBUG:
-            log.debug("Available cameras: %s", self.cameras)
-        self.currCamera = self.cameras[0]
-        if logLevel == logging.DEBUG:
-            log.debug("Current camera: %s", self.currCamera)
+            log.debug("Camera: %s", self.camera)
 
         self.connected = True
         self.host = host
@@ -259,9 +260,12 @@ class Client:
 
     def list_cameras(self) -> List[str]:
         """
+        Deprecated function.
         List the available cameras on the server.
         """
-        return self.cameras
+        log.warning("list_cameras is deprecated.")
+
+        return [self.camera]
 
     def get_virtual_mask(self, index):
         mask_name = f"virtual_mask{index}"
@@ -275,35 +279,29 @@ class Client:
             _,
         ) = self.get_result(mask_name, DataType.DE8u, attributes=a)
         return res
-
+    
     def get_current_camera(self) -> str:
         """
         Get the current camera on the server.
         """
-        if self.currCamera is None:
+        if self.camera == "":
             return "No current camera"
         else:
-            return self.currCamera
-
+            return self.camera
+        
     @write_only
     def set_current_camera(self, camera_name: str = None):
         """
+        Deprecated function.
         Set the current camera on the server.
         """
-        if camera_name is None:
-            return False
+        log.warning("set_current_camera is deprecated.")
 
-        self.currCamera = camera_name
-
-        if logLevel == logging.DEBUG:
-            log.debug("current camera: %s", camera_name)
-
-        self.refreshProperties = True
         return True
 
     def list_properties(self, options=None, search=None):
         """
-        Get a list of property names from the current camera on DE-Server
+        Get a list of property names from the camera on DE-Server
 
         Parameters
         ----------
@@ -322,7 +320,7 @@ class Client:
 
     def list_registers(self, options=None, search=None):
         """
-        Get a list of register names from the current camera on DE-Server
+        Get a list of register names from the camera on DE-Server
         for each register, it contains attributes: name of the register, address, Read only, value of the register
 
         Parameters
@@ -345,7 +343,7 @@ class Client:
     )
     def get_property_spec(self, property_name: str):
         """
-        Get a list of allowed values for a property of the current camera on DE-Server
+        Get a list of allowed values for a property of the camera on DE-Server
         Deprecated since DE-MC 2.7.4
 
         Parameters
@@ -410,7 +408,7 @@ class Client:
     )
     def get_property_specifications(self, property_name):
         """
-        Get a list of allowed values for a property of the current camera on DE-Server
+        Get a list of allowed values for a property of the camera on DE-Server
         Only works for DE-MC version greater or equal to 2.7.4
 
         Parameters
@@ -420,10 +418,10 @@ class Client:
         """
         t0 = self.GetTime()
         values = False
-        command = self.__addSingleCommand(
+        command = self._addSingleCommand(
             self.GET_PROPERTY_SPECIFICATIONS, property_name
         )
-        response = self.__sendCommand(command)
+        response = self._sendCommand(command)
         if response == False:
             return None
 
@@ -477,7 +475,7 @@ class Client:
     )
     def get_property(self, property_name: str):
         """
-        Get the value of a property of the current camera on DE-Server
+        Get the value of a property of the camera on DE-Server
 
         Parameters
         ----------
@@ -510,7 +508,7 @@ class Client:
     
     def get_register(self, register_name: str):
         """
-        Get the value of a register of the current camera on DE-Server
+        Get the value of a register of the camera on DE-Server
 
         Parameters
         ----------
@@ -565,7 +563,7 @@ class Client:
     @write_only
     def set_property(self, name: str, value):
         """
-        Set the value of a property of the current camera on DE-Server
+        Set the value of a property of the camera on DE-Server
 
         Parameters
         ----------
@@ -601,7 +599,7 @@ class Client:
     )
     def set_property_and_get_changed_properties(self, name, value, changed_properties):
         """
-        Set the value of a property of the current camera on DE-Server and get all
+        Set the value of a property of the camera on DE-Server and get all
         the changed properties.  This is useful for testing and determining how certain
         properties affect others.
 
@@ -643,7 +641,7 @@ class Client:
     @write_only
     def set_register(self, name: str, value):
         """
-        Set the value of a register of the current camera on DE-Server
+        Set the value of a register of the camera on DE-Server
 
         Parameters
         ----------
@@ -677,7 +675,7 @@ class Client:
     @write_only
     def set_engineering_mode(self, enable, password):
         """
-        Set the engineering mode of the current camera on DE-Server. Mostly for internal testing.
+        Set the engineering mode of the camera on DE-Server. Mostly for internal testing.
 
         Parameters
         ----------
@@ -700,10 +698,10 @@ class Client:
 
         ret = False
 
-        command = self.__addSingleCommand(
+        command = self._addSingleCommand(
             self.SET_ENG_MODE_GET_CHANGED_PROPERTIES, None, [enable, password]
         )
-        response = self.__sendCommand(command)
+        response = self._sendCommand(command)
         if response != False:
             ret = response.acknowledge[0].error != True
             self.refreshProperties = True
@@ -720,7 +718,7 @@ class Client:
     @deprecated_argument(name="sizeY", since="5.2.0", alternative="size_y")
     def set_hw_roi(self, offset_x: int, offset_y: int, size_x: int, size_y: int):
         """
-        Set the hardware region of interest (ROI) of the current camera on DE-Server.
+        Set the hardware region of interest (ROI) of the camera on DE-Server.
 
         Parameters
         ----------
@@ -762,14 +760,14 @@ class Client:
     @deprecated_argument(name="sizeY", since="5.2.0", alternative="size_y")
     def SetScanSize(self, size_x, size_y):
         """
-        Set the scan size of the current camera on DE-Server.
+        Set the scan size of the camera on DE-Server.
         """
 
         t0 = self.GetTime()
         ret = False
 
-        command = self.__addSingleCommand(self.SET_SCAN_SIZE, None, [size_x, size_y])
-        response = self.__sendCommand(command)
+        command = self._addSingleCommand(self.SET_SCAN_SIZE, None, [size_x, size_y])
+        response = self._sendCommand(command)
         if response != False:
             ret = response.acknowledge[0].error != True
             self.refreshProperties = True
@@ -794,10 +792,10 @@ class Client:
         t0 = self.GetTime()
         ret = False
 
-        command = self.__addSingleCommand(
+        command = self._addSingleCommand(
             self.SET_SCAN_SIZE_AND_GET_CHANGED_PROPERTIES, None, [size_x, size_y]
         )
-        response = self.__sendCommand(command)
+        response = self._sendCommand(command)
         if response != False:
             ret = response.acknowledge[0].error != True
             self.refreshProperties = True
@@ -820,10 +818,10 @@ class Client:
         t0 = self.GetTime()
         ret = False
 
-        command = self.__addSingleCommand(
+        command = self._addSingleCommand(
             self.SET_SCAN_ROI, None, [enable, offsetX, offsetY, sizeX, sizeY]
         )
-        response = self.__sendCommand(command)
+        response = self._sendCommand(command)
         if response != False:
             ret = response.acknowledge[0].error != True
             self.refreshProperties = True
@@ -848,12 +846,12 @@ class Client:
         t0 = self.GetTime()
         ret = False
 
-        command = self.__addSingleCommand(
+        command = self._addSingleCommand(
             self.SET_SCAN_ROI__AND_GET_CHANGED_PROPERTIES,
             None,
             [enable, offsetX, offsetY, sizeX, sizeY],
         )
-        response = self.__sendCommand(command)
+        response = self._sendCommand(command)
         if response != False:
             ret = response.acknowledge[0].error != True
             self.refreshProperties = True
@@ -878,7 +876,7 @@ class Client:
         self, offsetX: int, offsetY: int, sizeX: int, sizeY: int, changedProperties
     ):
         """
-        Set the hardware region of interest (ROI) of the current camera on DE-Server and get all
+        Set the hardware region of interest (ROI) of the camera on DE-Server and get all
         the changed properties.  This is useful for testing and determining how certain
         properties affect others.
 
@@ -927,7 +925,7 @@ class Client:
     @write_only
     def set_sw_roi(self, offsetX: int, offsetY: int, sizeX: int, sizeY: int):
         """
-        Set the software region of interest (ROI) of the current camera on DE-Server.
+        Set the software region of interest (ROI) of the camera on DE-Server.
 
         Parameters
         ----------
@@ -970,7 +968,7 @@ class Client:
     @deprecated_argument(name="useHW", since="5.2.0", alternative="use_hw")
     def set_binning(self, bin_x, bin_y, use_hw=True):
         """
-        Set the binning of the current camera on DE-Server. If useHW is True, the binning will
+        Set the binning of the camera on DE-Server. If useHW is True, the binning will
         use hardware binning. If useHW is False, the binning will use software binning only.
 
         Note
@@ -1027,7 +1025,7 @@ class Client:
         self, offsetX, offsetY, sizeX, sizeY, changedProperties
     ):
         """
-        Set the software region of interest (ROI) of the current camera on DE-Server and get all of
+        Set the software region of interest (ROI) of the camera on DE-Server and get all of
         the changed properties.  This is useful for testing and determining how certain
         properties affect others.
 
@@ -1078,7 +1076,7 @@ class Client:
         self, size_x: int, size_y: int, offset_x: int = None, offset_y: int = None
     ):
         """
-        Automatically choose the proper HW ROI and set SW ROI of the current camera on DE-Server.
+        Automatically choose the proper HW ROI and set SW ROI of the camera on DE-Server.
 
         If offset_x and offset_y are not provided, they will be centered on the camera.
 
@@ -1126,7 +1124,7 @@ class Client:
         self, offsetX, offsetY, sizeX, sizeY, changedProperties, timeoutMsec=5000
     ):
         """
-        Automatically choose the proper HW ROI and set SW ROI of the current camera on DE-Server and get all of
+        Automatically choose the proper HW ROI and set SW ROI of the camera on DE-Server and get all of
         the changed properties.  This is useful for testing and determining how certain
         properties affect others.
 
@@ -1147,12 +1145,12 @@ class Client:
         t0 = self.GetTime()
         ret = False
 
-        command = self.__addSingleCommand(
+        command = self._addSingleCommand(
             self.SET_ADAPTIVE_ROI_AND_GET_CHANGED_PROPERTIES,
             None,
             [offsetX, offsetY, sizeX, sizeY],
         )
-        response = self.__sendCommand(command)
+        response = self._sendCommand(command)
         if response != False:
             ret = response.acknowledge[0].error != True
             self.refreshProperties = True
@@ -1735,7 +1733,7 @@ class Client:
     @write_only
     def set_virtual_mask(self, id, w, h, mask):
         """
-        Set the virtual mask of the current camera on DE-Server.
+        Set the virtual mask of the camera on DE-Server.
 
         Parameters
         ----------
@@ -1776,7 +1774,7 @@ class Client:
     @write_only
     def setROI(self, offsetX, offsetY, sizeX, sizeY, useHWROI=False):
         """
-        Set the region of interest (ROI) of the current camera on DE-Server.
+        Set the region of interest (ROI) of the camera on DE-Server.
 
         Parameters
         ----------
@@ -1831,7 +1829,7 @@ class Client:
 
     def get_movie_buffer_info(self, movieBufferInfo=None, timeoutMsec=5000):
         """
-        Get the movie buffer information of the current camera on DE-Server.
+        Get the movie buffer information of the camera on DE-Server.
 
         Parameters
         ----------
@@ -1866,7 +1864,7 @@ class Client:
         self, movieBuffer, movieBufferSize, numFrames, timeoutMsec=5000
     ):
         """
-        Get the movie buffer of the current camera on DE-Server. The movie buffer
+        Get the movie buffer of the camera on DE-Server. The movie buffer
         is a series of frames that are stored in memory and can be retrieved as
         a single buffer for faster processing.
 
@@ -2557,10 +2555,10 @@ class Client:
 
         if command is None:
             return False
-
+        
         if len(command.camera_name) == 0:
             command.camera_name = (
-                self.currCamera
+                self.camera
             )  # append the current camera name if necessary
 
         try:
@@ -2799,8 +2797,7 @@ class Client:
     usingMmf = True
     debugImagesFolder = "D:\\DebugImages\\"
     connected = False
-    cameras = None
-    currCamera = ""
+    camera = ""
     refreshProperties = True
     exposureTime = 1
     host = 0

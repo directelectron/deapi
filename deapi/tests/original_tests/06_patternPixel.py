@@ -11,9 +11,6 @@ from deapi.tests.original_tests import func, propertyName
 deClient = DEAPI.Client()
 # Connect to the Server
 deClient.Connect()
-cameras = deClient.ListCameras()
-camera = cameras[0]
-deClient.SetCurrentCamera(camera)
 serverVersion = deClient.GetProperty(propertyName.PROP_SERVER_SOFTWARE_VERSION)
 cameraName = deClient.GetProperty(propertyName.PROP_CAMERA_NAME)
 print(f"Camera Name: {cameraName}, Server Software Version is: {serverVersion}")
