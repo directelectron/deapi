@@ -263,7 +263,7 @@ class Client:
         Deprecated function.
         List the available cameras on the server.
         """
-        log.error("list_cameras is deprecated.")
+        log.warning("list_cameras is deprecated.")
 
         return [self.camera]
 
@@ -295,7 +295,7 @@ class Client:
         Deprecated function.
         Set the current camera on the server.
         """
-        log.error("set_current_camera is deprecated.")
+        log.warning("set_current_camera is deprecated.")
 
         return True
 
@@ -418,10 +418,10 @@ class Client:
         """
         t0 = self.GetTime()
         values = False
-        command = self.__addSingleCommand(
+        command = self._addSingleCommand(
             self.GET_PROPERTY_SPECIFICATIONS, property_name
         )
-        response = self.__sendCommand(command)
+        response = self._sendCommand(command)
         if response == False:
             return None
 
@@ -698,10 +698,10 @@ class Client:
 
         ret = False
 
-        command = self.__addSingleCommand(
+        command = self._addSingleCommand(
             self.SET_ENG_MODE_GET_CHANGED_PROPERTIES, None, [enable, password]
         )
-        response = self.__sendCommand(command)
+        response = self._sendCommand(command)
         if response != False:
             ret = response.acknowledge[0].error != True
             self.refreshProperties = True
@@ -766,8 +766,8 @@ class Client:
         t0 = self.GetTime()
         ret = False
 
-        command = self.__addSingleCommand(self.SET_SCAN_SIZE, None, [size_x, size_y])
-        response = self.__sendCommand(command)
+        command = self._addSingleCommand(self.SET_SCAN_SIZE, None, [size_x, size_y])
+        response = self._sendCommand(command)
         if response != False:
             ret = response.acknowledge[0].error != True
             self.refreshProperties = True
@@ -792,10 +792,10 @@ class Client:
         t0 = self.GetTime()
         ret = False
 
-        command = self.__addSingleCommand(
+        command = self._addSingleCommand(
             self.SET_SCAN_SIZE_AND_GET_CHANGED_PROPERTIES, None, [size_x, size_y]
         )
-        response = self.__sendCommand(command)
+        response = self._sendCommand(command)
         if response != False:
             ret = response.acknowledge[0].error != True
             self.refreshProperties = True
@@ -818,10 +818,10 @@ class Client:
         t0 = self.GetTime()
         ret = False
 
-        command = self.__addSingleCommand(
+        command = self._addSingleCommand(
             self.SET_SCAN_ROI, None, [enable, offsetX, offsetY, sizeX, sizeY]
         )
-        response = self.__sendCommand(command)
+        response = self._sendCommand(command)
         if response != False:
             ret = response.acknowledge[0].error != True
             self.refreshProperties = True
@@ -846,12 +846,12 @@ class Client:
         t0 = self.GetTime()
         ret = False
 
-        command = self.__addSingleCommand(
+        command = self._addSingleCommand(
             self.SET_SCAN_ROI__AND_GET_CHANGED_PROPERTIES,
             None,
             [enable, offsetX, offsetY, sizeX, sizeY],
         )
-        response = self.__sendCommand(command)
+        response = self._sendCommand(command)
         if response != False:
             ret = response.acknowledge[0].error != True
             self.refreshProperties = True
@@ -1152,12 +1152,12 @@ class Client:
         t0 = self.GetTime()
         ret = False
 
-        command = self.__addSingleCommand(
+        command = self._addSingleCommand(
             self.SET_ADAPTIVE_ROI_AND_GET_CHANGED_PROPERTIES,
             None,
             [offsetX, offsetY, sizeX, sizeY],
         )
-        response = self.__sendCommand(command)
+        response = self._sendCommand(command)
         if response != False:
             ret = response.acknowledge[0].error != True
             self.refreshProperties = True
@@ -2562,6 +2562,11 @@ class Client:
 
         if command is None:
             return False
+        
+        if len(command.camera_name) == 0:
+            command.camera_name = (
+                self.camera
+            )  # append the current camera name if necessary
 
         try:
             packet = struct.pack("I", command.ByteSize()) + command.SerializeToString()
