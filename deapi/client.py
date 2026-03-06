@@ -1010,10 +1010,8 @@ class Client:
             if prop_hw_bin_y is not False:
                 hw_bin_y = int(prop_hw_bin_y)
 
-            if bin_x > 2:
-                retval &= self.SetProperty("Binning X", bin_x / hw_bin_x)
-            if bin_y > 2:
-                retval &= self.SetProperty("Binning Y", bin_y / hw_bin_y)
+            retval &= self.SetProperty("Binning X", bin_x / hw_bin_x)
+            retval &= self.SetProperty("Binning Y", bin_y / hw_bin_y)
 
             if commandVersion >= 13:
                 retval &= self.SetProperty("Server Normalize Properties", "On")
