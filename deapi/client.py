@@ -15,6 +15,9 @@ import mmap
 from datetime import datetime
 from time import sleep
 import re
+import win32event
+import win32api
+import threading
 from typing import List, Union, Tuple
 
 import numpy as np
@@ -2473,6 +2476,112 @@ class Client:
             return time.clock()
         else:
             return time.perf_counter()
+        
+    def enable_get_event(self):
+        """
+        Enable event retrieval from the server.
+        
+        Creates a Windows semaphore to handle event notifications and enables
+        the getEventEnabled flag. This must be called before get_event() can be used.
+        
+        Returns
+        -------
+        bool
+            True if event retrieval was successfully enabled, False otherwise.
+        """
+        with self.eventMutex:
+            command = self._addSingleCommand(self.ENABLE_GET_EVENT, None, None)
+            response = self._sendCommand(command)
+
+            if response != False:
+                semaphoreName = self.__getParameters(response.acknowledge[0])[0]
+                if semaphoreName is not None:
+                    self.sdkEventSemaphore = win32event.CreateSemaphore(None, 0, 999, semaphoreName)
+                else:
+                    return False
+                
+                self.getEventEnabled = True
+                return True
+            else:
+                return False
+        
+    def get_event(self):
+        """
+        Retrieve the next event from the server.
+
+        Waits for an event signal on the semaphore and retrieves the event specification
+        from the server. This method blocks until an event is signaled. If the client
+        is not connected or event retrieval was not enabled via `enable_get_event()`,
+        an empty list is returned instead of attempting to fetch an event.
+
+        Returns
+        -------
+        list
+            A list containing up to 5 event specification values, or an empty list
+            if no event is available, event retrieval is disabled, or the client is disconnected.
+        """
+        if self.sdkEventSemaphore is not None:
+            win32event.WaitForSingleObject(self.sdkEventSemaphore, win32event.INFINITE)
+        else:
+            return []
+
+        with self.eventMutex:
+            if not self.connected or not self.getEventEnabled:
+                return []
+                
+            command = self._addSingleCommand(self.GET_EVENT, None, None)
+            response = self._sendCommand(command)
+
+            eventSpec = []
+            if response != False:
+                values = self.__getParameters(response.acknowledge[0])
+                if type(values) is list:
+                    eventSpec.append(values[0])
+                    eventSpec.append(values[1])
+                    eventSpec.append(values[2])
+                    eventSpec.append(values[3])
+                    eventSpec.append(values[4])
+
+            return eventSpec
+    
+    def disable_get_event(self):
+        """
+        Disable event retrieval from the server.
+        
+        Releases and closes the Windows semaphore used for event notification,
+        and disables the getEventEnabled flag. After calling this, get_event()
+        will no longer function.
+        
+        Returns
+        -------
+        bool
+            True if event retrieval was successfully disabled, False otherwise.
+        """
+        with self.eventMutex:
+            command = self._addSingleCommand(self.DISABLE_GET_EVENT, None, None)
+            response = self._sendCommand(command)
+
+            if response != False:
+                if self.sdkEventSemaphore is not None:
+                    win32event.ReleaseSemaphore(self.sdkEventSemaphore, 1)
+                    win32api.CloseHandle(self.sdkEventSemaphore)
+                    self.sdkEventSemaphore = None
+                self.getEventEnabled = False
+                return True
+            else:
+                return False
+        
+    def is_get_event_enabled(self):
+        """
+        Check if event retrieval from the server is currently enabled.
+
+        Returns
+        -------
+        bool
+            True if event retrieval is enabled, False otherwise.
+        """
+        with self.eventMutex:
+            return self.getEventEnabled
 
     # private methods
 
@@ -2783,6 +2892,10 @@ class Client:
     GetImage = get_image
     TakeDarkReference = take_dark_reference
     GetTime = get_time
+    EnableGetEvent = enable_get_event
+    GetEvent = get_event
+    DisableGetEvent = disable_get_event
+    IsGetEventEnabled = is_get_event_enabled
 
     # method setProperty was renamed to SetProperty. please use SetProperty
     setProperty = SetProperty
@@ -2801,6 +2914,9 @@ class Client:
     host = 0
     port = 0
     read_only = False
+    sdkEventSemaphore = None
+    getEventEnabled = False
+    eventMutex = threading.Lock()
 
     # command lists
     LIST_CAMERAS = 0
@@ -2811,6 +2927,7 @@ class Client:
     GET_IMAGE_16U = 5
     GET_IMAGE_32F = 10
     STOP_ACQUISITION = 11
+    GET_EVENT = 12
     GET_RESULT = 14
     START_ACQUISITION = 15
     SET_HW_ROI = 16
@@ -2833,6 +2950,8 @@ class Client:
     SET_ADAPTIVE_ROI = 33
     SET_ADAPTIVE_ROI_AND_GET_CHANGED_PROPERTIES = 34
     GET_PROPERTY_SPECIFICATIONS = 35
+    ENABLE_GET_EVENT = 36
+    DISABLE_GET_EVENT = 37
     GET_REGISTER = 38
     SET_REGISTER = 39
     LIST_REGISTERS = 40 
