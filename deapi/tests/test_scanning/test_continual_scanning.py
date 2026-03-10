@@ -38,6 +38,13 @@ class TestContinualScanning:
         client["Binning X"] = 1
         client["Binning Y"] = 1
         client["Scan - Use DE Camera"] = "Use Frame Time"
+        client["Scan - Enable"] = True
+        client["Scan - Initial Delay (microseconds)"] = 0
+        client["Scan - Flyback Time Going Positive (microseconds)"] = 0
+        client["Scan - Flyback Time Going Negative (microseconds)"] = 0
+        client["Scan - Repeats"] = 1
+        client["Scan - Repeat Delay (seconds)"] = 0
+
 
     @pytest.mark.server
     def test_continual_scanning(self, client):
@@ -308,3 +315,115 @@ class TestContinualScanning:
 
         assert osize == expected_size
 
+
+    @pytest.mark.parametrize("fly_back_time", [0, 1000, 5000])
+    @pytest.mark.server
+    def test_hidden_scan_points_single_scan(self, client,fly_back_time):
+        """Test that hidden scan points are properly ignored during continual scanning.
+
+        This should ensure that points marked as hidden are not included in the scan pattern.
+        """
+        size_x = 16
+        size_y = 16
+        client["Scan - Use DE Camera"] = "Off"
+        client["Scan - Size X"] = size_x
+        client["Scan - Size Y"] = size_y
+        client["Scan - Dwell Time (microseconds)"] = 1000
+
+        # Recorded Scan points  =  16 x 16 = 256
+        client["Scan - Flyback Time Going Positive (microseconds)"] = fly_back_time
+        client["Scan - Flyback Time Going Negative (microseconds)"] = 0
+        client["Scan - Repeat Delay (seconds)"] = 0
+        client["Scan - Initial Delay (microseconds)"] = 0
+        fly_back_time = client["Scan - Flyback Time Going Positive (microseconds)"]
+        points_per_row = np.ceil(fly_back_time/client["Scan - Dwell Time (microseconds)"])
+
+        assert client["Scan - Flyback Time Going Positive (count)"] == points_per_row
+        total_points = size_x * size_y + size_y * points_per_row
+        print("Total points:", total_points)
+        assert client["Scan - Points (Total)"] == total_points
+        assert client["Scan - Points (Hidden)"] == size_y * points_per_row
+        assert client["Scan - Points (Visible)"] == size_x * size_y
+
+    @pytest.mark.parametrize("initial_delay", [0, 1000, 5000])
+    @pytest.mark.server
+    def test_initial_delay(self, client, initial_delay):
+        """Test that initial delay is properly applied during continual scanning.
+
+        This should ensure that the specified initial delay is observed before the scan starts.
+        """
+        size_x = 16
+        size_y = 16
+        client["Scan - Use DE Camera"] = "Off"
+        client["Scan - Size X"] = size_x
+        client["Scan - Size Y"] = size_y
+        client["Scan - Dwell Time (microseconds)"] = 1000
+        client["Scan - Initial Delay (microseconds)"] = initial_delay
+
+        extra_points  = np.ceil(initial_delay/client["Scan - Dwell Time (microseconds)"])
+        total_points = size_x * size_y +  extra_points
+        print("Total points:", total_points)
+        assert client["Scan - Points (Total)"] == total_points
+        assert client["Scan - Points (Hidden)"] == extra_points
+        assert client["Scan - Points (Visible)"] == size_x * size_y
+
+
+    @pytest.mark.parametrize("initial_delay", [0, 1000, 5000])
+    @pytest.mark.server
+    def test_initial_delay_repeats(self, client, initial_delay):
+        """Test that initial delay is properly applied during continual scanning.
+
+        This should ensure that the specified initial delay is observed before the scan starts.
+        """
+        size_x = 16
+        size_y = 16
+        repeats = 5
+        client["Scan - Use DE Camera"] = "Off"
+        client["Scan - Size X"] = size_x
+        client["Scan - Size Y"] = size_y
+        client["Scan - Repeats"] = repeats
+        client["Scan - Dwell Time (microseconds)"] = 1000
+        client["Scan - Initial Delay (microseconds)"] = initial_delay
+
+        extra_points  = np.ceil(initial_delay/client["Scan - Dwell Time (microseconds)"])
+        total_points = size_x * size_y * repeats +  extra_points * repeats
+        print("Total points:", total_points)
+        print("Extra points:",  client["Scan - Points (Total)"]  - total_points)
+
+        assert client["Scan - Initial Delay Count"] == extra_points # For 1 Scan
+
+        assert client["Scan - Points (Total)"] == total_points # For all repeats
+        assert client["Scan - Points (Hidden)"] == extra_points * repeats  # For all repeats
+        assert client["Scan - Points (Visible)"] == size_x * size_y * repeats # For all repeats
+
+        assert client["Actual Frames to Ignore"] == extra_points * repeats
+
+    @pytest.mark.parametrize("fly_back_time", [0, 1000, 5000])
+    @pytest.mark.server
+    def test_flyback_time_repeats(self, client, fly_back_time):
+        """Test that flyback time is properly applied during continual scanning.
+
+        This should ensure that the specified flyback time is observed between rows during the scan.
+        """
+        size_x = 16
+        size_y = 16
+        repeats = 5
+        client["Scan - Use DE Camera"] = "Off"
+        client["Scan - Size X"] = size_x
+        client["Scan - Size Y"] = size_y
+        client["Scan - Repeats"] = repeats
+        client["Scan - Dwell Time (microseconds)"] = 1000
+        client["Scan - Flyback Time Going Positive (microseconds)"] = fly_back_time
+
+        points_per_row = np.ceil(fly_back_time/client["Scan - Dwell Time (microseconds)"])
+        client["Scan - Flyback Time Going Negative (count)"] = points_per_row
+
+        total_points = (size_x * size_y + size_y * points_per_row) * repeats
+        print("Total points:", total_points)
+        assert client["Scan - Points (Total)"] == total_points
+        assert client["Scan - Points (Hidden)"] == size_y * points_per_row * repeats
+        assert client["Scan - Points (Visible)"] == size_x * size_y * repeats
+
+        #assert client["Actual Frames to Ignore"] == size_y * points_per_row * repeats
+
+        assert client["Number of Frames To Grab"] == total_points
