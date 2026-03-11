@@ -2517,8 +2517,21 @@ class Client:
         Returns
         -------
         list
-            A list containing up to 5 event specification values, or an empty list
-            if no event is available, event retrieval is disabled, or the client is disconnected.
+            A list of 5 strings that represent the specification for 1 event with the following order:
+            [event_type, name, value, lower_limit, upper_limit].
+            * event_type can be "Property", "AllowedValues", or "Readonly".
+              - "Property" means the event was triggered by a change in a property's value or its limits.
+              - "AllowedValues" means the event was triggered by a change in the options of a property.
+                Please use get_property_specifications after an "AllowedValues" event to get the updated specifications
+                for the property that triggered the event.
+              - "Readonly" means the event was triggered by a property changing between read-only and read-write.
+            * name is the name of the property that triggered the event.
+            * value is the new value of the property that triggered the event.
+              It can also indicate if a property is now read-only ("1") or read-write ("0") for a "Readonly" event.
+              For "AllowedValues" events, value may be an empty string.
+            * lower_limit and upper_limit are the new limits of the property that triggered a "Property" event.
+              If they are empty strings, then the limits did not change.
+            If event retrieval is disabled or the client is disconnected, an empty list is returned.
         """
         if self.sdkEventSemaphore is not None:
             win32event.WaitForSingleObject(self.sdkEventSemaphore, win32event.INFINITE)
