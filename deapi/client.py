@@ -15,8 +15,6 @@ import mmap
 from datetime import datetime
 from time import sleep
 import re
-import win32event
-import win32api
 import threading
 from typing import List, Union, Tuple
 
@@ -46,6 +44,10 @@ from deapi.buffer_protocols import pb
 from deapi.version import version, commandVersion
 from deapi.version import commandVersion as cVersion
 from deapi.wrappers import write_only, disable_scan, deprecated_argument
+
+if sys.platform.startswith("win"):
+    import win32event
+    import win32api
 
 
 ## the commandInfo contains [VERSION_MAJOR.VERSION_MINOR.VERSION_PATCH.VERSION_REVISION]
@@ -1577,7 +1579,6 @@ class Client:
             lapsed = (self.GetTime() - step_time) * 1000
             log.debug(" Command Time: %.1f ms", lapsed)
             step_time = self.GetTime()
-        ack = response.acknowledge[0]
 
         if response:
             values = self.__getParameters(response.acknowledge[0])
@@ -2476,6 +2477,17 @@ class Client:
             return time.clock()
         else:
             return time.perf_counter()
+
+    def ensure_get_event_supported(self):
+        """Ensure get_event related functions are only used on Windows platforms.
+
+        Raises
+        ------
+        NotImplementedError
+            If called on a non-Windows platform.
+        """
+        if not sys.platform.startswith("win"):
+            raise NotImplementedError("get_event functionality is only available on Windows platforms.")
         
     def enable_get_event(self):
         """
@@ -2489,6 +2501,7 @@ class Client:
         bool
             True if event retrieval was successfully enabled, False otherwise.
         """
+        self.ensure_get_event_supported()
         with self.eventMutex:
             command = self._addSingleCommand(self.ENABLE_GET_EVENT, None, None)
             response = self._sendCommand(command)
@@ -2533,6 +2546,7 @@ class Client:
               If they are empty strings, then the limits did not change.
             If event retrieval is disabled or the client is disconnected, an empty list is returned.
         """
+        self.ensure_get_event_supported()
         if self.sdkEventSemaphore is not None:
             win32event.WaitForSingleObject(self.sdkEventSemaphore, win32event.INFINITE)
         else:
@@ -2570,6 +2584,7 @@ class Client:
         bool
             True if event retrieval was successfully disabled, False otherwise.
         """
+        self.ensure_get_event_supported()
         with self.eventMutex:
             command = self._addSingleCommand(self.DISABLE_GET_EVENT, None, None)
             response = self._sendCommand(command)
@@ -2593,6 +2608,7 @@ class Client:
         bool
             True if event retrieval is enabled, False otherwise.
         """
+        self.ensure_get_event_supported()
         with self.eventMutex:
             return self.getEventEnabled
 
