@@ -316,7 +316,7 @@ class TestContinualScanning:
         assert osize == expected_size
 
 
-    @pytest.mark.parametrize("fly_back_time", [0, 1000, 5000])
+    @pytest.mark.parametrize("fly_back_time", [0, 1000, 4000])
     @pytest.mark.server
     def test_hidden_scan_points_single_scan(self, client,fly_back_time):
         """Test that hidden scan points are properly ignored during continual scanning.
@@ -341,9 +341,9 @@ class TestContinualScanning:
         assert client["Scan - Flyback Time Going Positive (count)"] == points_per_row
         total_points = size_x * size_y + size_y * points_per_row
         print("Total points:", total_points)
-        assert client["Scan - Points (Total)"] == total_points
-        assert client["Scan - Points (Hidden)"] == size_y * points_per_row
-        assert client["Scan - Points (Visible)"] == size_x * size_y
+        assert client["Scan - Points"] == total_points
+        assert client["Scan - Points (Not Recorded)"] == size_y * points_per_row
+        assert client["Scan - Points (Recorded)"] == size_x * size_y
 
     @pytest.mark.parametrize("initial_delay", [0, 1000, 5000])
     @pytest.mark.server
@@ -363,9 +363,9 @@ class TestContinualScanning:
         extra_points  = np.ceil(initial_delay/client["Scan - Dwell Time (microseconds)"])
         total_points = size_x * size_y +  extra_points
         print("Total points:", total_points)
-        assert client["Scan - Points (Total)"] == total_points
-        assert client["Scan - Points (Hidden)"] == extra_points
-        assert client["Scan - Points (Visible)"] == size_x * size_y
+        assert client["Scan - Points"] == total_points
+        assert client["Scan - Points (Not Recorded)"] == extra_points
+        assert client["Scan - Points (Recorded)"] == size_x * size_y
 
 
     @pytest.mark.parametrize("initial_delay", [0, 1000, 5000])
@@ -392,9 +392,9 @@ class TestContinualScanning:
 
         assert client["Scan - Initial Delay Count"] == extra_points # For 1 Scan
 
-        assert client["Scan - Points (Total)"] == total_points # For all repeats
-        assert client["Scan - Points (Hidden)"] == extra_points * repeats  # For all repeats
-        assert client["Scan - Points (Visible)"] == size_x * size_y * repeats # For all repeats
+        assert client["Scan - Points"] == total_points # For all repeats
+        assert client["Scan - Points (Not Recorded)"] == extra_points * repeats  # For all repeats
+        assert client["Scan - Points (Recorded)"] == size_x * size_y * repeats # For all repeats
 
         assert client["Actual Frames to Ignore"] == extra_points * repeats
 
@@ -413,16 +413,13 @@ class TestContinualScanning:
         client["Scan - Size Y"] = size_y
         client["Scan - Repeats"] = repeats
         client["Scan - Dwell Time (microseconds)"] = 1000
-        client["Scan - Flyback Time Going Positive (microseconds)"] = fly_back_time
-
+        client["Scan - Flyback Time (microseconds)"] = fly_back_time
         points_per_row = np.ceil(fly_back_time/client["Scan - Dwell Time (microseconds)"])
-        client["Scan - Flyback Time Going Negative (count)"] = points_per_row
-
         total_points = (size_x * size_y + size_y * points_per_row) * repeats
         print("Total points:", total_points)
-        assert client["Scan - Points (Total)"] == total_points
-        assert client["Scan - Points (Hidden)"] == size_y * points_per_row * repeats
-        assert client["Scan - Points (Visible)"] == size_x * size_y * repeats
+        assert client["Scan - Points"] == total_points
+        assert client["Scan - Points (Not Recorded)"] == size_y * points_per_row * repeats
+        assert client["Scan - Points (Recorded)"] == size_x * size_y * repeats
 
         #assert client["Actual Frames to Ignore"] == size_y * points_per_row * repeats
 
