@@ -185,7 +185,7 @@ class Client:
         response = self._sendCommand(command)
         if response != False:
             self.camera = self.__getParameters(response.acknowledge[0])[0]
-        
+
         if logLevel == logging.DEBUG:
             log.debug("Camera: %s", self.camera)
 
@@ -284,7 +284,7 @@ class Client:
             _,
         ) = self.get_result(mask_name, DataType.DE8u, attributes=a)
         return res
-    
+
     def get_current_camera(self) -> str:
         """
         Get the current camera on the server.
@@ -293,7 +293,7 @@ class Client:
             return "No current camera"
         else:
             return self.camera
-        
+
     @write_only
     def set_current_camera(self, camera_name: str = None):
         """
@@ -342,7 +342,7 @@ class Client:
         if search is not None:
             available_registers = [p for p in available_registers if search in p]
         return available_registers
-    
+
     @deprecated_argument(
         name="propertyName", since="5.2.0", alternative="property_name"
     )
@@ -510,7 +510,7 @@ class Client:
                     )
 
         return ret
-    
+
     def get_register(self, register_name: str):
         """
         Get the value of a register of the camera on DE-Server
@@ -641,7 +641,7 @@ class Client:
             )
 
         return ret
-    
+
 
     @write_only
     def set_register(self, name: str, value):
@@ -2488,14 +2488,14 @@ class Client:
         """
         if not sys.platform.startswith("win"):
             raise NotImplementedError("get_event functionality is only available on Windows platforms.")
-        
+
     def enable_get_event(self):
         """
         Enable event retrieval from the server.
-        
+
         Creates a Windows semaphore to handle event notifications and enables
         the getEventEnabled flag. This must be called before get_event() can be used.
-        
+
         Returns
         -------
         bool
@@ -2512,12 +2512,12 @@ class Client:
                     self.sdkEventSemaphore = win32event.CreateSemaphore(None, 0, 999, semaphoreName)
                 else:
                     return False
-                
+
                 self.getEventEnabled = True
                 return True
             else:
                 return False
-        
+
     def get_event(self):
         """
         Retrieve the next event from the server.
@@ -2555,7 +2555,7 @@ class Client:
         with self.eventMutex:
             if not self.connected or not self.getEventEnabled:
                 return []
-                
+
             command = self._addSingleCommand(self.GET_EVENT, None, None)
             response = self._sendCommand(command)
 
@@ -2570,15 +2570,15 @@ class Client:
                     eventSpec.append(values[4])
 
             return eventSpec
-    
+
     def disable_get_event(self):
         """
         Disable event retrieval from the server.
-        
+
         Releases and closes the Windows semaphore used for event notification,
         and disables the getEventEnabled flag. After calling this, get_event()
         will no longer function.
-        
+
         Returns
         -------
         bool
@@ -2598,7 +2598,7 @@ class Client:
                 return True
             else:
                 return False
-        
+
     def is_get_event_enabled(self):
         """
         Check if event retrieval from the server is currently enabled.
@@ -2691,7 +2691,7 @@ class Client:
 
         if command is None:
             return False
-        
+
         if len(command.camera_name) == 0:
             command.camera_name = (
                 self.camera
@@ -2898,7 +2898,7 @@ class Client:
     GetProperty = get_property
     SetProperty = set_property
     SetPropertyAndGetChangedProperties = set_property_and_get_changed_properties
-    GetRegister = get_register 
+    GetRegister = get_register
     SetRegister = set_register
     ListRegisters = list_registers
     setEngMode = set_engineering_mode
@@ -2983,7 +2983,7 @@ class Client:
     DISABLE_GET_EVENT = 37
     GET_REGISTER = 38
     SET_REGISTER = 39
-    LIST_REGISTERS = 40 
+    LIST_REGISTERS = 40
 
 
 MMF_DATA_HEADER_SIZE = 24

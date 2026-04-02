@@ -19,15 +19,15 @@ def add_parameter(ack, value):
     Add a parameter to a protobuffer
     """
     param = ack.parameter.add()
-    if isinstance(value, str):
+    if isinstance(value, bool):  # must be before int — bool is a subclass of int
+        param.type = pb.AnyParameter.P_BOOL
+        param.p_bool = value
+    elif isinstance(value, str):
         param.type = pb.AnyParameter.P_STRING
         param.p_string = value
     elif isinstance(value, int):
         param.type = pb.AnyParameter.P_INT
         param.p_int = value
-    elif isinstance(value, bool):
-        param.type = pb.AnyParameter.P_BOOL
-        param.p_bool = value
     elif isinstance(value, float):
         param.type = pb.AnyParameter.P_FLOAT
         param.p_float = value

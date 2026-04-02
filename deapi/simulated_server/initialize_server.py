@@ -12,20 +12,17 @@ import argparse
 def main(port=13240):
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", type=int, help="Port to listen on")
-    try:
-        args = parser.parse_args()
-        if args.port:
-            port = args.port
-    except:
-        pass
+    args, _ = parser.parse_known_args()
+    if args.port:
+        port = args.port
 
     HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
     PORT = port  # Port to listen on (non-privileged ports are > 1023)
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
         server_socket.bind((HOST, PORT))
         server_socket.listen()
-        sys.stderr.write("started .... \n\n")
-        sys.stderr.flush()
+        sys.stdout.write("started .... \n\n")
+        sys.stdout.flush()
         sys.stderr.write(
             "Waiting for a Connection to: \n"
             f"    Host: {HOST}\n"
