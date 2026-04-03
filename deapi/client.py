@@ -2807,7 +2807,17 @@ class Client:
                 packet_size = upper_lim
             loopTime = self.GetTime()
             try:
-                buffer += sock.recv(packet_size)
+                chunk = sock.recv(packet_size)
+                if not chunk:
+                    # recv() returns b'' when the remote end has closed the
+                    # connection.  Without this check the loop would spin
+                    # forever because b'' never raises an exception and never
+                    # advances total_len — the primary hang on macOS / Py 3.11+.
+                    raise ConnectionResetError(
+                        f"Server closed the connection after {total_len} "
+                        f"of {bytes} expected bytes"
+                    )
+                buffer += chunk
 
             except socket.timeout:
                 log.debug(
@@ -2821,8 +2831,7 @@ class Client:
                 else:
                     pass  # continue further
             except socket.error as e:
-                raise e("Error receiving %d bytes: %s", bytes, e)
-                break
+                raise ConnectionResetError(f"Error receiving {bytes} bytes: {e}") from e
             total_len = len(buffer)
 
         totalTimeMs = (self.GetTime() - startTime) * 1000

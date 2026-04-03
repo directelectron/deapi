@@ -1,3 +1,4 @@
+import socket
 import time
 import warnings
 
@@ -346,9 +347,14 @@ class FakeServer:
         if total_len < total_bytes:
             while total_len < total_bytes:
                 try:
-                    buffer += self.socket.recv(total_bytes)
+                    chunk = self.socket.recv(total_bytes - total_len)
+                    if not chunk:
+                        raise ConnectionResetError(
+                            "Connection closed while reading virtual mask"
+                        )
+                    buffer += chunk
                     total_len = len(buffer)
-                except self.socket.timeout:
+                except socket.timeout:
                     raise ValueError("Socket timed out")
         buffer = buffer
         mask = np.frombuffer(buffer, dtype=np.int8).reshape((w, h))
