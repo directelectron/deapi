@@ -22,9 +22,9 @@ class TestSavingScans:
 
         i = 16
         num_pos = i * i
-        if not os.path.exists("D:\Temp"):
-            os.mkdir("D:\Temp")
-        temp_dir = "D:\Temp"
+        if not os.path.exists(r"D:\Temp"):
+            os.mkdir(r"D:\Temp")
+        temp_dir = r"D:\Temp"
 
         if scan_type == "Serpentine":
             frame_num_order = np.arange(num_pos)
@@ -91,9 +91,9 @@ class TestSavingVirtual:
     def test_save_scans(self, client, scan_type, buffer):
         i = 8
         num_pos = i * i
-        if not os.path.exists("D:\Temp"):
-            os.mkdir("D:\Temp")
-        temp_dir = "D:\Temp"
+        if not os.path.exists(r"D:\Temp"):
+            os.mkdir(r"D:\Temp")
+        temp_dir = r"D:\Temp"
 
         if scan_type == "Serpentine":
             frame_num_order = np.arange(num_pos)

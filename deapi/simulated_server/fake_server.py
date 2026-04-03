@@ -714,6 +714,9 @@ class FakeServer:
         if histo_min == 0 and histo_max == 0:
             histo_min = np.min(image)
             histo_max = np.max(image)
+        # np.histogram requires max > min; pad when image is uniform
+        if histo_min == histo_max:
+            histo_max = histo_min + 1
         image_hist, bins = np.histogram(
             image.flatten(), bins=histo_bins, range=(histo_min, histo_max)
         )

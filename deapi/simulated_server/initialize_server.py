@@ -1,10 +1,10 @@
 import sys
+import traceback
 
 from deapi.simulated_server.fake_server import FakeServer
 import socket
 import struct
 from deapi.buffer_protocols import pb
-import sys
 import argparse
 
 
@@ -50,7 +50,8 @@ def main(port=13240):
                             conn.send(packet)
                         else:
                             conn.sendall(r)
-                except:
+                except Exception:
+                    traceback.print_exc(file=sys.stderr)
                     connected = False
 
 
