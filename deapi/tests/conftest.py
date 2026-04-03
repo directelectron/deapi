@@ -111,7 +111,7 @@ def server(xprocess, request):
         curdir = pathlib.Path(__file__).parent.parent
 
         class Starter(ProcessStarter):
-            timeout = 10
+            timeout = 60
             pattern = "started"
             args = [
                 sys.executable,

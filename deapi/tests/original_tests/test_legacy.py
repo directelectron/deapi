@@ -125,5 +125,6 @@ class TestVirtualMasks08:
 
         deClient.SetVirtualMask(maskID, 1024, 1024, mask)
         # Generate and check the first image
-        mask = deClient.virtual_masks[1][:]
+        # virtual_masks uses 0-based indexing where index 0 maps to mask ID 1
+        mask = deClient.virtual_masks[0][:]
         assert mask.shape == (1024, 1024)

@@ -28,7 +28,8 @@ class TestFakeServer:
 
     def test_set_virtual_image_calculation(self, fake_server):
         assert fake_server["Scan - Virtual Detector 1 Calculation"] == "Sum"
-        fake_server["Scan - Virtual Detector 1 Calculation"] = "Susd"
+        with pytest.warns(UserWarning, match="not in options"):
+            fake_server["Scan - Virtual Detector 1 Calculation"] = "Susd"
         assert fake_server["Scan - Virtual Detector 1 Calculation"] == "Sum"
 
     def test_server_software_version(self, fake_server):

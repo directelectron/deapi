@@ -163,9 +163,18 @@ def statisticsValueCheck(imageProcessingMode, correctionMode):
     print(stats.eppix)
     print(stats.epa2)
     # precision issue, we will compare the float number with a tolerance value. The tolerance value is set to 10**-numPrecision * frameCount for e-/pix, 10**-numPrecision * fps for e-/pix/s and 10**-numPrecision * fps * numPhysicalPixels for e-/s.
-    ret &= math.isclose(stats.eppix, attributes.eppix, rel_tol=0, abs_tol=10**-numPrecision * frameCount)
-    ret &= math.isclose(stats.eppixps, attributes.eppixps, rel_tol=0, abs_tol=10**-numPrecision * fps)
-    ret &= math.isclose(stats.eps, attributes.eps, rel_tol=0, abs_tol=10**-numPrecision * fps * numPhysicalPixels)
+    ret &= math.isclose(
+        stats.eppix, attributes.eppix, rel_tol=0, abs_tol=10**-numPrecision * frameCount
+    )
+    ret &= math.isclose(
+        stats.eppixps, attributes.eppixps, rel_tol=0, abs_tol=10**-numPrecision * fps
+    )
+    ret &= math.isclose(
+        stats.eps,
+        attributes.eps,
+        rel_tol=0,
+        abs_tol=10**-numPrecision * fps * numPhysicalPixels,
+    )
 
     ret &= func.compare2FloatValue(stats.epa2, attributes.epa2, numPrecision, "e-/a^2")
     return ret
@@ -212,10 +221,16 @@ def compareBin1Bin2(imageProcessingMode, correctionMode, swBinningFactor):
         swBinY,
     )
 
-    ret &= func.compare2FloatValue(statsBin1.eppix, statsBin2.eppix, numPrecision, "e-/pix")
-    ret &= func.compare2FloatValue(statsBin1.eppixps, statsBin2.eppixps, numPrecision, "e-/pix/s")
+    ret &= func.compare2FloatValue(
+        statsBin1.eppix, statsBin2.eppix, numPrecision, "e-/pix"
+    )
+    ret &= func.compare2FloatValue(
+        statsBin1.eppixps, statsBin2.eppixps, numPrecision, "e-/pix/s"
+    )
     ret &= func.compare2FloatValue(statsBin1.eps, statsBin2.eps, numPrecision, "e-/s")
-    ret &= func.compare2FloatValue(statsBin1.epa2, statsBin2.epa2, numPrecision, "e-/a^2")
+    ret &= func.compare2FloatValue(
+        statsBin1.epa2, statsBin2.epa2, numPrecision, "e-/a^2"
+    )
     return ret
 
 

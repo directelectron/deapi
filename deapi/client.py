@@ -57,12 +57,14 @@ logLevel = logging.INFO
 logging.basicConfig(format="%(asctime)s DE %(levelname)-8s %(message)s", level=logLevel)
 log = logging.getLogger("DECameraClientLib")
 
+
 def print_info():
     log.info(f"DEAPI Version: {version} (Command Version: {commandVersion})")
     log.info("Python    : " + sys.version.split("(")[0])
     log.info("DEClient  : " + version)
     log.info("CommandVer: " + str(commandVersion))
     log.info("logLevel  : " + str(logging.getLevelName(logLevel)))
+
 
 class Client:
     """A class for connecting to the DE-Server
@@ -185,7 +187,7 @@ class Client:
         response = self._sendCommand(command)
         if response != False:
             self.camera = self.__getParameters(response.acknowledge[0])[0]
-        
+
         if logLevel == logging.DEBUG:
             log.debug("Camera: %s", self.camera)
 
@@ -284,7 +286,7 @@ class Client:
             _,
         ) = self.get_result(mask_name, DataType.DE8u, attributes=a)
         return res
-    
+
     def get_current_camera(self) -> str:
         """
         Get the current camera on the server.
@@ -293,7 +295,7 @@ class Client:
             return "No current camera"
         else:
             return self.camera
-        
+
     @write_only
     def set_current_camera(self, camera_name: str = None):
         """
@@ -342,7 +344,7 @@ class Client:
         if search is not None:
             available_registers = [p for p in available_registers if search in p]
         return available_registers
-    
+
     @deprecated_argument(
         name="propertyName", since="5.2.0", alternative="property_name"
     )
@@ -510,7 +512,7 @@ class Client:
                     )
 
         return ret
-    
+
     def get_register(self, register_name: str):
         """
         Get the value of a register of the camera on DE-Server
@@ -641,7 +643,6 @@ class Client:
             )
 
         return ret
-    
 
     @write_only
     def set_register(self, name: str, value):
@@ -675,7 +676,6 @@ class Client:
             )
 
         return ret
-
 
     @write_only
     def set_engineering_mode(self, enable, password):
@@ -1002,8 +1002,12 @@ class Client:
             if commandVersion >= 13:
                 retval = self.SetProperty("Server Normalize Properties", "Off")
 
-            retval &= self.SetProperty("Hardware Binning X", 2 if bin_x >= 2 and use_hw else 1)
-            retval &= self.SetProperty("Hardware Binning Y", 2 if bin_y >= 2 and use_hw else 1)
+            retval &= self.SetProperty(
+                "Hardware Binning X", 2 if bin_x >= 2 and use_hw else 1
+            )
+            retval &= self.SetProperty(
+                "Hardware Binning Y", 2 if bin_y >= 2 and use_hw else 1
+            )
 
             prop_hw_bin_x = self.GetProperty("Hardware Binning X")
             prop_hw_bin_y = self.GetProperty("Hardware Binning Y")
@@ -1895,7 +1899,9 @@ class Client:
                             f"expected: {totalBytes}, received: {movieBufferSize}"
                         )
                     else:
-                        log.info(f"reading movie buffer {totalBytes}", )
+                        log.info(
+                            f"reading movie buffer {totalBytes}",
+                        )
                         movieBuffer = self._recvFromSocket(self.socket, totalBytes)
                         log.info("Done reading movie buffer")
         else:
@@ -2381,7 +2387,9 @@ class Client:
         self.SetProperty("Exposure Time (seconds)", prevExposureTime)
 
         num_el = np.max([attr.eppixpf * frame_rate, attr.eppixps])
-        log.info(f"The number of electrons per pixel per second (eppixps): {num_el:.2f}")
+        log.info(
+            f"The number of electrons per pixel per second (eppixps): {num_el:.2f}"
+        )
 
         if attr.saturation > 0.0001:  # Nothing should be saturated in a gain image.
             raise ValueError(
@@ -2487,15 +2495,17 @@ class Client:
             If called on a non-Windows platform.
         """
         if not sys.platform.startswith("win"):
-            raise NotImplementedError("get_event functionality is only available on Windows platforms.")
-        
+            raise NotImplementedError(
+                "get_event functionality is only available on Windows platforms."
+            )
+
     def enable_get_event(self):
         """
         Enable event retrieval from the server.
-        
+
         Creates a Windows semaphore to handle event notifications and enables
         the getEventEnabled flag. This must be called before get_event() can be used.
-        
+
         Returns
         -------
         bool
@@ -2509,15 +2519,17 @@ class Client:
             if response != False:
                 semaphoreName = self.__getParameters(response.acknowledge[0])[0]
                 if semaphoreName is not None:
-                    self.sdkEventSemaphore = win32event.CreateSemaphore(None, 0, 999, semaphoreName)
+                    self.sdkEventSemaphore = win32event.CreateSemaphore(
+                        None, 0, 999, semaphoreName
+                    )
                 else:
                     return False
-                
+
                 self.getEventEnabled = True
                 return True
             else:
                 return False
-        
+
     def get_event(self):
         """
         Retrieve the next event from the server.
@@ -2555,7 +2567,7 @@ class Client:
         with self.eventMutex:
             if not self.connected or not self.getEventEnabled:
                 return []
-                
+
             command = self._addSingleCommand(self.GET_EVENT, None, None)
             response = self._sendCommand(command)
 
@@ -2570,15 +2582,15 @@ class Client:
                     eventSpec.append(values[4])
 
             return eventSpec
-    
+
     def disable_get_event(self):
         """
         Disable event retrieval from the server.
-        
+
         Releases and closes the Windows semaphore used for event notification,
         and disables the getEventEnabled flag. After calling this, get_event()
         will no longer function.
-        
+
         Returns
         -------
         bool
@@ -2598,7 +2610,7 @@ class Client:
                 return True
             else:
                 return False
-        
+
     def is_get_event_enabled(self):
         """
         Check if event retrieval from the server is currently enabled.
@@ -2691,7 +2703,7 @@ class Client:
 
         if command is None:
             return False
-        
+
         if len(command.camera_name) == 0:
             command.camera_name = (
                 self.camera
@@ -2795,7 +2807,17 @@ class Client:
                 packet_size = upper_lim
             loopTime = self.GetTime()
             try:
-                buffer += sock.recv(packet_size)
+                chunk = sock.recv(packet_size)
+                if not chunk:
+                    # recv() returns b'' when the remote end has closed the
+                    # connection.  Without this check the loop would spin
+                    # forever because b'' never raises an exception and never
+                    # advances total_len — the primary hang on macOS / Py 3.11+.
+                    raise ConnectionResetError(
+                        f"Server closed the connection after {total_len} "
+                        f"of {bytes} expected bytes"
+                    )
+                buffer += chunk
 
             except socket.timeout:
                 log.debug(
@@ -2809,8 +2831,7 @@ class Client:
                 else:
                     pass  # continue further
             except socket.error as e:
-                raise e("Error receiving %d bytes: %s", bytes, e)
-                break
+                raise ConnectionResetError(f"Error receiving {bytes} bytes: {e}") from e
             total_len = len(buffer)
 
         totalTimeMs = (self.GetTime() - startTime) * 1000
@@ -2898,7 +2919,7 @@ class Client:
     GetProperty = get_property
     SetProperty = set_property
     SetPropertyAndGetChangedProperties = set_property_and_get_changed_properties
-    GetRegister = get_register 
+    GetRegister = get_register
     SetRegister = set_register
     ListRegisters = list_registers
     setEngMode = set_engineering_mode
@@ -2983,7 +3004,7 @@ class Client:
     DISABLE_GET_EVENT = 37
     GET_REGISTER = 38
     SET_REGISTER = 39
-    LIST_REGISTERS = 40 
+    LIST_REGISTERS = 40
 
 
 MMF_DATA_HEADER_SIZE = 24

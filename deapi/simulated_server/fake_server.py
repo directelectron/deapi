@@ -1,3 +1,4 @@
+import socket
 import time
 import warnings
 
@@ -19,15 +20,15 @@ def add_parameter(ack, value):
     Add a parameter to a protobuffer
     """
     param = ack.parameter.add()
-    if isinstance(value, str):
+    if isinstance(value, bool):  # must be before int — bool is a subclass of int
+        param.type = pb.AnyParameter.P_BOOL
+        param.p_bool = value
+    elif isinstance(value, str):
         param.type = pb.AnyParameter.P_STRING
         param.p_string = value
     elif isinstance(value, int):
         param.type = pb.AnyParameter.P_INT
         param.p_int = value
-    elif isinstance(value, bool):
-        param.type = pb.AnyParameter.P_BOOL
-        param.p_bool = value
     elif isinstance(value, float):
         param.type = pb.AnyParameter.P_FLOAT
         param.p_float = value
@@ -346,9 +347,14 @@ class FakeServer:
         if total_len < total_bytes:
             while total_len < total_bytes:
                 try:
-                    buffer += self.socket.recv(total_bytes)
+                    chunk = self.socket.recv(total_bytes - total_len)
+                    if not chunk:
+                        raise ConnectionResetError(
+                            "Connection closed while reading virtual mask"
+                        )
+                    buffer += chunk
                     total_len = len(buffer)
-                except self.socket.timeout:
+                except socket.timeout:
                     raise ValueError("Socket timed out")
         buffer = buffer
         mask = np.frombuffer(buffer, dtype=np.int8).reshape((w, h))
@@ -714,6 +720,9 @@ class FakeServer:
         if histo_min == 0 and histo_max == 0:
             histo_min = np.min(image)
             histo_max = np.max(image)
+        # np.histogram requires max > min; pad when image is uniform
+        if histo_min == histo_max:
+            histo_max = histo_min + 1
         image_hist, bins = np.histogram(
             image.flatten(), bins=histo_bins, range=(histo_min, histo_max)
         )

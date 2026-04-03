@@ -247,7 +247,7 @@ class TestClient:
     def test_stream_data(self, client):
         client["Frames Per Second"] = 5
         client.scan(size_x=10, size_y=10, enable="On")
-        client.start_acquisition(1, requestMovieBuffer=True)
+        client.start_acquisition(1, request_movie_buffer=True)
         numberFrames = 0
         index = 0
         status = MovieBufferStatus.OK

@@ -698,6 +698,11 @@ class VirtualMask:
 
     def __getitem__(self, item):
         full_img = self.client.get_virtual_mask(self.index)
+        if full_img is None:
+            raise RuntimeError(
+                f"get_virtual_mask({self.index}) returned None — "
+                "the server may have dropped the connection or encountered an error."
+            )
         return full_img[item]
 
     def __setitem__(self, key, value):
