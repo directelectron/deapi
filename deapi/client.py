@@ -57,12 +57,14 @@ logLevel = logging.INFO
 logging.basicConfig(format="%(asctime)s DE %(levelname)-8s %(message)s", level=logLevel)
 log = logging.getLogger("DECameraClientLib")
 
+
 def print_info():
     log.info(f"DEAPI Version: {version} (Command Version: {commandVersion})")
     log.info("Python    : " + sys.version.split("(")[0])
     log.info("DEClient  : " + version)
     log.info("CommandVer: " + str(commandVersion))
     log.info("logLevel  : " + str(logging.getLevelName(logLevel)))
+
 
 class Client:
     """A class for connecting to the DE-Server
@@ -642,7 +644,6 @@ class Client:
 
         return ret
 
-
     @write_only
     def set_register(self, name: str, value):
         """
@@ -675,7 +676,6 @@ class Client:
             )
 
         return ret
-
 
     @write_only
     def set_engineering_mode(self, enable, password):
@@ -1002,8 +1002,12 @@ class Client:
             if commandVersion >= 13:
                 retval = self.SetProperty("Server Normalize Properties", "Off")
 
-            retval &= self.SetProperty("Hardware Binning X", 2 if bin_x >= 2 and use_hw else 1)
-            retval &= self.SetProperty("Hardware Binning Y", 2 if bin_y >= 2 and use_hw else 1)
+            retval &= self.SetProperty(
+                "Hardware Binning X", 2 if bin_x >= 2 and use_hw else 1
+            )
+            retval &= self.SetProperty(
+                "Hardware Binning Y", 2 if bin_y >= 2 and use_hw else 1
+            )
 
             prop_hw_bin_x = self.GetProperty("Hardware Binning X")
             prop_hw_bin_y = self.GetProperty("Hardware Binning Y")
@@ -1895,7 +1899,9 @@ class Client:
                             f"expected: {totalBytes}, received: {movieBufferSize}"
                         )
                     else:
-                        log.info(f"reading movie buffer {totalBytes}", )
+                        log.info(
+                            f"reading movie buffer {totalBytes}",
+                        )
                         movieBuffer = self._recvFromSocket(self.socket, totalBytes)
                         log.info("Done reading movie buffer")
         else:
@@ -2381,7 +2387,9 @@ class Client:
         self.SetProperty("Exposure Time (seconds)", prevExposureTime)
 
         num_el = np.max([attr.eppixpf * frame_rate, attr.eppixps])
-        log.info(f"The number of electrons per pixel per second (eppixps): {num_el:.2f}")
+        log.info(
+            f"The number of electrons per pixel per second (eppixps): {num_el:.2f}"
+        )
 
         if attr.saturation > 0.0001:  # Nothing should be saturated in a gain image.
             raise ValueError(
@@ -2487,7 +2495,9 @@ class Client:
             If called on a non-Windows platform.
         """
         if not sys.platform.startswith("win"):
-            raise NotImplementedError("get_event functionality is only available on Windows platforms.")
+            raise NotImplementedError(
+                "get_event functionality is only available on Windows platforms."
+            )
 
     def enable_get_event(self):
         """
@@ -2509,7 +2519,9 @@ class Client:
             if response != False:
                 semaphoreName = self.__getParameters(response.acknowledge[0])[0]
                 if semaphoreName is not None:
-                    self.sdkEventSemaphore = win32event.CreateSemaphore(None, 0, 999, semaphoreName)
+                    self.sdkEventSemaphore = win32event.CreateSemaphore(
+                        None, 0, 999, semaphoreName
+                    )
                 else:
                     return False
 
