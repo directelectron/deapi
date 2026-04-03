@@ -2374,13 +2374,17 @@ class Client:
         while self.acquiring:
             time.sleep(2)
 
-        img, dtype, attr, _ = self.get_result(FrameType.SUMINTERMEDIATE, PixelFormat.UINT16)
+        img, dtype, attr, _ = self.get_result(
+            FrameType.SUMINTERMEDIATE, PixelFormat.UINT16
+        )
 
         if counting:
             exposure_time = self["Reference - Counting Gain Exposure Time (seconds)"]
             total_acquisitions = self["Reference - Counting Gain Acquisitions"]
             num_el = np.max([attr.eppixpf * frame_rate, attr.eppixps])
-            log.info(f"The number of electrons per pixel per second (eppixps): {num_el:.2f}")
+            log.info(
+                f"The number of electrons per pixel per second (eppixps): {num_el:.2f}"
+            )
         else:
             exposure_time = self["Reference - Integrating Gain Exposure Time (seconds)"]
             total_acquisitions = self["Reference - Integrating Gain Acquisitions"]
@@ -2403,7 +2407,7 @@ class Client:
 
         # recalculating to check...
         # total_acquisitions = int(
-            # np.ceil(target_electrons_per_pixel / (exposure_time * num_el))
+        # np.ceil(target_electrons_per_pixel / (exposure_time * num_el))
         # )
         if total_acquisitions == 1:
             total_acquisitions = 2
@@ -2418,7 +2422,7 @@ class Client:
         target_electrons_per_pixel: float = None,
         timeout: int = 600,
         counting: bool = False,
-        num_acq: int = 0
+        num_acq: int = 0,
     ):
         """Take a gain reference.
 
@@ -2457,7 +2461,7 @@ class Client:
             frame_rate, target_electrons_per_pixel, counting
         )
 
-        if (num_acq != 0):
+        if num_acq != 0:
             num_acquisitions = num_acq
 
         log.info(
@@ -2722,18 +2726,28 @@ class Client:
 
         try:
             packet = struct.pack("I", command.ByteSize()) + command.SerializeToString()
-            res = self.socket.send(packet)
-            # packet.PrintDebugString()
-            # log.debug("sent result = %d\n", res)
+            # sendall() loops internally until every byte is delivered (or raises).
+            # send() can return a short count on a non-blocking/timeout socket —
+            # that leaves _recv_exact on the server waiting for the rest of the
+            # message while this side waits for the reply: a deadlock.
+            self.socket.sendall(packet)
         except socket.error as e:
-            raise e("Error sending %s\n", command)
+            log.error("Error sending command: %s", e)
+            return False
 
         if logLevel == logging.DEBUG:
             lapsed = (self.GetTime() - step_time) * 1000
             log.debug(" Send Time: %.1f ms", lapsed)
             step_time = self.GetTime()
 
-        return self.__ReceiveResponseForCommand(command)
+        try:
+            return self.__ReceiveResponseForCommand(command)
+        except ConnectionResetError as e:
+            # Server closed the connection mid-reply (e.g. it crashed or dropped
+            # the client).  Return False so callers' existing  `if response != False`
+            # guards work correctly, rather than propagating an unexpected exception.
+            log.error("Connection reset while waiting for response: %s", e)
+            return False
 
     def __ReceiveResponseForCommand(self, command):
         step_time = self.GetTime()
