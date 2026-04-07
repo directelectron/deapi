@@ -54,6 +54,11 @@ def main(port=13240):
         sys.stderr.flush()
         while True:
             conn, addr = server_socket.accept()  # What waits for a connection
+            # Guard against a stalled client leaving _recv_exact blocked forever.
+            # 120 s is generous enough to survive debugger pauses and slow CI
+            # runners, while still breaking the partial-send deadlock if sendall()
+            # somehow delivers a short write.
+            conn.settimeout(120)
             server = FakeServer(socket=conn)
             connected = True
             while connected:

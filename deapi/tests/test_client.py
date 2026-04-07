@@ -10,6 +10,7 @@ from deapi.data_types import (
     MovieBufferStatus,
     ContrastStretchType,
 )
+from deapi.tests.conftest import wait_for_idle
 
 
 class TestClient:
@@ -57,8 +58,7 @@ class TestClient:
         client.scan(size_x=10, size_y=10, enable="On")
         client.start_acquisition(1)
         assert client.acquiring
-        while client.acquiring:
-            time.sleep(1)
+        wait_for_idle(client)
         assert not client.acquiring
 
     def test_start_acquisition_scan_disabled(self, client):
@@ -66,8 +66,7 @@ class TestClient:
         client.scan(enable="Off")
         client.start_acquisition(10)
         assert client.acquiring
-        while client.acquiring:
-            time.sleep(1)
+        wait_for_idle(client)
         assert not client.acquiring
 
     def test_get_result(self, client):
@@ -80,8 +79,7 @@ class TestClient:
         assert client["Hardware ROI Offset X"] == 0
         assert client["Hardware ROI Offset Y"] == 0
         client.start_acquisition(1)
-        while client.acquiring:
-            time.sleep(1)
+        wait_for_idle(client)
         result = client.get_result()
         assert isinstance(result, tuple)
         assert len(result) == 4
@@ -93,8 +91,7 @@ class TestClient:
         client["Frames Per Second"] = 1000
         client.scan(size_x=10, size_y=10, enable="On")
         client.start_acquisition(1)
-        while client.acquiring:
-            time.sleep(1)
+        wait_for_idle(client)
         result = client.get_result("singleframe_integrated")
         assert isinstance(result[3], Histogram)
         result[3].plot()
@@ -107,8 +104,7 @@ class TestClient:
         assert isinstance(result, tuple)
         assert len(result) == 4
         assert result[0].shape == (1024, 1024)
-        while client.acquiring:
-            time.sleep(1)
+        wait_for_idle(client)
 
     def test_binning_linked_parameters(self, client):
 
@@ -123,8 +119,7 @@ class TestClient:
         client["Hardware Binning X"] = binx
         assert client["Hardware Binning X"] == binx
         client.start_acquisition(1)
-        while client.acquiring:
-            time.sleep(1)
+        wait_for_idle(client)
         result = client.get_result("singleframe_integrated")
         assert result[0].shape[1] == 1024 // binx
 
@@ -173,8 +168,7 @@ class TestClient:
         assert client["Scan - Virtual Detector 3 Calculation"] == "Difference"
         np.testing.assert_allclose(client.virtual_masks[2][::2], 2)
         client.start_acquisition(1)
-        while client.acquiring:
-            time.sleep(1)
+        wait_for_idle(client)
         result = client.get_result("virtual_image3")
         assert result is not None
         assert result[0].shape == (10, 8)
@@ -309,8 +303,7 @@ class TestClient:
         assert is_set
         assert client["Scan - Points"] == np.sum(mask) * 2
         client.start_acquisition(1)
-        while client.acquiring:
-            time.sleep(1)
+        wait_for_idle(client)
         result = client.get_result("virtual_image1")
         assert result[0].shape == (12, 12)
         client["Scan - Type"] = "Raster"  # clean up
@@ -352,28 +345,21 @@ class TestClient:
         client.take_dark_reference(frame_rate=10)
         client["Image Processing - Flatfield Correction"] = "Dark"
         client.start_acquisition(1)
-        # assert that the dark reference corrects the image to zero...
-        while client.acquiring:
-            time.sleep(1)
+        wait_for_idle(client)
         image = client.get_result()[0]
         np.testing.assert_array_equal(image, 0)
 
-        # Now flip the dark reference
         client["Image Processing - Flip Horizontally"] = "On"
         client["Exposure Time (seconds)"] = 1
         client.start_acquisition(1)
-        while client.acquiring:
-            time.sleep(1)
+        wait_for_idle(client)
         image = client.get_result()[0]
         np.testing.assert_array_equal(image, 0)
         client["Image Processing - Flip Horizontally"] = "Off"
 
-        # test bin by a factor of 2
-
         client["Binning X"] = 2
         client["Binning Y"] = 2
         client.start_acquisition(1)
-        while client.acquiring:
-            time.sleep(1)
+        wait_for_idle(client)
         image = client.get_result()[0]
         np.testing.assert_array_equal(image, 0)

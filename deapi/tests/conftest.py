@@ -22,6 +22,37 @@ def close_port(port):
             process.terminate()
 
 
+def wait_for_idle(client, timeout: float = 30, interval: float = 0.1):
+    """Poll ``client.acquiring`` until it is False or *timeout* seconds elapse.
+
+    Replaces bare ``while client.acquiring: time.sleep(N)`` loops in tests so
+    that a stalled socket or an unexpectedly long acquisition does not cause the
+    test suite to hang indefinitely.
+
+    The default *timeout* of 30 s is sized for fake-server tests where all
+    acquisitions complete in well under a second (FPS=1000, small scan grids).
+    Pass a larger value for tests that run against real hardware with long
+    exposures, e.g. ``wait_for_idle(client, timeout=300)``.
+
+    Parameters
+    ----------
+    client:
+        A connected :class:`deapi.Client` instance.
+    timeout:
+        Maximum number of seconds to wait before failing the test.
+    interval:
+        Polling interval in seconds.
+    """
+    deadline = time.monotonic() + timeout
+    while client.acquiring:
+        if time.monotonic() > deadline:
+            pytest.fail(
+                f"Camera still acquiring after {timeout:.0f} s — "
+                "possible socket deadlock or FakeServer state error"
+            )
+        time.sleep(interval)
+
+
 # Modifying pytest run options
 def pytest_addoption(parser):
     parser.addoption(
