@@ -231,6 +231,7 @@ class Client:
         self._initialize_attributes()
         self.update_scan_size()
         self.update_image_size()
+        self.update_feature_hw_binning()
         self.virtual_masks = []
         for i in range(4):
             self.virtual_masks.append(VirtualMask(client=self, index=i))
@@ -248,6 +249,9 @@ class Client:
     def update_image_size(self):
         self.image_sizex = self["Image Size X (pixels)"]
         self.image_sizey = self["Image Size Y (pixels)"]
+
+    def update_feature_hw_binning(self):
+        self.feature_hw_binning = self["Feature - Hardware Binning"]
 
     def disconnect(self):
         """
@@ -1002,12 +1006,13 @@ class Client:
             if commandVersion >= 13:
                 retval = self.SetProperty("Server Normalize Properties", "Off")
 
-            retval &= self.SetProperty(
-                "Hardware Binning X", 2 if bin_x >= 2 and use_hw else 1
-            )
-            retval &= self.SetProperty(
-                "Hardware Binning Y", 2 if bin_y >= 2 and use_hw else 1
-            )
+            if self.feature_hw_binning == "On":
+                retval &= self.SetProperty(
+                    "Hardware Binning X", 2 if bin_x >= 2 and use_hw else 1
+                )
+                retval &= self.SetProperty(
+                    "Hardware Binning Y", 2 if bin_y >= 2 and use_hw else 1
+                )
 
             prop_hw_bin_x = self.GetProperty("Hardware Binning X")
             prop_hw_bin_y = self.GetProperty("Hardware Binning Y")
