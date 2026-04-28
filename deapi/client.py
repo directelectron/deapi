@@ -1006,6 +1006,9 @@ class Client:
             if commandVersion >= 13:
                 retval = self.SetProperty("Server Normalize Properties", "Off")
 
+            hw_bin_x = 1
+            hw_bin_y = 1
+
             if self.feature_hw_binning == "On":
                 retval &= self.SetProperty(
                     "Hardware Binning X", 2 if bin_x >= 2 and use_hw else 1
@@ -1014,15 +1017,14 @@ class Client:
                     "Hardware Binning Y", 2 if bin_y >= 2 and use_hw else 1
                 )
 
-            prop_hw_bin_x = self.GetProperty("Hardware Binning X")
-            prop_hw_bin_y = self.GetProperty("Hardware Binning Y")
-            hw_bin_x = 1
-            hw_bin_y = 1
-            if prop_hw_bin_x is not False:
-                hw_bin_x = int(prop_hw_bin_x)
+                prop_hw_bin_x = self.GetProperty("Hardware Binning X")
+                prop_hw_bin_y = self.GetProperty("Hardware Binning Y")
+            
+                if prop_hw_bin_x is not False:
+                    hw_bin_x = int(prop_hw_bin_x)
 
-            if prop_hw_bin_y is not False:
-                hw_bin_y = int(prop_hw_bin_y)
+                if prop_hw_bin_y is not False:
+                    hw_bin_y = int(prop_hw_bin_y)
 
             retval &= self.SetProperty("Binning X", bin_x / hw_bin_x)
             retval &= self.SetProperty("Binning Y", bin_y / hw_bin_y)
