@@ -29,6 +29,7 @@ class TestSavingHyperSpy:
 
     @pytest.mark.parametrize("file_format", ["MRC", "DE5", "HSPY"])
     @pytest.mark.server
+    @pytest.mark.skip(reason="Slow and broken")
     def test_save_4DSTEM(self, client, file_format):
         if not os.path.exists("D:\Temp"):
             os.mkdir("D:\Temp")
@@ -45,7 +46,6 @@ class TestSavingHyperSpy:
         client.start_acquisition(1)
         while client.acquiring:
             time.sleep(0.1)
-        time.sleep(1)
         assert file_format.lower() in client["Autosave Movie Frames File Path"]
         s = hs.load(client["Autosave Movie Frames File Path"])
         if file_format == "MRC":

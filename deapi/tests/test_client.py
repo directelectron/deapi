@@ -1,5 +1,3 @@
-import time
-
 import numpy as np
 
 from deapi import Client, Histogram
@@ -18,6 +16,8 @@ class TestClient:
     @pytest.fixture(autouse=True)
     def clean_state(self, client):
         # First set the hardware ROI to a known state
+        client.stop_acquisition()
+        wait_for_idle(client, timeout=10)
         client["Hardware ROI Offset X"] = 0
         client["Hardware ROI Offset Y"] = 0
         client["Hardware Binning X"] = 1
@@ -25,12 +25,12 @@ class TestClient:
         client["Hardware ROI Size X"] = 1024
         client["Hardware ROI Size Y"] = 1024
         client["Scan - Type"] = "Raster"
+        client["Frames Per Second"] = 1000
         # Set the software Binning to 1
         client["Binning X"] = 1
         client["Binning Y"] = 1
-
-    def teardown(self):
-        time.sleep(0.1)
+        client["Crop Offset X"] = 0
+        client["Crop Offset Y"] = 0
 
     def test_client_connection(self, client):
         assert client.connected
@@ -54,7 +54,6 @@ class TestClient:
         assert client["Scan - Enable"] == "On"
 
     def test_start_acquisition(self, client):
-        client["Frames Per Second"] = 1000
         client.scan(size_x=10, size_y=10, enable="On")
         client.start_acquisition(1)
         assert client.acquiring
@@ -62,22 +61,14 @@ class TestClient:
         assert not client.acquiring
 
     def test_start_acquisition_scan_disabled(self, client):
-        client["Frames Per Second"] = 1000
         client.scan(enable="Off")
-        client.start_acquisition(10)
+        client.start_acquisition(1)
         assert client.acquiring
         wait_for_idle(client)
         assert not client.acquiring
 
     def test_get_result(self, client):
-        client["Frames Per Second"] = 1000
         client.scan(size_x=3, size_y=3, enable="On")
-        assert client["Hardware ROI Size X"] == 1024
-        assert client["Hardware ROI Size Y"] == 1024
-        assert client["Hardware Binning X"] == 1
-        assert client["Hardware Binning Y"] == 1
-        assert client["Hardware ROI Offset X"] == 0
-        assert client["Hardware ROI Offset Y"] == 0
         client.start_acquisition(1)
         wait_for_idle(client)
         result = client.get_result()
@@ -88,7 +79,6 @@ class TestClient:
 
     @pytest.mark.server
     def test_get_histogram(self, client):
-        client["Frames Per Second"] = 1000
         client.scan(size_x=10, size_y=10, enable="On")
         client.start_acquisition(1)
         wait_for_idle(client)
@@ -97,7 +87,6 @@ class TestClient:
         result[3].plot()
 
     def test_get_result_no_scan(self, client):
-        client["Frames Per Second"] = 1000
         client.scan(enable="Off")
         client.start_acquisition(1)
         result = client.get_result("singleframe_integrated")
@@ -125,6 +114,7 @@ class TestClient:
 
     def test_get_virtual_mask(self, client):
         client.virtual_masks[1][:] = 1
+        client["Scan - Virtual Detector 1 Shape"] = "Arbitrary"
         assert isinstance(client.virtual_masks[1], VirtualMask)
         assert isinstance(client.virtual_masks[1][:], np.ndarray)
         np.testing.assert_allclose(client.virtual_masks[1][:], 1)
@@ -183,6 +173,7 @@ class TestClient:
     @pytest.mark.server
     @pytest.mark.parametrize("bin_sw", [1, 2, 4])
     def test_property_spec_set(self, client, bin_sw):
+        client.set_property("Hardware Binning X", 1)
         client.set_property("Hardware Binning Y", 1)
         client.set_property("Binning Y", bin_sw)
         sp = client.get_property_spec("Binning Y")
@@ -192,6 +183,7 @@ class TestClient:
             sp.options
             == "'1*', '2', '4', '8', '16', '32', '64', '128', '256', '512', '1024'"
         )
+        client.set_property("Hardware Binning X", 2)
         client.set_property("Hardware Binning Y", 2)
         sp = client.get_property_spec("Binning Y")
         assert sp.currentValue == str(bin_sw)
@@ -204,17 +196,6 @@ class TestClient:
     @pytest.mark.parametrize("size", [512, 256])
     @pytest.mark.parametrize("bin_sw", [1, 2, 4])
     def test_image_size(self, client, bin, offsetx, size, bin_sw):
-        client["Hardware ROI Offset X"] = 0
-        client["Hardware ROI Offset Y"] = 0
-        client["Hardware ROI Size X"] = 1024
-        client["Hardware ROI Size Y"] = 1024
-        client["Hardware Binning X"] = 1
-        client["Hardware Binning Y"] = 1
-        client["Binning X"] = 1
-        client["Binning Y"] = 1
-        client["Crop Offset X"] = 0
-        client["Crop Offset Y"] = 0
-
         assert client["Image Size X (pixels)"] == 1024
         assert client["Image Size Y (pixels)"] == 1024
 
@@ -239,7 +220,7 @@ class TestClient:
         assert client["Image Size X (pixels)"] == size // bin_sw // bin
 
     def test_stream_data(self, client):
-        client["Frames Per Second"] = 5
+        client["Frames Per Second"] = 100
         client.scan(size_x=10, size_y=10, enable="On")
         client.start_acquisition(1, request_movie_buffer=True)
         numberFrames = 0
@@ -283,7 +264,7 @@ class TestClient:
                 index += 1
                 if not success:
                     break
-        time.sleep(4)
+        wait_for_idle(client)
 
     @pytest.mark.server
     def test_set_xy_array(self, client):
@@ -311,28 +292,28 @@ class TestClient:
     @pytest.mark.server
     def test_gain_reference(self, client):
         client["Test Pattern"] = "SW Constant 400"
-        client.TakeDarkReference(100)  # take a dark reference first with 400 ADU
+        client.TakeDarkReference(100, acquisitions =1)  # take a dark reference first with 400 ADU
         client["Test Pattern"] = "SW Constant 1600"
-        client.take_gain_reference(100, target_electrons_per_pixel=1000, counting=False)
+        client.take_gain_reference(100, target_electrons_per_pixel=10, counting=False, num_acq=1)
 
     @pytest.mark.server
     def test_gain_reference_too_bright(self, client):
         client["Test Pattern"] = "SW Constant 1"
-        client.TakeDarkReference(100)  # take a dark reference first with 400 ADU
+        client.TakeDarkReference(100, acquisitions=1)  # take a dark reference first with 400 ADU
         client["Test Pattern"] = "SW Gaussian M1600 D200"
 
         with pytest.raises(ValueError):
             client.take_gain_reference(
-                100, target_electrons_per_pixel=1000, counting=False
+                100, target_electrons_per_pixel=10, counting=False
             )
 
     @pytest.mark.server
     def test_get_trial_gain_reference(self, client):
         client["Scan - Enable"] = "Off"
         client["Test Pattern"] = "SW Constant 400"
-        client.take_dark_reference(10)  # take a dark reference first with 400 ADU
+        client.take_dark_reference(100, acquisitions=1)  # take a dark reference first with 400 ADU
         client["Test Pattern"] = "SW Constant 1600"  # others don't work??
-        exposure, num_acquire, el = client.take_trial_gain_reference(10)
+        exposure, num_acquire, el = client.take_trial_gain_reference(10, target_electrons_per_pixel=10)
         assert exposure == 1
         assert el > 0
 
@@ -341,8 +322,8 @@ class TestClient:
         """Test to make sure that the dark reference is still correct after flipping."""
         client["Scan - Enable"] = "Off"
         client["Test Pattern"] = "SW Gradient Diagonal"
-        client["Frames Per Second"] = 10
-        client.take_dark_reference(frame_rate=10)
+        client["Frames Per Second"] = 100
+        client.take_dark_reference(frame_rate=100, acquisitions=1)
         client["Image Processing - Flatfield Correction"] = "Dark"
         client.start_acquisition(1)
         wait_for_idle(client)
@@ -350,7 +331,6 @@ class TestClient:
         np.testing.assert_array_equal(image, 0)
 
         client["Image Processing - Flip Horizontally"] = "On"
-        client["Exposure Time (seconds)"] = 1
         client.start_acquisition(1)
         wait_for_idle(client)
         image = client.get_result()[0]

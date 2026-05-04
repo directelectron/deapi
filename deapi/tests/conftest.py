@@ -158,7 +158,7 @@ def server(xprocess, request):
         return
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def client(xprocess, request):
     if request.config.getoption("--server"):
         c = Client()
@@ -174,7 +174,6 @@ def client(xprocess, request):
                 enable=True, password=request.config.getoption("--engineering")
             )
         yield c
-        time.sleep(4)
         c.disconnect()
         return
     else:

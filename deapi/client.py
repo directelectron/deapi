@@ -1306,6 +1306,7 @@ class Client:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
         sock.sendto(b"PyClientStopAcq", (self.host, self.port))
         respond = sock.recv(32)
+
         if logLevel == logging.INFO:
             log.info(f"{self.host} {self.port} {respond}")
         if logLevel <= logging.DEBUG:
