@@ -81,7 +81,10 @@ class TestUtils:
             time.sleep(0.1)
         # Poll until gain is applied instead of sleeping
         deadline = time.time() + 10
-        while client["Reference - Integrating Gain"] == prev_gain and time.time() < deadline:
+        while (
+            client["Reference - Integrating Gain"] == prev_gain
+            and time.time() < deadline
+        ):
             time.sleep(0.2)
         assert (
             client["Reference - Integrating Gain"] != prev_gain

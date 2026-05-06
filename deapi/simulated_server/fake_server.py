@@ -481,9 +481,12 @@ class FakeServer:
             val = command.command[0].parameter[1].p_float
         else:  # type == pb.AnyParameter.P_STRING:
             val = command.command[0].parameter[1].p_string
-        normalized_name = name.replace(" ", "_").lower().replace("(", "").replace(")", "")
+        normalized_name = (
+            name.replace(" ", "_").lower().replace("(", "").replace(")", "")
+        )
         if normalized_name not in self._values:
             import sys
+
             print(
                 f"FakeServer WARNING: SetProperty '{name}' not found in prop_dump.json"
                 f" — property not in FakeServer",
@@ -503,9 +506,12 @@ class FakeServer:
         ack1 = acknowledge_return.acknowledge.add()  # add the first acknowledge
         ack1.command_id = command.command[0].command_id
         name = command.command[0].parameter[0].p_string
-        normalized_name = name.replace(" ", "_").lower().replace("(", "").replace(")", "")
+        normalized_name = (
+            name.replace(" ", "_").lower().replace("(", "").replace(")", "")
+        )
         if normalized_name not in self._values:
             import sys
+
             print(
                 f"FakeServer WARNING: GetProperty '{name}' not found in prop_dump.json"
                 f" — property not in FakeServer",

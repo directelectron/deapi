@@ -39,6 +39,7 @@ class TestLoadingLiberTEM:
     @pytest.mark.server
     def test_save_4DSTEM(self, client, file_format):
         import libertem.api as lt
+
         if not os.path.exists("D:\Temp"):
             os.mkdir("D:\Temp")
         temp_dir = "D:\Temp"

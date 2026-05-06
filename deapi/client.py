@@ -1024,7 +1024,7 @@ class Client:
 
                 prop_hw_bin_x = self.GetProperty("Hardware Binning X")
                 prop_hw_bin_y = self.GetProperty("Hardware Binning Y")
-            
+
                 if prop_hw_bin_x is not False:
                     hw_bin_x = int(prop_hw_bin_x)
 
@@ -1426,7 +1426,9 @@ class Client:
         # For an array handle both 2 and 3d cases...
         elif isinstance(positions, np.ndarray):
             if positions.ndim > 3:
-                log.error("Positions must be a 2D array of shape (N, 2) or 3D array of shape (M, N, 2)")
+                log.error(
+                    "Positions must be a 2D array of shape (N, 2) or 3D array of shape (M, N, 2)"
+                )
                 return False
             elif positions.ndim == 2:
                 positions = positions[np.newaxis, :, :]
@@ -1434,9 +1436,9 @@ class Client:
                 log.error("Positions must be integers... Casting to int")
                 positions = positions.astype(np.int32)
             if width is None:
-                new_width = np.max(positions[:,:, 0]) + 1
+                new_width = np.max(positions[:, :, 0]) + 1
             if height is None:
-                new_height = np.max(positions[:,:, 1]) + 1
+                new_height = np.max(positions[:, :, 1]) + 1
 
         if width is not None:
             new_width = width
@@ -1450,9 +1452,7 @@ class Client:
 
         vals_to_send = [int(new_width), int(new_height)] + num_positions
         print("Vals to send:", vals_to_send)
-        command = self._addSingleCommand(
-            self.SET_SCAN_XY_ARRAY, None, vals_to_send
-        )
+        command = self._addSingleCommand(self.SET_SCAN_XY_ARRAY, None, vals_to_send)
         try:
             packet = struct.pack("I", command.ByteSize()) + command.SerializeToString()
             self.socket.send(packet)
@@ -1466,7 +1466,7 @@ class Client:
         if ret:
             try:
                 # convert to bytes and send
-                tic =time.time()
+                tic = time.time()
                 for pos in positions:
                     x = pos[:, 0].tobytes()
                     y = pos[:, 1].tobytes()

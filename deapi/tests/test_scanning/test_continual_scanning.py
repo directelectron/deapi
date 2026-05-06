@@ -5,12 +5,14 @@ without errors.
 
 Expected behavior:
 """
+
 import os
 
 import numpy as np
 import pytest
 from time import sleep
 import glob
+
 
 class TestContinualScanning:
     """Test class for continual scanning functionality."""
@@ -19,11 +21,13 @@ class TestContinualScanning:
     def tmp_path(self):
         import tempfile
         from pathlib import Path
+
         temp_dir = Path("D:/temp") / f"test_{id(self)}"
         temp_dir.mkdir(parents=True, exist_ok=True)
         yield temp_dir
         # Optional: cleanup
         import shutil
+
         shutil.rmtree(temp_dir, ignore_errors=True)
 
     @pytest.fixture(autouse=True)
@@ -32,8 +36,8 @@ class TestContinualScanning:
         client.stop_acquisition()
         client["Hardware Binning X"] = 1
         client["Hardware Binning Y"] = 1
-        client.set_adaptive_roi(256, 256) # set to a reduced size for faster testing
-        client["Frames Per Second"] = 100000 # set to max (will be capped by sever)
+        client.set_adaptive_roi(256, 256)  # set to a reduced size for faster testing
+        client["Frames Per Second"] = 100000  # set to max (will be capped by sever)
         client["Scan - Type"] = "Raster"
         # Set the software Binning to 1
         client["Binning X"] = 1
@@ -44,7 +48,6 @@ class TestContinualScanning:
         client["Scan - Flyback Time (microseconds)"] = 0
         client["Scan - Repeats"] = 1
         client["Scan - Repeat Delay (seconds)"] = 0
-
 
     @pytest.mark.server
     def test_continual_scanning(self, client):
@@ -72,11 +75,10 @@ class TestContinualScanning:
 
         sleep(3)  # wait for any finalization
 
-        #assert client["Frame Count"] == 8 * 8 * 3
-        print("Frame Count:",client["Frame Count"])
+        # assert client["Frame Count"] == 8 * 8 * 3
+        print("Frame Count:", client["Frame Count"])
         result = client.get_result()
-        print("Aq:",result.attributes.acqIndex)
-
+        print("Aq:", result.attributes.acqIndex)
 
     @pytest.mark.server
     def test_sending_multiple_scan_patterns(self, client):
@@ -84,7 +86,9 @@ class TestContinualScanning:
         properly cycle through the patterns for the specified number of repeats.
         """
 
-        scan1 = np.array([[0, 0], [1, 0], [1, 1], [0, 1],[2, 1], [2, 0], [0,2], [1,2]] *10) # 80 points
+        scan1 = np.array(
+            [[0, 0], [1, 0], [1, 1], [0, 1], [2, 1], [2, 0], [0, 2], [1, 2]] * 10
+        )  # 80 points
         scans = []
         for i in range(5):
             scans.append(scan1 + 2 * i)
@@ -95,15 +99,16 @@ class TestContinualScanning:
         client["Scan - Camera Frames Per Point"] = 1
         client["Frames Per Second"] = 100
 
-
         # Extra frames calculation
         min_frame_per_buffer = client["Grabbing - Frames Per Buffer"]
         # initial delay count needs to be a multiple of Frames per buffer with a minimum of 1 Buffer len.
-        client["Scan - Initial Delay (microseconds)"] = 0 # -->
-        #assert client["Scan - Initial Delay Count"] == min_frame_per_buffer
+        client["Scan - Initial Delay (microseconds)"] = 0  # -->
+        # assert client["Scan - Initial Delay Count"] == min_frame_per_buffer
         actual_len_of_scan = len(scan1) + min_frame_per_buffer
 
-        frames_per_scan = np.ceil(actual_len_of_scan/min_frame_per_buffer) * min_frame_per_buffer
+        frames_per_scan = (
+            np.ceil(actual_len_of_scan / min_frame_per_buffer) * min_frame_per_buffer
+        )
 
         assert client["Frame Count"] == frames_per_scan * reps
         client.start_acquisition()
@@ -113,42 +118,47 @@ class TestContinualScanning:
         total_points = 80 * reps
         assert client["Scan - Points (Recorded)"] == total_points
         # Number of total frames Processed (Frames through GPU)
-        assert client["Number of Frames Processed"] == client["Scan - Points (Recorded)"] + client["Scan - Points (Not Recorded)"]
+        assert (
+            client["Number of Frames Processed"]
+            == client["Scan - Points (Recorded)"]
+            + client["Scan - Points (Not Recorded)"]
+        )
         assert client["Number of Frames Processed"] == frames_per_scan * reps
         # number of frames (after acquisition)
 
-    @pytest.mark.parametrize("index", (0,1,2))
+    @pytest.mark.parametrize("index", (0, 1, 2))
     @pytest.mark.server
     def test_multiple_scan_patterns_different_lengths(self, client, index):
         """Test sending multiple scan patterns of different lengths for continual scanning.
 
         Different patterns will be run depending on the index set by: `Scan - XY File Pattern ID`
         """
-        #min points is buffer size
+        # min points is buffer size
         frames_per_buffer = client["Grabbing - Frames Per Buffer"]
         client["Test Pattern"] = "SW Frame Number"
-        scan1 = np.array([[0, 0], [1, 0], [1, 1], [0, 1]]*10)  # 40 points
-        scan2 = np.array([[0, 0], [2, 0], [2, 2], [0, 2], [1, 1]]*10)  # 50 points
-        scan3 = np.array([[0, 0], [3, 0], [3, 3], [0, 3], [1, 1], [2, 2]]*10)  # 60 points
+        scan1 = np.array([[0, 0], [1, 0], [1, 1], [0, 1]] * 10)  # 40 points
+        scan2 = np.array([[0, 0], [2, 0], [2, 2], [0, 2], [1, 1]] * 10)  # 50 points
+        scan3 = np.array(
+            [[0, 0], [3, 0], [3, 3], [0, 3], [1, 1], [2, 2]] * 10
+        )  # 60 points
         scans = [scan1, scan2, scan3]
         client.set_xy_array(scans, height=10, width=10)
 
-        num_points = [40,50,60]
+        num_points = [40, 50, 60]
         num_p = num_points[index]
         client["Scan - Repeats"] = 1
-        client["Scan - XY File Pattern ID"] = index # 0, 1, 2  --> Set to Scan 1,  Scan 2 and Scan 3
+        client["Scan - XY File Pattern ID"] = (
+            index  # 0, 1, 2  --> Set to Scan 1,  Scan 2 and Scan 3
+        )
         client["Scan - Enable"] = True
         client["Reference - Dark"] = "None"
         client.start_acquisition()
         while client.acquiring:
             sleep(0.1)
         res = client.get_result("SINGLEFRAME_INTEGRATED")
-        assert np.max(res.image) == num_p -1
+        assert np.max(res.image) == num_p - 1
         print(f"frame Count: {client['Frame Count']}")
         assert client["Scan - Points (Recorded)"] == num_p
-
-
-
 
     @pytest.mark.server
     def test_send_100_patterns(self, client):
@@ -170,8 +180,8 @@ class TestContinualScanning:
         client.set_xy_array(coords, height=128, width=128)
         client["Scan - Repeats"] = 100
         client["Scan - Enable"] = True
-        #client.start_acquisition()
-        #while client.acquiring:
+        # client.start_acquisition()
+        # while client.acquiring:
         #    sleep(0.1)
 
     @pytest.mark.server
@@ -195,7 +205,6 @@ class TestContinualScanning:
 
         result = client.get_result("external_image1")
 
-
     @pytest.mark.server
     def test_saving_virtual_images(self, client, tmp_path):
         """Test that virtual images are saved correctly during continual scanning.
@@ -209,7 +218,7 @@ class TestContinualScanning:
         client["Scan - Enable"] = True
         client["Use DE Camera"] = "Use Frame Time"
 
-        client["Autosave Directory"] =  str(tmp_path)
+        client["Autosave Directory"] = str(tmp_path)
         client["Autosave Virtual Image 0"] = "On"
 
         # Start the scan
@@ -217,19 +226,21 @@ class TestContinualScanning:
         while client.acquiring:
             sleep(0.1)
 
-        sleep(3) # wait for any finalization
+        sleep(3)  # wait for any finalization
         path = client["Autosave Virtual Image 0 File Path"]
 
         # get the file size
         osize = os.path.getsize(path)
 
         HEADER_SIZE = 1024  #  Header size for a MRC file
-        expected_size = HEADER_SIZE + 2 * 32 * 32 * 4  # 2 repeats, 8x8 image, 4 bytes per pixel
+        expected_size = (
+            HEADER_SIZE + 2 * 32 * 32 * 4
+        )  # 2 repeats, 8x8 image, 4 bytes per pixel
 
         assert osize == expected_size
 
     @pytest.mark.server
-    def test_frame_repeats(self,client):
+    def test_frame_repeats(self, client):
         """Test that frame repeats work correctly during continual scanning.
 
         This should repeat each frame the specified number of times before moving to the next position.
@@ -247,7 +258,7 @@ class TestContinualScanning:
         while client.acquiring:
             sleep(0.1)
 
-        res_1=client.get_result("virtual_image0", pixel_format="AUTO" )
+        res_1 = client.get_result("virtual_image0", pixel_format="AUTO")
 
         # num pixels/frame
         n_pix = client["Image Size X (pixels)"] * client["Image Size Y (pixels)"]
@@ -255,9 +266,8 @@ class TestContinualScanning:
         frame_number = (res_1.image / n_pix) / client["Scan - Camera Frames Per Point"]
         print(frame_number)
 
-
     @pytest.mark.server
-    def test_frame_repeats_auto_save(self,client):
+    def test_frame_repeats_auto_save(self, client):
         """Test that frame repeats work correctly during continual scanning.
 
         This should repeat each frame the specified number of times before moving to the next position.
@@ -280,7 +290,7 @@ class TestContinualScanning:
             sleep(0.1)
         print(client["Acquisition Status"])
         sleep(3)
-        res_1=client.get_result("virtual_image0", pixel_format="AUTO" )
+        res_1 = client.get_result("virtual_image0", pixel_format="AUTO")
 
         # num pixels/frame
         n_pix = client["Image Size X (pixels)"] * client["Image Size Y (pixels)"]
@@ -296,8 +306,10 @@ class TestContinualScanning:
             sleep(0.1)
         sleep(3)
         print(client["Acquisition Status"])
-        res_2=client.get_result("virtual_image0", pixel_format="AUTO" )
-        frame_number_2 = (res_2.image / n_pix) / client["Scan - Camera Frames Per Point"]
+        res_2 = client.get_result("virtual_image0", pixel_format="AUTO")
+        frame_number_2 = (res_2.image / n_pix) / client[
+            "Scan - Camera Frames Per Point"
+        ]
         print("frame2", frame_number_2)
 
         # test the size of the result...
@@ -308,11 +320,15 @@ class TestContinualScanning:
         osize = os.path.getsize(path)
 
         HEADER_SIZE = 1024  #  Header size for a MRC file
-        image_size = client["Image Size X (pixels)"] * client["Image Size Y (pixels)"] * 2  # 4 bytes per pixel
-        expected_size = HEADER_SIZE +  (image_size*
-                                        client["Scan - Size X"] *
-                                        client["Scan - Size Y"] *
-                                        client["Scan - Repeats"])
+        image_size = (
+            client["Image Size X (pixels)"] * client["Image Size Y (pixels)"] * 2
+        )  # 4 bytes per pixel
+        expected_size = HEADER_SIZE + (
+            image_size
+            * client["Scan - Size X"]
+            * client["Scan - Size Y"]
+            * client["Scan - Repeats"]
+        )
 
         assert osize == expected_size
 
@@ -324,8 +340,10 @@ class TestContinualScanning:
             sleep(0.1)
         sleep(1)
         res_2 = client.get_result("virtual_image0", pixel_format="AUTO")
-        frame_number_2 = (res_2.image / n_pix) / client["Scan - Camera Frames Per Point"]
-        print("frame3",frame_number_2)
+        frame_number_2 = (res_2.image / n_pix) / client[
+            "Scan - Camera Frames Per Point"
+        ]
+        print("frame3", frame_number_2)
         # test the size of the result...
 
         path = client["Autosave Movie Frames File Path"]
@@ -334,18 +352,21 @@ class TestContinualScanning:
         osize = os.path.getsize(path)
 
         HEADER_SIZE = 1024  # Header size for a MRC file
-        image_size = client["Image Size X (pixels)"] * client["Image Size Y (pixels)"] * 2  # 2 bytes per pixel
-        expected_size = HEADER_SIZE + (image_size *
-                                       client["Scan - Size X"] *
-                                       client["Scan - Size Y"] *
-                                       client["Scan - Repeats"])  # 2 bytes per pixel
+        image_size = (
+            client["Image Size X (pixels)"] * client["Image Size Y (pixels)"] * 2
+        )  # 2 bytes per pixel
+        expected_size = HEADER_SIZE + (
+            image_size
+            * client["Scan - Size X"]
+            * client["Scan - Size Y"]
+            * client["Scan - Repeats"]
+        )  # 2 bytes per pixel
 
         assert osize == expected_size
 
-
     @pytest.mark.parametrize("fly_back_time", [0, 1000, 4000])
     @pytest.mark.server
-    def test_hidden_scan_points_single_scan(self, client,fly_back_time):
+    def test_hidden_scan_points_single_scan(self, client, fly_back_time):
         """Test that hidden scan points are properly ignored during continual scanning.
 
         This should ensure that points marked as hidden are not included in the scan pattern.
@@ -363,7 +384,9 @@ class TestContinualScanning:
         client["Scan - Repeat Delay (seconds)"] = 0
         client["Scan - Initial Delay (microseconds)"] = 0
         fly_back_time = client["Scan - Flyback Time (microseconds)"]
-        points_per_row = np.ceil(fly_back_time/client["Scan - Dwell Time (microseconds)"])
+        points_per_row = np.ceil(
+            fly_back_time / client["Scan - Dwell Time (microseconds)"]
+        )
 
         assert client["Scan - Flyback Time Count"] == points_per_row
         total_points = size_x * size_y + size_y * points_per_row
@@ -387,18 +410,18 @@ class TestContinualScanning:
         client["Scan - Dwell Time (microseconds)"] = 1000
         client["Scan - Initial Delay (microseconds)"] = initial_delay
         per_buf = client["Grabbing - Frames Per Buffer"]
-        extra_points  = np.ceil(initial_delay/client["Scan - Dwell Time (microseconds)"])
+        extra_points = np.ceil(
+            initial_delay / client["Scan - Dwell Time (microseconds)"]
+        )
 
-        extra_points = np.ceil(extra_points/per_buf) * per_buf
-        total_points = size_x * size_y +  extra_points
+        extra_points = np.ceil(extra_points / per_buf) * per_buf
+        total_points = size_x * size_y + extra_points
 
         print("Total points:", total_points)
-
 
         assert client["Number of Frames Requested"] == total_points
         assert client["Scan - Points (Not Recorded)"] == extra_points
         assert client["Scan - Points (Recorded)"] == size_x * size_y
-
 
     @pytest.mark.parametrize("initial_delay", [0, 1000, 5000, 10000])
     @pytest.mark.server
@@ -410,7 +433,9 @@ class TestContinualScanning:
         size_x = 16
         size_y = 16
         repeats = 5
-        client["Scan - Use DE Camera"] = "On"  # Not Related to number of frames per buffer if "Off"
+        client["Scan - Use DE Camera"] = (
+            "On"  # Not Related to number of frames per buffer if "Off"
+        )
         client["Scan - Trigger Source"] = "DE-FreeScan"
         client["Scan - Size X"] = size_x
         client["Scan - Size Y"] = size_y
@@ -424,24 +449,37 @@ class TestContinualScanning:
         per_buf = client["Grabbing - Frames Per Buffer"]
 
         cam_frames_per_point = client["Scan - Camera Frames Per Point"]
-        extra_points  = np.ceil(initial_delay/client["Scan - Dwell Time (microseconds)"]/cam_frames_per_point) *cam_frames_per_point
+        extra_points = (
+            np.ceil(
+                initial_delay
+                / client["Scan - Dwell Time (microseconds)"]
+                / cam_frames_per_point
+            )
+            * cam_frames_per_point
+        )
         extra_points_init = extra_points if extra_points > per_buf else per_buf
 
-        extra_points = np.ceil(extra_points_init/per_buf) * per_buf
+        extra_points = np.ceil(extra_points_init / per_buf) * per_buf
 
-        total_points = size_x * size_y * repeats +  extra_points * repeats
+        total_points = size_x * size_y * repeats + extra_points * repeats
         print("Total points:", total_points)
-        print("Extra points:",  client["Scan - Points"]  - total_points)
+        print("Extra points:", client["Scan - Points"] - total_points)
         print(f"Terminal Count: {client['Scan - Terminal Count']}")
 
         # initial delay counts is minimum 1 buffer
 
+        assert client["Scan - Initial Delay Count"] == extra_points_init  # For 1 Scan
 
-        assert client["Scan - Initial Delay Count"] == extra_points_init # For 1 Scan
-
-        assert client["Scan - Points (Recorded)"] + client["Scan - Points (Not Recorded)"] == client["Scan - Points"]
-        assert client["Scan - Points (Not Recorded)"] == extra_points * repeats  # For all repeats
-        assert client["Scan - Points (Recorded)"] == size_x * size_y * repeats # For all repeats
+        assert (
+            client["Scan - Points (Recorded)"] + client["Scan - Points (Not Recorded)"]
+            == client["Scan - Points"]
+        )
+        assert (
+            client["Scan - Points (Not Recorded)"] == extra_points * repeats
+        )  # For all repeats
+        assert (
+            client["Scan - Points (Recorded)"] == size_x * size_y * repeats
+        )  # For all repeats
 
         # Actual Frames to Ignore = max(base, initialDelayCount, flybackCountPositive) + flybackTotalCount
         # With zero flyback this reduces to initialDelayCount — it is NOT scaled by repeats.
@@ -463,13 +501,17 @@ class TestContinualScanning:
         client["Scan - Repeats"] = repeats
         client["Scan - Dwell Time (microseconds)"] = 1000
         client["Scan - Flyback Time (microseconds)"] = fly_back_time
-        points_per_row = np.ceil(fly_back_time/client["Scan - Dwell Time (microseconds)"])
+        points_per_row = np.ceil(
+            fly_back_time / client["Scan - Dwell Time (microseconds)"]
+        )
         total_points = (size_x * size_y + size_y * points_per_row) * repeats
         print("Total points:", total_points)
         assert client["Number of Frames Requested"] == total_points
-        assert client["Scan - Points (Not Recorded)"] == size_y * points_per_row * repeats
+        assert (
+            client["Scan - Points (Not Recorded)"] == size_y * points_per_row * repeats
+        )
         assert client["Scan - Points (Recorded)"] == size_x * size_y * repeats
 
-        #assert client["Actual Frames to Ignore"] == size_y * points_per_row * repeats
+        # assert client["Actual Frames to Ignore"] == size_y * points_per_row * repeats
 
         assert client["Number of Frames To Grab"] == total_points

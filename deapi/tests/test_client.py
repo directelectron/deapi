@@ -16,7 +16,7 @@ class TestClient:
     @pytest.fixture(autouse=True)
     def clean_state(self, client):
         # First set the hardware ROI to a known state
-        #client.stop_acquisition()
+        # client.stop_acquisition()
         wait_for_idle(client, timeout=10)
         client["Hardware ROI Offset X"] = 0
         client["Hardware ROI Offset Y"] = 0
@@ -292,14 +292,20 @@ class TestClient:
     @pytest.mark.server
     def test_gain_reference(self, client):
         client["Test Pattern"] = "SW Constant 400"
-        client.TakeDarkReference(100, acquisitions =1)  # take a dark reference first with 400 ADU
+        client.TakeDarkReference(
+            100, acquisitions=1
+        )  # take a dark reference first with 400 ADU
         client["Test Pattern"] = "SW Constant 1600"
-        client.take_gain_reference(100, target_electrons_per_pixel=10, counting=False, num_acq=1)
+        client.take_gain_reference(
+            100, target_electrons_per_pixel=10, counting=False, num_acq=1
+        )
 
     @pytest.mark.server
     def test_gain_reference_too_bright(self, client):
         client["Test Pattern"] = "SW Constant 1"
-        client.TakeDarkReference(100, acquisitions=1)  # take a dark reference first with 400 ADU
+        client.TakeDarkReference(
+            100, acquisitions=1
+        )  # take a dark reference first with 400 ADU
         client["Test Pattern"] = "SW Gaussian M1600 D200"
 
         with pytest.raises(ValueError):
@@ -311,9 +317,13 @@ class TestClient:
     def test_get_trial_gain_reference(self, client):
         client["Scan - Enable"] = "Off"
         client["Test Pattern"] = "SW Constant 400"
-        client.take_dark_reference(100, acquisitions=1)  # take a dark reference first with 400 ADU
+        client.take_dark_reference(
+            100, acquisitions=1
+        )  # take a dark reference first with 400 ADU
         client["Test Pattern"] = "SW Constant 1600"  # others don't work??
-        exposure, num_acquire, el = client.take_trial_gain_reference(10, target_electrons_per_pixel=10)
+        exposure, num_acquire, el = client.take_trial_gain_reference(
+            10, target_electrons_per_pixel=10
+        )
         assert exposure == 1
         assert el > 0
 
