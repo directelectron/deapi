@@ -16,7 +16,7 @@ class TestClient:
     @pytest.fixture(autouse=True)
     def clean_state(self, client):
         # First set the hardware ROI to a known state
-        client.stop_acquisition()
+        #client.stop_acquisition()
         wait_for_idle(client, timeout=10)
         client["Hardware ROI Offset X"] = 0
         client["Hardware ROI Offset Y"] = 0

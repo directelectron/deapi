@@ -23,6 +23,7 @@ dependencies = [
     "scipy",
     "scikit-image",
     "sympy",
+    "pywin32; platform_system == 'Windows'",
 ]
 description = "API for DE Server"
 version = "5.3b5"
