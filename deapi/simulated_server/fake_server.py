@@ -481,8 +481,20 @@ class FakeServer:
             val = command.command[0].parameter[1].p_float
         else:  # type == pb.AnyParameter.P_STRING:
             val = command.command[0].parameter[1].p_string
-        name = name.replace(" ", "_").lower().replace("(", "").replace(")", "")
-        self._values[name].value = val
+        normalized_name = name.replace(" ", "_").lower().replace("(", "").replace(")", "")
+        if normalized_name not in self._values:
+            import sys
+            print(
+                f"FakeServer WARNING: SetProperty '{name}' not found in prop_dump.json"
+                f" — property not in FakeServer",
+                file=sys.stderr,
+            )
+            ack1.error = True
+            string_param = ack1.parameter.add()
+            string_param.type = pb.AnyParameter.P_STRING
+            string_param.p_string = f"Property not in Server: '{name}'"
+            return (acknowledge_return,)
+        self._values[normalized_name].value = val
         return (acknowledge_return,)
 
     def _fake_get_property(self, command):
@@ -491,8 +503,20 @@ class FakeServer:
         ack1 = acknowledge_return.acknowledge.add()  # add the first acknowledge
         ack1.command_id = command.command[0].command_id
         name = command.command[0].parameter[0].p_string
-        name = name.replace(" ", "_").lower().replace("(", "").replace(")", "")
-        val = self._values.get(name, "Not Implemented")
+        normalized_name = name.replace(" ", "_").lower().replace("(", "").replace(")", "")
+        if normalized_name not in self._values:
+            import sys
+            print(
+                f"FakeServer WARNING: GetProperty '{name}' not found in prop_dump.json"
+                f" — property not in FakeServer",
+                file=sys.stderr,
+            )
+            ack1.error = True
+            string_param = ack1.parameter.add()
+            string_param.type = pb.AnyParameter.P_STRING
+            string_param.p_string = f"Property not in Server: '{name}'"
+            return (acknowledge_return,)
+        val = self._values[normalized_name]
 
         if val.data_type == "String":
             val = val.value
