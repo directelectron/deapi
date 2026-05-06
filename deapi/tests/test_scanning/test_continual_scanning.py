@@ -126,6 +126,7 @@ class TestContinualScanning:
         """
         #min points is buffer size
         frames_per_buffer = client["Grabbing - Frames Per Buffer"]
+        client["Test Pattern"] = "SW Frame Number"
         scan1 = np.array([[0, 0], [1, 0], [1, 1], [0, 1]]*10)  # 40 points
         scan2 = np.array([[0, 0], [2, 0], [2, 2], [0, 2], [1, 1]]*10)  # 50 points
         scan3 = np.array([[0, 0], [3, 0], [3, 3], [0, 3], [1, 1], [2, 2]]*10)  # 60 points
@@ -137,9 +138,12 @@ class TestContinualScanning:
         client["Scan - Repeats"] = 1
         client["Scan - XY File Pattern ID"] = index # 0, 1, 2  --> Set to Scan 1,  Scan 2 and Scan 3
         client["Scan - Enable"] = True
+        client["Reference - Dark"] = "None"
         client.start_acquisition()
         while client.acquiring:
             sleep(0.1)
+        res = client.get_result("SINGLEFRAME_INTEGRATED")
+        assert np.max(res.image) == num_p -1
         print(f"frame Count: {client['Frame Count']}")
         assert client["Scan - Points (Recorded)"] == num_p
 
