@@ -88,20 +88,38 @@ class TestContinualScanning:
         scans = []
         for i in range(5):
             scans.append(scan1 + 2 * i)
-        client.set_xy_array(scans, height=10, width=10)
-        reps = 6
-        client["Scan - Repeats"] = 6
+        client.set_xy_array(scans, height=5, width=5)
+        reps = 7
+        client["Scan - Repeats"] = reps
         client["Scan - Enable"] = True
         client["Scan - Camera Frames Per Point"] = 1
         client["Frames Per Second"] = 100
+
+
+        # Extra frames calculation
+        min_frame_per_buffer = client["Grabbing - Frames Per Buffer"]
+        # initial delay count needs to be a multiple of Frames per buffer with a minimum of 1 Buffer len.
+        client["Scan - Initial Delay (microseconds)"] = 0 # -->
+        #assert client["Scan - Initial Delay Count"] == min_frame_per_buffer
+        actual_len_of_scan = len(scan1) + min_frame_per_buffer
+
+        frames_per_scan = np.ceil(actual_len_of_scan/min_frame_per_buffer) * min_frame_per_buffer
+
+        assert client["Frame Count"] == frames_per_scan * reps
         client.start_acquisition()
         while client.acquiring:
             sleep(0.1)
-        # should "Actual Frames to Ignore" be scaled by the number of reps.
-        assert client["Frame Count"] - (client["Actual Frames to Ignore"]) == 80 * reps
 
+        total_points = 80 * reps
+        assert client["Scan - Points (Recorded)"] == total_points
+        # Number of total frames Processed (Frames through GPU)
+        assert client["Number of Frames Processed"] == client["Scan - Points (Recorded)"] + client["Scan - Points (Not Recorded)"]
+        assert client["Number of Frames Processed"] == frames_per_scan * reps
+        # number of frames (after acquisition)
+
+    @pytest.mark.parametrize("index", (0,1,2))
     @pytest.mark.server
-    def test_multiple_scan_patterns_different_lengths(self, client):
+    def test_multiple_scan_patterns_different_lengths(self, client, index):
         """Test sending multiple scan patterns of different lengths for continual scanning.
 
         Different patterns will be run depending on the index set by: `Scan - XY File Pattern ID`
@@ -114,17 +132,20 @@ class TestContinualScanning:
         scans = [scan1, scan2, scan3]
         client.set_xy_array(scans, height=10, width=10)
 
-        for i, num_points in enumerate([40, 50, 60]):
-            client["Scan - Repeats"] = 1
-            client["Scan - XY File Pattern ID"] = i
-            client["Scan - Enable"] = True
-            client.start_acquisition()
-            while client.acquiring:
-                sleep(0.1)
-            print(f"frame Count: {client['Frame Count']}")
+        num_points = [40,50,60]
+        num_p = num_points[index]
+        client["Scan - Repeats"] = 1
+        client["Scan - XY File Pattern ID"] = index # 0, 1, 2  --> Set to Scan 1,  Scan 2 and Scan 3
+        client["Scan - Enable"] = True
+        client.start_acquisition()
+        while client.acquiring:
+            sleep(0.1)
+        print(f"frame Count: {client['Frame Count']}")
+        assert client["Scan - Points (Recorded)"] == num_p
 
 
-            assert client["Scan - Points (Recorded)"] == num_points
+
+
     @pytest.mark.server
     def test_send_100_patterns(self, client):
         """Test sending 100 scan patterns.
@@ -347,7 +368,7 @@ class TestContinualScanning:
         assert client["Scan - Points (Not Recorded)"] == size_y * points_per_row
         assert client["Scan - Points (Recorded)"] == size_x * size_y
 
-    @pytest.mark.parametrize("initial_delay", [0, 1000, 5000])
+    @pytest.mark.parametrize("initial_delay", [0, 1000, 5000, 10000])
     @pytest.mark.server
     def test_initial_delay(self, client, initial_delay):
         """Test that initial delay is properly applied during continual scanning.
@@ -375,7 +396,7 @@ class TestContinualScanning:
         assert client["Scan - Points (Recorded)"] == size_x * size_y
 
 
-    @pytest.mark.parametrize("initial_delay", [0, 1000, 5000])
+    @pytest.mark.parametrize("initial_delay", [0, 1000, 5000, 10000])
     @pytest.mark.server
     def test_initial_delay_repeats(self, client, initial_delay):
         """Test that initial delay is properly applied during continual scanning.
@@ -385,21 +406,36 @@ class TestContinualScanning:
         size_x = 16
         size_y = 16
         repeats = 5
-        client["Scan - Use DE Camera"] = "Off"
+        client["Scan - Use DE Camera"] = "On"  # Not Related to number of frames per buffer if "Off"
+        client["Scan - Trigger Source"] = "DE-FreeScan"
         client["Scan - Size X"] = size_x
         client["Scan - Size Y"] = size_y
         client["Scan - Repeats"] = repeats
+        client["Scan - Repeat Delay (seconds)"] = 0
         client["Scan - Dwell Time (microseconds)"] = 1000
         client["Scan - Initial Delay (microseconds)"] = initial_delay
 
-        extra_points  = np.ceil(initial_delay/client["Scan - Dwell Time (microseconds)"])
+        # Initial Delay count is equal to (initial delay/dwell-time) if this is less than 1 buffer --> 1 buffer.
+        # If multiple frames are summed per point --> This must be a multiple of the number of frames-per-point.
+        per_buf = client["Grabbing - Frames Per Buffer"]
+
+        cam_frames_per_point = client["Scan - Camera Frames Per Point"]
+        extra_points  = np.ceil(initial_delay/client["Scan - Dwell Time (microseconds)"]/cam_frames_per_point) *cam_frames_per_point
+        extra_points_init = extra_points if extra_points > per_buf else per_buf
+
+        extra_points = np.ceil(extra_points_init/per_buf) * per_buf
+
         total_points = size_x * size_y * repeats +  extra_points * repeats
         print("Total points:", total_points)
-        print("Extra points:",  client["Scan - Points (Total)"]  - total_points)
+        print("Extra points:",  client["Scan - Points"]  - total_points)
+        print(f"Terminal Count: {client['Scan - Terminal Count']}")
 
-        assert client["Scan - Initial Delay Count"] == extra_points # For 1 Scan
+        # initial delay counts is minimum 1 buffer
 
-        assert client["Number of Frames Requested"] == total_points # For all repeats
+
+        assert client["Scan - Initial Delay Count"] == extra_points_init # For 1 Scan
+
+        assert client["Scan - Points (Recorded)"] + client["Scan - Points (Not Recorded)"] == client["Scan - Points"]
         assert client["Scan - Points (Not Recorded)"] == extra_points * repeats  # For all repeats
         assert client["Scan - Points (Recorded)"] == size_x * size_y * repeats # For all repeats
 
