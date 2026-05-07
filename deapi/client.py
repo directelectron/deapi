@@ -36,6 +36,7 @@ from deapi.data_types import (
     DataType,
     PropertyCollection,
     VirtualMask,
+    VirtualImageInfo,
     Result,
 )
 
@@ -204,8 +205,11 @@ class Client:
 
         version = [int(part) for part in server_version[:4]]
         temp = version[2] + version[1] * 1000 + version[0] * 1000000
-        if (temp >= 2007005 and version[3] < 11274) or temp >= 2008000:
-            ## version after 2.8.0
+        if temp >= 2008000 and version[3] >= 11901:
+            ## version 2.8.0 build 11901+ — virtual image buffer support (SDK 5.3.0)
+            self.commandVersion = 16
+        elif (temp >= 2007005 and version[3] < 11274) or temp >= 2008000:
+            ## version after 2.8.0 (older builds)
             self.commandVersion = 15
         elif temp >= 2007004:
             ## version after 2.7.4
@@ -1215,6 +1219,7 @@ class Client:
         number_of_acquisitions: int = 1,
         request_movie_buffer: bool = False,
         update: bool = True,
+        queue_virtual_buffers: "bool | list[bool]" = False,
     ):
         """
         Start acquiring images. Make sure all of the properties are set to the desired values.
@@ -1226,7 +1231,18 @@ class Client:
         request_movie_buffer : bool, optional
             Request a movie buffer, by default False.  If True, the movie buffer will be returned
             with all of the frames.
+        queue_virtual_buffers : bool or list[bool], optional
+            Controls which virtual detector buffers (0–4) are queued during acquisition.
+            - ``False`` (default): no virtual buffers are queued.
+            - ``True``: all 5 virtual buffers are queued.
+            - ``list[bool]``: a list of exactly 5 booleans; each element enables/disables
+              the corresponding virtual buffer (index 0–4).
+            Requires SDK >= 5.3.0 (server commandVer >= 16).
 
+        Raises
+        ------
+        ValueError
+            If ``queue_virtual_buffers`` is a list whose length is not exactly 5.
         """
 
         start_time = self.GetTime()
@@ -1251,6 +1267,16 @@ class Client:
             log.debug(" Prepare Time: %.1f ms", lapsed)
             step_time = self.GetTime()
 
+        if isinstance(queue_virtual_buffers, bool):
+            vb = [queue_virtual_buffers] * 5
+        else:
+            if len(queue_virtual_buffers) != 5:
+                raise ValueError(
+                    f"queue_virtual_buffers must be a list of exactly 5 booleans, "
+                    f"got {len(queue_virtual_buffers)}."
+                )
+            vb = list(queue_virtual_buffers)
+
         if self.width * self.height == 0:
             log.error("  Image size is 0! ")
         else:
@@ -1258,7 +1284,7 @@ class Client:
             command = self._addSingleCommand(
                 self.START_ACQUISITION,
                 None,
-                [number_of_acquisitions, request_movie_buffer],
+                [number_of_acquisitions, request_movie_buffer] + vb,
             )
 
             if logLevel == logging.DEBUG:
@@ -1966,6 +1992,111 @@ class Client:
             movieBufferStatus = MovieBufferStatus.FAILED
 
         return movieBufferStatus, totalBytes, numFrames, movieBuffer
+
+    def get_virtual_image_buffer_info(self) -> VirtualImageInfo:
+        """
+        Get information about the virtual image buffer from DE-Server.
+
+        Returns the buffer size, dimensions, and data type for the virtual image
+        produced by the active virtual detector configuration.
+
+        Returns
+        -------
+        VirtualImageInfo
+            Object containing:
+            - ``buffer_size`` : total bytes of one virtual image frame
+            - ``width`` : image width in pixels
+            - ``height`` : image height in pixels
+            - ``data_type`` : :class:`~deapi.DataType` of each pixel
+        """
+        command = self._addSingleCommand(self.GET_VIRTUAL_IMAGE_INFO, None, None)
+        response = self._sendCommand(command)
+
+        info = VirtualImageInfo()
+        if response:
+            values = self.__getParameters(response.acknowledge[0])
+            if isinstance(values, list) and len(values) >= 4:
+                info.buffer_size = values[0]
+                info.width = values[1]
+                info.height = values[2]
+                try:
+                    info.data_type = DataType(values[3])
+                except ValueError:
+                    info.data_type = DataType.DEUndef
+
+        return info
+
+    def get_virtual_image_buffer(
+        self,
+        virtual_image_id: int,
+        timeout_msec: int = 5000,
+        virtual_image_info: VirtualImageInfo = None,
+    ):
+        """
+        Retrieve a single virtual image frame from the DE-Server virtual image buffer.
+
+        The server queues a virtual image buffer when ``queue_virtual_buffers`` is set
+        in :meth:`start_acquisition`.  Call this method after acquisition to pop and
+        receive the accumulated virtual image for the requested virtual detector channel.
+
+        Parameters
+        ----------
+        virtual_image_id : int
+            Index of the virtual detector buffer to retrieve (0–4).
+        timeout_msec : int, optional
+            How long to wait for a frame to become available, in milliseconds.
+            Default is 5000.
+        virtual_image_info : VirtualImageInfo, optional
+            Pre-fetched virtual image metadata (width, height, data type).  If
+            ``None`` (default), :meth:`get_virtual_image_info` is called
+            automatically to obtain the shape needed to reshape the raw buffer.
+
+        Returns
+        -------
+        status : MovieBufferStatus
+            Result of the retrieval:
+            - ``MovieBufferStatus.OK`` (5) — image data is valid.
+            - Other values indicate timeout, failure, or finished state.
+        frame_index : int
+            The acquisition frame index associated with this virtual image.
+        image : numpy.ndarray or None
+            2-D array of shape ``(height, width)`` on success, ``None`` otherwise.
+        """
+        if virtual_image_info is None:
+            virtual_image_info = self.get_virtual_image_buffer_info()
+
+        command = self._addSingleCommand(
+            self.GET_VIRTUAL_IMAGE, None, [virtual_image_id, timeout_msec]
+        )
+        response = self._sendCommand(command)
+
+        status = MovieBufferStatus.UNKNOWN
+        frame_index = 0
+        image = None
+
+        if response:
+            values = self.__getParameters(response.acknowledge[0])
+            if isinstance(values, list) and len(values) >= 3:
+                status_int = values[0]
+                total_bytes = values[1]
+                frame_index = values[2]
+                try:
+                    status = MovieBufferStatus(status_int)
+                except ValueError:
+                    status = MovieBufferStatus.UNKNOWN
+
+                if status == MovieBufferStatus.OK and total_bytes > 0:
+                    raw = self._recvFromSocket(self.socket, total_bytes)
+                    dtype = virtual_image_info.to_numpy_dtype()
+                    image = numpy.frombuffer(raw, dtype=dtype)
+                    if virtual_image_info.width > 0 and virtual_image_info.height > 0:
+                        image = image.reshape(
+                            (virtual_image_info.height, virtual_image_info.width)
+                        )
+        else:
+            status = MovieBufferStatus.FAILED
+
+        return status, frame_index, image
 
     def save_image(self, image, fileName, textSize=0):
         t0 = self.GetTime()
@@ -3013,6 +3144,8 @@ class Client:
     SetVirtualMask = set_virtual_mask
     GetMovieBufferInfo = get_movie_buffer_info
     GetMovieBuffer = get_movie_buffer
+    GetVirtualImageInfo = get_virtual_image_buffer_info
+    GetVirtualImage = get_virtual_image_buffer
     SaveImage = save_image
     PrintServerInfo = print_server_info
     PrintAcqInfo = print_acquisition_info
@@ -3085,6 +3218,8 @@ class Client:
     GET_REGISTER = 38
     SET_REGISTER = 39
     LIST_REGISTERS = 40
+    GET_VIRTUAL_IMAGE_INFO = 41
+    GET_VIRTUAL_IMAGE = 42
 
 
 MMF_DATA_HEADER_SIZE = 24

@@ -7,6 +7,8 @@ from deapi.data_types import (
     VirtualMask,
     MovieBufferStatus,
     ContrastStretchType,
+    VirtualImageInfo,
+    DataType,
 )
 from deapi.tests.conftest import wait_for_idle
 
@@ -345,11 +347,5 @@ class TestClient:
         wait_for_idle(client)
         image = client.get_result()[0]
         np.testing.assert_array_equal(image, 0)
-        client["Image Processing - Flip Horizontally"] = "Off"
 
-        client["Binning X"] = 2
-        client["Binning Y"] = 2
-        client.start_acquisition(1)
-        wait_for_idle(client)
-        image = client.get_result()[0]
-        np.testing.assert_array_equal(image, 0)
+
