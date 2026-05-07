@@ -347,5 +347,3 @@ class TestClient:
         wait_for_idle(client)
         image = client.get_result()[0]
         np.testing.assert_array_equal(image, 0)
-
-
