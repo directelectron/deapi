@@ -13,6 +13,8 @@ import pytest
 from time import sleep
 import glob
 
+from deapi.tests.conftest import wait_for_idle
+
 
 class TestContinualScanning:
     """Test class for continual scanning functionality."""
@@ -56,8 +58,7 @@ class TestContinualScanning:
 
         # Start the scan
         client.start_acquisition()
-        while client.acquiring:
-            sleep(0.1)
+        wait_for_idle(client)
         # After scan completion, verify the scan parameters
 
         sleep(3)  # wait for any finalization
@@ -99,8 +100,7 @@ class TestContinualScanning:
 
         assert client["Frame Count"] == frames_per_scan * reps
         client.start_acquisition()
-        while client.acquiring:
-            sleep(0.1)
+        wait_for_idle(client)
 
         total_points = 80 * reps
         assert client["Scan - Points (Recorded)"] == total_points
@@ -140,8 +140,7 @@ class TestContinualScanning:
         client["Scan - Enable"] = True
         client["Reference - Dark"] = "None"
         client.start_acquisition()
-        while client.acquiring:
-            sleep(0.1)
+        wait_for_idle(client)
         res = client.get_result("SINGLEFRAME_INTEGRATED")
         assert np.max(res.image) == num_p - 1
         print(f"frame Count: {client['Frame Count']}")
@@ -186,8 +185,7 @@ class TestContinualScanning:
 
         # Start the scan
         client.start_acquisition()
-        while client.acquiring:
-            sleep(0.1)
+        wait_for_idle(client)
         # After scan completion, verify the scan parameters
 
         result = client.get_result("external_image1")
@@ -210,8 +208,7 @@ class TestContinualScanning:
 
         # Start the scan
         client.start_acquisition()
-        while client.acquiring:
-            sleep(0.1)
+        wait_for_idle(client)
 
         sleep(3)  # wait for any finalization
         path = client["Autosave Virtual Image 0 File Path"]
@@ -242,8 +239,7 @@ class TestContinualScanning:
 
         # Start the scan
         client.start_acquisition()
-        while client.acquiring:
-            sleep(0.1)
+        wait_for_idle(client)
 
         res_1 = client.get_result("virtual_image0", pixel_format="AUTO")
 
@@ -272,9 +268,7 @@ class TestContinualScanning:
 
         # Start the scan
         client.start_acquisition()
-        while client.acquiring:
-
-            sleep(0.1)
+        wait_for_idle(client)
         print(client["Acquisition Status"])
         sleep(3)
         res_1 = client.get_result("virtual_image0", pixel_format="AUTO")
@@ -289,8 +283,7 @@ class TestContinualScanning:
         client["Scan - Repeats"] = 3
 
         client.start_acquisition()
-        while client.acquiring:
-            sleep(0.1)
+        wait_for_idle(client)
         sleep(3)
         print(client["Acquisition Status"])
         res_2 = client.get_result("virtual_image0", pixel_format="AUTO")
@@ -323,8 +316,7 @@ class TestContinualScanning:
         client["Scan - Repeats"] = 2
 
         client.start_acquisition()
-        while client.acquiring:
-            sleep(0.1)
+        wait_for_idle(client)
         sleep(1)
         res_2 = client.get_result("virtual_image0", pixel_format="AUTO")
         frame_number_2 = (res_2.image / n_pix) / client[

@@ -17,7 +17,7 @@ classifiers = [
 ]
 dependencies = [
     "numpy>=1.20.0",
-    "protobuf",
+    "protobuf>=3.20.0",
     "pillow",
     "matplotlib",
     "scipy",
@@ -53,7 +53,9 @@ tests = [
     "setuptools_scm",
     "pytest-cov",
     "pytest-xprocess",
+    "pytest-timeout",
     "hyperspy",
+    "psutil",
 ]
 service = [
     "pyqt6",

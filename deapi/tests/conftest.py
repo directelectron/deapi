@@ -144,8 +144,12 @@ def server(xprocess, request):
         class Starter(ProcessStarter):
             timeout = 60
             pattern = "started"
+            # -u disables Python's stdout/stderr buffering so xprocess sees
+            # the "started" banner immediately — critical on macOS where the
+            # loopback interface flushes less aggressively than on Linux.
             args = [
                 sys.executable,
+                "-u",
                 curdir / "simulated_server/initialize_server.py",
                 port,
             ]
@@ -181,10 +185,13 @@ def client(xprocess, request):
         curdir = pathlib.Path(__file__).parent.parent
 
         class Starter(ProcessStarter):
-            timeout = 50
+            timeout = 60
             pattern = "started"
+            # -u: unbuffered output so the "started" banner is flushed
+            # immediately to the xprocess log file on all platforms.
             args = [
                 sys.executable,
+                "-u",
                 curdir / "simulated_server/initialize_server.py",
                 port,
             ]

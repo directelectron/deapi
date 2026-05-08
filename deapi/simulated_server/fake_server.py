@@ -610,6 +610,9 @@ class FakeServer:
         ack1.command_id = command.command[0].command_id
         frame_type = command.command[0].parameter[0].p_int
         pixel_format = command.command[0].parameter[1].p_int
+        # AUTO pixel format (-1) — resolve to UINT16 (5)
+        if pixel_format not in (1, 5, 13):
+            pixel_format = 5
         center_x = command.command[0].parameter[2].p_int
         center_y = command.command[0].parameter[3].p_int
         zoom = command.command[0].parameter[4].p_float
