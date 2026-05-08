@@ -12,6 +12,7 @@ import time
 
 pytest.importorskip("libertem")
 
+
 class TestLoadingLiberTEM:
     @pytest.fixture(autouse=True)
     def clean_state(self, client):

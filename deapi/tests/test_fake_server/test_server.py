@@ -34,4 +34,5 @@ class TestFakeServer:
 
     def test_server_software_version(self, fake_server):
         from deapi.version import fake_server_software_version
+
         assert fake_server["Server Software Version"] == fake_server_software_version

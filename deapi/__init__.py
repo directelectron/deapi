@@ -16,7 +16,6 @@ from deapi.data_types import (
     PropertyCollection,
 )
 
-
 __all__ = [
     "Client",
     "__version__",

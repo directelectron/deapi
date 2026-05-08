@@ -9,7 +9,6 @@ import deapi
 import time
 import sys
 
-
 client = deapi.Client()
 
 if not sys.platform.startswith("win"):
