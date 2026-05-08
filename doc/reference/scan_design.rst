@@ -43,6 +43,11 @@ microscope (usually a ~3V ↔ −3V area) is subdivided into a grid and only spe
 positions are scanned. The returned virtual image will contain the scanned values at
 those positions and zeros elsewhere.
 
+
+.. image:: ../_static/ScanPatterns.png
+    :align: center
+    :alt: Schematic of the DE-Freescan scan design. The DE-Computer sends scan points to the scan generator in a FIFO manner. Custom scan patterns can be defined by specifying lists of X/Y points within a voltage grid. Virtual images are returned based on the scanned positions.
+
 -----------------------------
 Defining Custom Scan Patterns
 -----------------------------
