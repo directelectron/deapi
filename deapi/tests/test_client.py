@@ -7,8 +7,6 @@ from deapi.data_types import (
     VirtualMask,
     MovieBufferStatus,
     ContrastStretchType,
-    VirtualImageInfo,
-    DataType,
 )
 from deapi.tests.conftest import wait_for_idle
 

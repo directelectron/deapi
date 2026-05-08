@@ -17,19 +17,6 @@ import glob
 class TestContinualScanning:
     """Test class for continual scanning functionality."""
 
-    @pytest.fixture
-    def tmp_path(self):
-        import tempfile
-        from pathlib import Path
-
-        temp_dir = Path("D:/temp") / f"test_{id(self)}"
-        temp_dir.mkdir(parents=True, exist_ok=True)
-        yield temp_dir
-        # Optional: cleanup
-        import shutil
-
-        shutil.rmtree(temp_dir, ignore_errors=True)
-
     @pytest.fixture(autouse=True)
     def clean_state(self, client):
         # First set the hardware ROI to a known state

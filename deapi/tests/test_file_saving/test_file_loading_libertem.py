@@ -10,6 +10,7 @@ import os
 import glob
 import time
 
+pytest.importorskip("libertem")
 
 class TestLoadingLiberTEM:
     @pytest.fixture(autouse=True)

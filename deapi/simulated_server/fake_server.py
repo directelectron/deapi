@@ -7,7 +7,7 @@ import json
 from importlib import resources
 import deapi
 import numpy as np
-from deapi.version import commandVersion
+from deapi.version import commandVersion, fake_server_software_version
 from deapi.fake_data.grains import TiltGrains
 from skimage.transform import resize
 from sympy import parse_expr
@@ -171,6 +171,9 @@ class FakeServer:
                     set_also_expressions=values[v].get("set_also", None),
                 )
         self._values = property_dict
+        # Keep "Server Software Version" in sync with the module-level commandVersion
+        # so the client's version-detection logic always picks the right commandVersion.
+        self._values["server_software_version"].value = fake_server_software_version
         self._number_of_frames_requested = 0
 
         self.current_socket_result = None

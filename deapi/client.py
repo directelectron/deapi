@@ -1451,13 +1451,19 @@ class Client:
                         new_height = max(new_height, np.max(pos[:, 1]) + 1)
         # For an array handle both 2 and 3d cases...
         elif isinstance(positions, np.ndarray):
-            if positions.ndim > 3:
+            if positions.ndim > 3 or positions.ndim < 2:
                 log.error(
                     "Positions must be a 2D array of shape (N, 2) or 3D array of shape (M, N, 2)"
                 )
                 return False
             elif positions.ndim == 2:
+                if positions.shape[1] != 2:
+                    log.error("Positions must be of shape (N, 2)")
+                    return False
                 positions = positions[np.newaxis, :, :]
+            elif positions.shape[-1] != 2:
+                log.error("Positions must be of shape (M, N, 2)")
+                return False
             if positions.dtype != np.int32:
                 log.error("Positions must be integers... Casting to int")
                 positions = positions.astype(np.int32)
@@ -2048,7 +2054,7 @@ class Client:
             Default is 5000.
         virtual_image_info : VirtualImageInfo, optional
             Pre-fetched virtual image metadata (width, height, data type).  If
-            ``None`` (default), :meth:`get_virtual_image_info` is called
+            ``None`` (default), :meth:`get_virtual_image_buffer_info` is called
             automatically to obtain the shape needed to reshape the raw buffer.
 
         Returns
