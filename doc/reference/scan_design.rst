@@ -387,7 +387,7 @@ A-B-C-D-E-F-G-H-I-A-B-C-D-E-F-G-H-I-…
 Returning Virtual Images
 --------------------------
 
-When ``Scan - Repeats`` > 1 and ``Scan - Repeat Delay (seconds)`` > 5, the camera
+When ``Scan - Repeats`` > 1 and ``Scan - Repeat Delay (seconds)`` < 5, the camera
 will operate continuously: the shutter remains open and the probe moves to the park
 position for the duration of the delay. The beam is **not** blanked during this time.
 

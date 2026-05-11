@@ -1267,7 +1267,9 @@ class Client:
             log.debug(" Prepare Time: %.1f ms", lapsed)
             step_time = self.GetTime()
 
-        if isinstance(queue_virtual_buffers, bool):
+        if commandVersion < 16:
+            vb = []
+        elif isinstance(queue_virtual_buffers, bool):
             vb = [queue_virtual_buffers] * 5
         else:
             if len(queue_virtual_buffers) != 5:
@@ -1440,7 +1442,6 @@ class Client:
                     return False
                 else:
                     if not pos.dtype == np.int32:
-                        log.error("Positions must be integers... Casting to int")
                         positions[i] = pos.astype(np.int32)
                     elif pos.ndim != 2 or pos.shape[1] != 2:
                         log.error("Positions must be of shape (N, 2)")
