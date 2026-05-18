@@ -26,7 +26,7 @@ dependencies = [
     "pywin32; platform_system == 'Windows'",
 ]
 description = "API for DE Server"
-version = "5.3b5"
+version = "5.3b6"
 keywords = [
     "EELS",
     "STEM",
