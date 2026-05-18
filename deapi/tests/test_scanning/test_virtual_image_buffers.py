@@ -50,14 +50,12 @@ class TestVirtualImageBuffers:
             queue_virtual_buffers=True,
         )
 
-
         assert isinstance(info, VirtualImageInfo)
         assert info.width > 0, "Virtual image width must be > 0"
         assert info.height > 0, "Virtual image height must be > 0"
         assert info.buffer_size > 0, "Virtual image buffer_size must be > 0"
         byte_num = 4 if info.data_type == DataType.DE32f else 2
         assert info.buffer_size == info.width * info.height * byte_num
-
 
     @pytest.mark.server
     def test_streaming_all_virtual_buffers(self, client):
@@ -96,15 +94,18 @@ class TestVirtualImageBuffers:
                 status, frame_index, image = client.get_virtual_image_buffer(
                     buf_id, virtual_image_info=info
                 )
-                print(f"buf_id={buf_id} frame={frame_index} status={status} image shape: {image.shape if image is not None else None}")
+                print(
+                    f"buf_id={buf_id} frame={frame_index} status={status} image shape: {image.shape if image is not None else None}"
+                )
 
                 if status == MovieBufferStatus.OK:
-                    assert image is not None, (
-                        f"buf_id={buf_id} frame={frame_index}: status OK but image is None"
-                    )
-                    assert image.shape == (info.height, info.width), (
-                        f"buf_id={buf_id} frame={frame_index}: unexpected shape {image.shape}"
-                    )
+                    assert (
+                        image is not None
+                    ), f"buf_id={buf_id} frame={frame_index}: status OK but image is None"
+                    assert image.shape == (
+                        info.height,
+                        info.width,
+                    ), f"buf_id={buf_id} frame={frame_index}: unexpected shape {image.shape}"
                     received_frames.append((buf_id, frame_index, image))
 
                 elif status == MovieBufferStatus.FINISHED:
@@ -112,19 +113,22 @@ class TestVirtualImageBuffers:
                     # This channel is done — mark finished.
 
                 elif status == MovieBufferStatus.TIMEOUT:
-                    print(f"buf_id={buf_id} frame={frame_index}: timeout waiting for frame")
+                    print(
+                        f"buf_id={buf_id} frame={frame_index}: timeout waiting for frame"
+                    )
                     # This can happen if we check a channel before its first frame is ready.
                     # Just ignore and check again in the next loop iteration.
 
                 elif status == MovieBufferStatus.FAILED:
-                    print(f"buf_id={buf_id} frame={frame_index}: failed to retrieve frame-- Likely this"
-                          f"virtual image is not initialized.")
-
+                    print(
+                        f"buf_id={buf_id} frame={frame_index}: failed to retrieve frame-- Likely this"
+                        f"virtual image is not initialized."
+                    )
 
         expected_total = num_repeats * NUM_VIRTUAL_BUFFERS
-        assert len(received_frames) == expected_total, (
-            f"Expected {expected_total} frames, got {len(received_frames)}"
-        )
+        assert (
+            len(received_frames) == expected_total
+        ), f"Expected {expected_total} frames, got {len(received_frames)}"
 
     @pytest.mark.server
     def test_streaming_all_virtual_buffers_one_off(self, client):
@@ -164,17 +168,19 @@ class TestVirtualImageBuffers:
                     buf_id, virtual_image_info=info
                 )
                 print(
-                    f"buf_id={buf_id} frame={frame_index} status={status} image shape: {image.shape if image is not None else None}")
+                    f"buf_id={buf_id} frame={frame_index} status={status} image shape: {image.shape if image is not None else None}"
+                )
 
                 if buf_id == 4:
-                    assert status ==MovieBufferStatus.FAILED
+                    assert status == MovieBufferStatus.FAILED
                 if status == MovieBufferStatus.OK:
-                    assert image is not None, (
-                        f"buf_id={buf_id} frame={frame_index}: status OK but image is None"
-                    )
-                    assert image.shape == (info.height, info.width), (
-                        f"buf_id={buf_id} frame={frame_index}: unexpected shape {image.shape}"
-                    )
+                    assert (
+                        image is not None
+                    ), f"buf_id={buf_id} frame={frame_index}: status OK but image is None"
+                    assert image.shape == (
+                        info.height,
+                        info.width,
+                    ), f"buf_id={buf_id} frame={frame_index}: unexpected shape {image.shape}"
                     received_frames.append((buf_id, frame_index, image))
 
                 elif status == MovieBufferStatus.FINISHED:
@@ -182,26 +188,26 @@ class TestVirtualImageBuffers:
                     # This channel is done — mark finished.
 
                 elif status == MovieBufferStatus.TIMEOUT:
-                    print(f"buf_id={buf_id} frame={frame_index}: timeout waiting for frame")
+                    print(
+                        f"buf_id={buf_id} frame={frame_index}: timeout waiting for frame"
+                    )
                     # This can happen if we check a channel before its first frame is ready.
                     # Just ignore and check again in the next loop iteration.
 
                 elif status == MovieBufferStatus.FAILED:
-                    print(f"buf_id={buf_id} frame={frame_index}: failed to retrieve frame-- Likely this"
-                          f"virtual image is not initialized.")
+                    print(
+                        f"buf_id={buf_id} frame={frame_index}: failed to retrieve frame-- Likely this"
+                        f"virtual image is not initialized."
+                    )
 
-        expected_total = num_repeats * (NUM_VIRTUAL_BUFFERS-1)
-        assert len(received_frames) == expected_total, (
-            f"Expected {expected_total} frames, got {len(received_frames)}"
-        )
-
-
+        expected_total = num_repeats * (NUM_VIRTUAL_BUFFERS - 1)
+        assert (
+            len(received_frames) == expected_total
+        ), f"Expected {expected_total} frames, got {len(received_frames)}"
 
     @pytest.mark.server
     def test_streaming_multiple_xy_arrays(self, client):
-        """Stream virtual image buffers from multiple XY arrays
-
-        """
+        """Stream virtual image buffers from multiple XY arrays"""
         num_repeats = 10
 
         # create 100 patterns that are 128 x 128 in size with only 10% of the points filled in.
@@ -248,10 +254,12 @@ class TestVirtualImageBuffers:
                 got_frame = False
                 while not got_frame:
                     status, frame_index, image = client.get_virtual_image_buffer(
-                        buf_id, virtual_image_info=info, timeout_msec=1000 # 1 sec
+                        buf_id, virtual_image_info=info, timeout_msec=1000  # 1 sec
                     )
                     if status == MovieBufferStatus.OK:
-                        received_frames.append((buf_id, frame_index, image)) # Do whatever with the frame.
+                        received_frames.append(
+                            (buf_id, frame_index, image)
+                        )  # Do whatever with the frame.
                         got_frame = True
 
                     elif status == MovieBufferStatus.FINISHED:
@@ -262,7 +270,8 @@ class TestVirtualImageBuffers:
                     elif status == MovieBufferStatus.TIMEOUT:
                         got_frame = False
                     elif status == MovieBufferStatus.FAILED:
-                        print(f"buf_id={buf_id} frame={frame_index}: failed to retrieve frame-- Likely this"
-                          f" virtual image is not initialized.")
+                        print(
+                            f"buf_id={buf_id} frame={frame_index}: failed to retrieve frame-- Likely this"
+                            f" virtual image is not initialized."
+                        )
                         got_frame = True
-
