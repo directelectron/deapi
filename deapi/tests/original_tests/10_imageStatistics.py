@@ -4,7 +4,6 @@ import unittest
 import deapi as DEAPI
 from deapi.tests.original_tests import func, propertyName
 
-
 # Total e- = e-/pix * ROI Size
 # image->m_stats.physicalPixels = m_params.hw_frame.w * m_params.hw_frame.h;
 # image->m_stats.frameCount = static_cast<int>(image->GetFrameCount());

@@ -496,6 +496,52 @@ class MovieBufferInfo:
         return bytearray(self.total_bytes)
 
 
+class VirtualImageInfo:
+    """
+    Structure to hold information about a virtual image buffer.
+
+    Parameters
+    ----------
+    buffer_size : int
+        Total number of bytes in the virtual image buffer.
+    width : int
+        Width of the virtual image in pixels.
+    height : int
+        Height of the virtual image in pixels.
+    data_type : DataType
+        Pixel data type of the virtual image.
+    """
+
+    def __init__(
+        self,
+        buffer_size: int = 0,
+        width: int = 0,
+        height: int = 0,
+        data_type: DataType = DataType.DEUndef,
+    ):
+        self.buffer_size = buffer_size
+        self.width = width
+        self.height = height
+        self.data_type = data_type
+
+    def to_numpy_dtype(self):
+        """Return the numpy dtype that corresponds to this virtual image's data type."""
+        _map = {
+            DataType.DE8u: np.uint8,
+            DataType.DE16u: np.uint16,
+            DataType.DE16s: np.int16,
+            DataType.DE32f: np.float32,
+        }
+        return _map.get(self.data_type, np.uint16)
+
+    def __repr__(self):
+        return (
+            f"VirtualImageInfo(buffer_size={self.buffer_size}, "
+            f"width={self.width}, height={self.height}, "
+            f"data_type={self.data_type})"
+        )
+
+
 class PropertySpec:
     """Class to hold the specification of a property in the DE API
 

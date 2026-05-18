@@ -5,7 +5,6 @@ import os
 import deapi as DEAPI
 from deapi.tests.original_tests import func, propertyName
 
-
 # Connect to the server
 deClient = DEAPI.Client()
 deClient.Connect()

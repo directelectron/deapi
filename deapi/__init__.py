@@ -7,6 +7,7 @@ from deapi.data_types import (
     DataType,
     MovieBufferStatus,
     MovieBufferInfo,
+    VirtualImageInfo,
     VirtualMask,
     ContrastStretchType,
     Attributes,
@@ -14,7 +15,6 @@ from deapi.data_types import (
     PropertySpec,
     PropertyCollection,
 )
-
 
 __all__ = [
     "Client",
@@ -24,6 +24,7 @@ __all__ = [
     "DataType",
     "MovieBufferStatus",
     "MovieBufferInfo",
+    "VirtualImageInfo",
     "VirtualMask",
     "ContrastStretchType",
     "Attributes",

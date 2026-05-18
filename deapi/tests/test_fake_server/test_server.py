@@ -33,4 +33,6 @@ class TestFakeServer:
         assert fake_server["Scan - Virtual Detector 1 Calculation"] == "Sum"
 
     def test_server_software_version(self, fake_server):
-        assert fake_server["Server Software Version"] == "2.7.5.1352"
+        from deapi.version import fake_server_software_version
+
+        assert fake_server["Server Software Version"] == fake_server_software_version

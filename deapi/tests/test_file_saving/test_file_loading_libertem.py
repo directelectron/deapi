@@ -5,16 +5,18 @@ This should be run before any release to make sure that the file loaders downstr
 work.
 """
 
-import libertem.api as lt
 import pytest
 import os
 import glob
 import time
 
+pytest.importorskip("libertem")
+
 
 class TestLoadingLiberTEM:
     @pytest.fixture(autouse=True)
     def clean_state(self, client):
+
         # First set the hardware ROI to a known state
         client["Hardware ROI Offset X"] = 0
         client["Hardware ROI Offset Y"] = 0
@@ -38,6 +40,8 @@ class TestLoadingLiberTEM:
     )  # MRC file loading in LiberTEM is broken!
     @pytest.mark.server
     def test_save_4DSTEM(self, client, file_format):
+        import libertem.api as lt
+
         if not os.path.exists("D:\Temp"):
             os.mkdir("D:\Temp")
         temp_dir = "D:\Temp"

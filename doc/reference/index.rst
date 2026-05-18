@@ -45,3 +45,11 @@ data and metadata!
 
     fake_data
 
+
+.. rubric:: Design Documents
+
+.. toctree::
+   :maxdepth: 1
+
+   scan_design
+

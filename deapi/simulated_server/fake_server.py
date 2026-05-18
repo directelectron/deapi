@@ -7,7 +7,7 @@ import json
 from importlib import resources
 import deapi
 import numpy as np
-from deapi.version import commandVersion
+from deapi.version import commandVersion, fake_server_software_version
 from deapi.fake_data.grains import TiltGrains
 from skimage.transform import resize
 from sympy import parse_expr
@@ -171,6 +171,9 @@ class FakeServer:
                     set_also_expressions=values[v].get("set_also", None),
                 )
         self._values = property_dict
+        # Keep "Server Software Version" in sync with the module-level commandVersion
+        # so the client's version-detection logic always picks the right commandVersion.
+        self._values["server_software_version"].value = fake_server_software_version
         self._number_of_frames_requested = 0
 
         self.current_socket_result = None
@@ -314,6 +317,16 @@ class FakeServer:
             == self.SET_VIRTUAL_MASK + commandVersion * 100
         ):
             return self._fake_set_virtual_mask(command)
+        elif (
+            command.command[0].command_id
+            == self.GET_VIRTUAL_IMAGE_INFO + commandVersion * 100
+        ):
+            return self._fake_get_virtual_image_info(command)
+        elif (
+            command.command[0].command_id
+            == self.GET_VIRTUAL_IMAGE + commandVersion * 100
+        ):
+            return self._fake_get_virtual_image(command)
         else:
             raise NotImplementedError(
                 f"Command {command.command[0].command_id} not implemented"
@@ -481,9 +494,12 @@ class FakeServer:
             val = command.command[0].parameter[1].p_float
         else:  # type == pb.AnyParameter.P_STRING:
             val = command.command[0].parameter[1].p_string
-        normalized_name = name.replace(" ", "_").lower().replace("(", "").replace(")", "")
+        normalized_name = (
+            name.replace(" ", "_").lower().replace("(", "").replace(")", "")
+        )
         if normalized_name not in self._values:
             import sys
+
             print(
                 f"FakeServer WARNING: SetProperty '{name}' not found in prop_dump.json"
                 f" — property not in FakeServer",
@@ -503,9 +519,12 @@ class FakeServer:
         ack1 = acknowledge_return.acknowledge.add()  # add the first acknowledge
         ack1.command_id = command.command[0].command_id
         name = command.command[0].parameter[0].p_string
-        normalized_name = name.replace(" ", "_").lower().replace("(", "").replace(")", "")
+        normalized_name = (
+            name.replace(" ", "_").lower().replace("(", "").replace(")", "")
+        )
         if normalized_name not in self._values:
             import sys
+
             print(
                 f"FakeServer WARNING: GetProperty '{name}' not found in prop_dump.json"
                 f" — property not in FakeServer",
@@ -591,6 +610,9 @@ class FakeServer:
         ack1.command_id = command.command[0].command_id
         frame_type = command.command[0].parameter[0].p_int
         pixel_format = command.command[0].parameter[1].p_int
+        # AUTO pixel format (-1) — resolve to UINT16 (5)
+        if pixel_format not in (1, 5, 13):
+            pixel_format = 5
         center_x = command.command[0].parameter[2].p_int
         center_y = command.command[0].parameter[3].p_int
         zoom = command.command[0].parameter[4].p_float
@@ -823,6 +845,53 @@ class FakeServer:
 
         return ans
 
+    # Virtual image dimensions used by both fake virtual image handlers
+    VIRTUAL_IMAGE_W = 64
+    VIRTUAL_IMAGE_H = 64
+
+    def _fake_get_virtual_image_info(self, command):
+        """Return fixed virtual image metadata: 64×64 uint16."""
+        acknowledge_return = pb.DEPacket()
+        acknowledge_return.type = pb.DEPacket.P_ACKNOWLEDGE
+        ack1 = acknowledge_return.acknowledge.add()
+        ack1.command_id = command.command[0].command_id
+
+        w = self.VIRTUAL_IMAGE_W
+        h = self.VIRTUAL_IMAGE_H
+        bytes_per_pixel = 2  # uint16
+        buffer_size = w * h * bytes_per_pixel
+
+        for val in [buffer_size, w, h, 5]:  # 5 == ipp16u ≈ DataType.DE16u
+            p = ack1.parameter.add()
+            p.type = pb.AnyParameter.P_INT
+            p.p_int = val
+
+        return (acknowledge_return,)
+
+    def _fake_get_virtual_image(self, command):
+        """Return a synthetic 64×64 uint16 virtual image with status OK (5)."""
+        acknowledge_return = pb.DEPacket()
+        acknowledge_return.type = pb.DEPacket.P_ACKNOWLEDGE
+        ack1 = acknowledge_return.acknowledge.add()
+        ack1.command_id = command.command[0].command_id
+
+        virtual_image_id = command.command[0].parameter[0].p_int
+
+        w = self.VIRTUAL_IMAGE_W
+        h = self.VIRTUAL_IMAGE_H
+        data = np.arange(w * h, dtype=np.uint16).reshape(h, w)
+        raw_bytes = data.tobytes()
+        total_bytes = len(raw_bytes)
+        frame_index = self.current_movie_index
+
+        STATUS_OK = 5
+        for val in [STATUS_OK, total_bytes, frame_index]:
+            p = ack1.parameter.add()
+            p.type = pb.AnyParameter.P_INT
+            p.p_int = val
+
+        return (acknowledge_return, raw_bytes)
+
     # command lists
     LIST_CAMERAS = 0
     LIST_PROPERTIES = 1
@@ -850,3 +919,5 @@ class FakeServer:
     SET_SCAN_SIZE_AND_GET_CHANGED_PROPERTIES = 29
     SET_SCAN_ROI__AND_GET_CHANGED_PROPERTIES = 30
     SET_CLIENT_READ_ONLY = 31
+    GET_VIRTUAL_IMAGE_INFO = 41
+    GET_VIRTUAL_IMAGE = 42

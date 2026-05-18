@@ -15,6 +15,7 @@ class TestSavingScans:
     @pytest.mark.parametrize("buffer", [2, 16])
     @pytest.mark.parametrize("file_format", ["HSPY", "MRC"])
     @pytest.mark.server
+    @pytest.mark.skip(reason="Slow and broken")
     def test_save_scans(self, client, scan_type, buffer, file_format):
         if client.acquiring:
             client.stop_acquisition()

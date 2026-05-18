@@ -9,26 +9,25 @@ env:
   MPLBACKEND: agg
 
 jobs:
-  build-with-pip:
+  build-with-uv:
     name: ${{ matrix.os }}-py${{ matrix.python-version }}${{ matrix.LABEL }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 15
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        python-version: ["3.12", "3.13", "3.14"]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.12", "3.13"]
         include:
           - os: ubuntu-latest
-            python-version: 3.11
-
+            python-version: "3.11"
             DEPENDENCIES: protobuf==5.26.0
             LABEL: -oldest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -45,34 +44,32 @@ jobs:
         shell: python
 
       - name: Install dependencies and package
-        shell: bash
         run: |
-          pip install -U -e .'[tests]'
+          uv sync --extra tests
 
       - name: Install oldest supported versions
         if: contains(matrix.LABEL, 'oldest')
         run: |
-          pip install ${{ matrix.DEPENDENCIES }}
+          uv pip install ${{ matrix.DEPENDENCIES }}
 
       - name: Display Python, pip and package versions
         run: |
-          python -V
-          pip -V
-          pip list
+          uv run python -V
+          uv pip list
 
       - name: Run docstring tests
         continue-on-error: true
         run: |
-          pytest --doctest-modules --doctest-continue-on-failure --ignore-glob=deapi/tests deapi
+          uv run pytest --doctest-modules --doctest-continue-on-failure --ignore-glob=deapi/tests deapi
 
       - name: Run tests
         run: |
-          pytest --cov=. --cov-report=xml
+          uv run pytest --timeout=60 --cov=. --cov-report=xml
 
       - name: Generate line coverage
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
-          coverage report --show-missing
+          uv run coverage report --show-missing
 
       - name: Upload coverage to Codecov
         if: ${{ always() }}
