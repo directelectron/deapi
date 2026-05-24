@@ -420,27 +420,37 @@ class Histogram:
         )
 
     def plot(self, ax=None):
-        """Plot the histogram using matplotlib
+        """Plot the histogram using anyplotlib.
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes, optional
-            Axes object to plot the histogram on. If not provided, a new figure will be created.
+        ax : anyplotlib.Axes, optional
+            Axes to attach the plot to. If omitted, a new Figure is created.
 
         Returns
         -------
-        matplotlib.axes.Axes
-            Axes object containing the histogram plot
+        anyplotlib.Figure
+            When ax is None (standalone).
+        anyplotlib.plot1d.Plot1D
+            When ax is provided (embedded).
         """
-        import matplotlib.pyplot as plt
+        import anyplotlib as apl
 
-        if ax is None:
-            fig, ax = plt.subplots()
-        ax.plot(np.linspace(self.min, self.max, self.bins), self.data)
-        ax.set_title("Histogram")
-        ax.set_xlabel("Detector Units")
-        ax.set_ylabel("Frequency")
-        return ax
+        standalone = ax is None
+        if standalone:
+            fig, ax = apl.subplots(1, 1)
+
+        x = np.linspace(self.min, self.max, self.bins)
+        data = (
+            np.asarray(self.data, dtype=float)
+            if self.data is not None
+            else np.zeros(self.bins)
+        )
+        plot1d = ax.plot(data, axes=[x])
+
+        if standalone:
+            return fig
+        return plot1d
 
 
 class MovieBufferInfo:
