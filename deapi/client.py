@@ -1824,6 +1824,40 @@ class Client:
 
         return Result(image, pixel_format, attributes, histogram)
 
+    def live_result(
+        self,
+        frame_type: str = "singleframe_integrated",
+        display_fps: float = 30,
+        window_width: int = None,
+        window_height: int = None,
+    ):
+        """Return a :class:`~deapi.live_result.LiveResult` for streaming display.
+
+        Parameters
+        ----------
+        frame_type : str
+            Frame type for :meth:`get_result`, e.g. ``"singleframe_integrated"``.
+        display_fps : float
+            Target display refresh rate. Default 30.
+        window_width : int, optional
+            Server-side resize width in pixels.
+        window_height : int, optional
+            Server-side resize height in pixels.
+
+        Returns
+        -------
+        deapi.live_result.LiveResult
+        """
+        from deapi.live_result import LiveResult
+
+        return LiveResult(
+            self,
+            frame_type,
+            display_fps=display_fps,
+            window_width=window_width,
+            window_height=window_height,
+        )
+
     @write_only
     def set_virtual_mask(self, id, w, h, mask):
         """
