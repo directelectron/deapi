@@ -832,140 +832,49 @@ class Result(ResultBase):
             f" histogram={self.histogram})"
         )
 
-    def plot(self, axs=None, color_histogram=True, colorbar=False, **kwargs):
-        """Plot the image using matplotlib
+    def plot(self, ax=None, **kwargs):
+        """Plot the image using anyplotlib.
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes, optional
-            Axes object to plot the image on. If not provided, a new figure will be created.
+        ax : anyplotlib.Axes, optional
+            Axes to attach the image to. If omitted, a new 2-panel Figure is
+            created (image left, histogram right).
         **kwargs
-            Additional keyword arguments to pass to ax.imshow
+            Forwarded to ``ax.imshow``: ``cmap``, ``vmin``, ``vmax``.
 
         Returns
         -------
-        matplotlib.axes.Axes
-            Axes object containing the image plot
+        anyplotlib.Figure
+            When ax is None (standalone).
+        anyplotlib.plot2d.Plot2D
+            When ax is provided (embedded — no histogram panel).
         """
-        import matplotlib.pyplot as plt
-        from matplotlib import gridspec
+        import anyplotlib as apl
 
-        if axs is None:
-            fig = plt.figure(figsize=(8, 6))
-            if colorbar:
-                gs = gridspec.GridSpec(1, 3, width_ratios=[20, 1.5, 5], wspace=0.05)
-                ax = fig.add_subplot(gs[0])
-                cax = fig.add_subplot(gs[1])
-                hax = fig.add_subplot(gs[2])
-            else:
-                gs = gridspec.GridSpec(1, 2, width_ratios=[20, 5], wspace=0.1)
-                ax = fig.add_subplot(gs[0])
-                hax = fig.add_subplot(gs[1])
-                cax = None
+        standalone = ax is None
+        if standalone:
+            fig, axs = apl.subplots(1, 2, width_ratios=[4, 1])
+            img_ax, hist_ax = axs
         else:
-            ax, cax, hax = axs
-            fig = ax.figure
+            img_ax = ax
 
-        vmin = kwargs.get("vmin", np.nanmin(self.image))
-        vmax = kwargs.get("vmax", np.nanmax(self.image))
-
-        im = ax.imshow(
+        plot2d = img_ax.imshow(
             self.image,
-            vmin=vmin,
-            vmax=vmax,
-            **{k: v for k, v in kwargs.items() if k not in ("vmin", "vmax")},
+            cmap=kwargs.get("cmap", "gray"),
+            vmin=kwargs.get("vmin", None),
+            vmax=kwargs.get("vmax", None),
         )
 
-        if colorbar and cax is not None:
-            fig.colorbar(im, cax=cax, orientation="vertical")
-            cax.set_yticks([])
-            cax.set_xticks([])
+        if standalone:
+            if (
+                self.histogram is not None
+                and getattr(self.histogram, "data", None) is not None
+            ):
+                x = np.linspace(
+                    self.histogram.min, self.histogram.max, self.histogram.bins
+                )
+                hist_ax.plot(np.asarray(self.histogram.data, dtype=float), axes=[x])
+            return fig
 
-        # The data can have some non-linear stretch applied.  The color bar should reflect that but the
-        # histogram won't...
-        if (
-            hasattr(self, "histogram")
-            and getattr(self, "histogram") is not None
-            and getattr(self.histogram, "data", None) is not None
-        ):
-            hist = np.asarray(self.histogram.data)
-            bins = self.histogram.bins
-            bin_edges = np.linspace(self.histogram.min, self.histogram.max, bins + 1)
-            bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
-        else:
-            bins = 256
-            hist, bin_edges = np.histogram(
-                self.image.flatten(), bins=bins, range=(vmin, vmax)
-            )
-            bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
-        # Plot gamma curve over the histogram
-        # Normalize the bin centers to [0, 1] using vmin/vmax then apply gamma correction.
-        if (
-            self.attributes is None
-            or self.attributes.stretchType == ContrastStretchType.NONE
-        ):
-            vmin = self.histogram.min
-            vmax = self.histogram.max
-            gamma = 1.0
-        elif self.attributes.stretchType == ContrastStretchType.MANUAL:
-            vmin = self.attributes.manualStretchMin
-            vmax = self.attributes.manualStretchMax
-            gamma = self.attributes.manualStretchGamma
-
-        else:
-            vmin = self.attributes.autoStretchMin
-            vmax = self.attributes.autoStretchMax
-            gamma = self.attributes.autoStretchGamma
-        denom = vmax - vmin
-
-        if denom == 0:
-            norm = np.clip(bin_centers - vmin, 0.0, 1.0)
-        else:
-            norm = np.clip((bin_centers - vmin) / denom, 0.0, 1.0)
-
-        # Use a standard gamma transform (display mapping): out = in ** (1/gamma)
-        gamma_curve = norm ** (1.0 / gamma)
-
-        # Scale the gamma curve to the histogram amplitude for overlay
-        scale = float(np.max(hist)) if np.size(hist) else 1.0
-        gamma_scaled = gamma_curve * scale * 1.05
-
-        hax.plot(gamma_scaled, bin_centers, color="C1", linewidth=2)
-        # Draw histogram. If color_histogram is True, color bars using the image colormap/norm.
-        if color_histogram:
-            # Normalize bin centers to [0,1] using vmin/vmax and apply display gamma, then map to colormap
-            cmap = im.get_cmap()
-            # Compute normalized values safely
-            if denom == 0:
-                normalized = np.clip(bin_centers - vmin, 0.0, 1.0)
-            else:
-                normalized = np.clip((bin_centers - vmin) / denom, 0.0, 1.0)
-            # Apply display gamma (out = in ** (1/gamma))
-
-            mapped = np.power(normalized, gamma)
-            colors_rgba = cmap(mapped)
-            # Draw horizontal bars colored by the mapped RGBA values
-            height = bin_edges[1] - bin_edges[0] if len(bin_edges) > 1 else 1.0
-            hax.barh(
-                bin_centers,
-                hist,
-                height=height,
-                color=colors_rgba,
-                align="center",
-                edgecolor="none",
-            )
-        else:
-            hax.fill_betweenx(bin_centers, 0, hist, color="0.6")
-
-        hax.set_xlim(0, scale * 1.05)
-        hax.set_ylim(self.histogram.min, self.histogram.max)
-        hax.invert_xaxis()
-        hax.yaxis.tick_right()
-        hax.yaxis.set_label_position("right")
-        hax.set_xlabel("Frequency")
-        hax.set_ylabel("Detector Units")
-
-        ax.set_yticks([])
-        ax.set_xticks([])
-
-        return ax
+        return plot2d
