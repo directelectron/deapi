@@ -858,28 +858,66 @@ class VirtualMask:
         )
 
     def plot(self, ax=None, **kwargs):
-        """Plot the virtual mask using matplotlib
+        """Plot the virtual mask using anyplotlib with an interactive overlay widget.
+
+        The widget type matches the server-side shape property
+        (``"Circle"``, ``"Annular"``, ``"Polygon"``).  On ``pointer_up`` the
+        updated geometry is converted back to a numpy mask and pushed to the
+        server.
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes, optional
-            Axes object to plot the virtual mask on. If not provided, a new figure will be created.
-        **kwargs
-            Additional keyword arguments to pass to ax.imshow
+        ax : anyplotlib.Axes, optional
+            Axes to attach to. If omitted, a new Figure is created.
 
-        Examples
-        --------
-        >>> import matplotlib.pyplot as plt
-        >>> fig, ax = plt.subplots()
-        >>> mask.plot(ax=ax)
-
+        Returns
+        -------
+        anyplotlib.Figure
+            When ax is None (standalone).
+        anyplotlib.plot2d.Plot2D
+            When ax is provided (embedded).
         """
-        import matplotlib.pyplot as plt
+        import anyplotlib as apl
 
-        if ax is None:
-            fig, ax = plt.subplots()
-        ax.imshow(self.client.get_virtual_mask(self.index), vmax=3, vmin=0, **kwargs)
-        return ax
+        mask = self.client.get_virtual_mask(self.index)
+        shape_prop = f"Scan - Virtual Detector {self.index} Shape"
+        shape = self.client[shape_prop]
+
+        standalone = ax is None
+        if standalone:
+            fig, ax = apl.subplots(1, 1)
+
+        plot2d = ax.imshow(mask.astype(float), vmin=0, vmax=3, **kwargs)
+
+        widget = None
+        if shape == "Circle":
+            cx, cy, r = _extract_circle_geometry(mask)
+            widget = plot2d.add_circle_widget(cx=cx, cy=cy, r=r)
+        elif shape == "Annular":
+            cx, cy, r_inner, r_outer = _extract_annular_geometry(mask)
+            widget = plot2d.add_annular_widget(
+                cx=cx, cy=cy, r_inner=r_inner, r_outer=r_outer
+            )
+        elif shape == "Polygon":
+            vertices = _extract_polygon_geometry(mask)
+            widget = plot2d.add_polygon_widget(vertices=vertices)
+
+        if widget is not None:
+            _client = self.client
+            _index = self.index
+            _shape = mask.shape
+
+            def _on_pointer_up(event):
+                new_mask = _widget_to_mask(widget, _shape)
+                _client.set_virtual_mask(
+                    _index, new_mask.shape[1], new_mask.shape[0], new_mask
+                )
+
+            widget.add_event_handler(_on_pointer_up, "pointer_up")
+
+        if standalone:
+            return fig
+        return plot2d
 
     @property
     def calculation(self):
