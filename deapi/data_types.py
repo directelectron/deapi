@@ -729,6 +729,84 @@ class PropertyCollection:
         return VBox(form_items + [submit_button, output])
 
 
+# ── VirtualMask geometry helpers ──────────────────────────────────────────────
+
+
+def _extract_circle_geometry(mask: np.ndarray):
+    """Return (cx, cy, r) from a mask array where 2=selected."""
+    ys, xs = np.where(mask == 2)
+    if len(ys) == 0:
+        h, w = mask.shape
+        return float(w / 2), float(h / 2), float(min(h, w) / 4)
+    cy, cx = float(ys.mean()), float(xs.mean())
+    r = float(np.sqrt((xs - cx) ** 2 + (ys - cy) ** 2).max())
+    return cx, cy, max(r, 1.0)
+
+
+def _extract_annular_geometry(mask: np.ndarray):
+    """Return (cx, cy, r_inner, r_outer) from a mask where 2=ring pixels."""
+    ys, xs = np.where(mask == 2)
+    if len(ys) == 0:
+        h, w = mask.shape
+        return (
+            float(w / 2),
+            float(h / 2),
+            float(min(h, w) / 8),
+            float(min(h, w) / 4),
+        )
+    cy, cx = float(ys.mean()), float(xs.mean())
+    dists = np.sqrt((xs - cx) ** 2 + (ys - cy) ** 2)
+    return cx, cy, float(dists.min()), float(dists.max())
+
+
+def _extract_polygon_geometry(mask: np.ndarray):
+    """Return list of [x, y] vertex pairs from a mask where 2=polygon interior."""
+    from skimage.measure import find_contours
+
+    contours = find_contours(mask == 2, 0.5)
+    if not contours:
+        h, w = mask.shape
+        return [
+            [float(w / 4), float(h / 4)],
+            [float(3 * w / 4), float(h / 4)],
+            [float(3 * w / 4), float(3 * h / 4)],
+            [float(w / 4), float(3 * h / 4)],
+        ]
+    contour = contours[0]
+    step = max(1, len(contour) // 20)
+    return [[float(c[1]), float(c[0])] for c in contour[::step]]
+
+
+def _widget_to_mask(widget, shape: tuple) -> np.ndarray:
+    """Convert an anyplotlib overlay widget's geometry to a numpy mask array.
+
+    Returns uint8 array where 2=selected region, 1=unselected.
+    """
+    from skimage.draw import disk, polygon as sk_polygon
+
+    mask = np.ones(shape, dtype=np.uint8)
+    wtype = widget._type
+
+    if wtype == "circle":
+        rr, cc = disk((widget.cy, widget.cx), max(widget.r, 1), shape=shape)
+        mask[rr, cc] = 2
+
+    elif wtype == "annular":
+        rr_o, cc_o = disk((widget.cy, widget.cx), max(widget.r_outer, 1), shape=shape)
+        mask[rr_o, cc_o] = 2
+        rr_i, cc_i = disk((widget.cy, widget.cx), max(widget.r_inner, 1), shape=shape)
+        mask[rr_i, cc_i] = 1
+
+    elif wtype == "polygon":
+        verts = widget.vertices  # list of [x, y]
+        rows = [v[1] for v in verts]
+        cols = [v[0] for v in verts]
+        rr, cc = sk_polygon(rows, cols, shape=shape)
+        mask[rr, cc] = 2
+
+    return mask
+
+
 class VirtualMask:
     """Class to interact with virtual masks in the DE API
 
