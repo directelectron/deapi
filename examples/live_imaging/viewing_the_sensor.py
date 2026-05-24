@@ -2,69 +2,56 @@
 Viewing Sensor Data During Acquisition
 ======================================
 
-This example shows how to view the sensor data during acquisition. This is useful for
-monitoring the data during acquisition.
+This example shows how to view the sensor data during acquisition using
+``LiveResult`` — an automatically-updating anyplotlib widget that streams
+frames from the DE server in the background.
 
-This example will:
-
-1. Connect to the DE server
-2. Start an acquisition
-3. Continuously update a plot of the sensor data during acquisition
-4. Continually update a plot of the virtual image 0 (The sum of the sensor data) during acquisition
-
-Note: Using the qt matplotlib backend will make the plotting update.
+The ``LiveResult`` thread starts in idle mode and automatically activates
+whenever ``client.acquiring`` becomes True — even if the acquisition was
+started from a separate GUI application or script.
 """
 
-#  %matplotlib qt
 from deapi import Client
-import matplotlib.pyplot as plt
-import numpy as np
 import sys
-import time
 
 client = Client()
 
 if not sys.platform.startswith("win"):
-    client.usingMmf = (
-        False  # True if on same machine as DE Server and a Windows machine
-    )
-client.usingMmf = False
+    client.usingMmf = False
 
-client.connect(port=13240)  # connect to the running DE Server
+client.connect(port=13240)
 client["Frames Per Second"] = 500
 client.scan(size_x=16, size_y=16, enable="On")
 client.start_acquisition(1)
 
-while not client.acquiring:
-    time.sleep(0.1)  # wait until the acquisition starts
+# %%
+# Create live viewers
+# -------------------
+# Each LiveResult streams its frame type at 30 fps into an anyplotlib panel.
+# ``window_width=256`` resizes the diffraction pattern on the server before
+# sending, reducing network load.
 
-fig, axs = plt.subplots(1, 2)
-data, _, _, _ = client.get_result("virtual_image0")
-print("Got image of shape: ", data.shape)
-live_im = axs[0].imshow(np.zeros_like(data))
+import anyplotlib as apl
 
-data2, _, _, _ = client.get_result("singleframe_integrated")
-live_virt_im = axs[1].imshow(np.zeros_like(data))
+fig, axs = apl.subplots(1, 2, figsize=(900, 420))
+
+live_diffraction = client.live_result(
+    "singleframe_integrated", display_fps=30, window_width=256
+)
+live_virtual = client.live_result("virtual_image0", display_fps=30)
+
+live_diffraction.plot(ax=axs[0])
+live_virtual.plot(ax=axs[1])
+
+fig  # display widget in Jupyter — updates automatically while acquiring
 
 # %%
-# Plotting the Sensor Data
-# ------------------------
-# We will plot the sensor data during acquisition. Note that matplotlib will block unless you are
-# using the Qt backend, and you won't get a live view unless you initialize the plot first and then
-# update the data. If you have troubles with this please raise an issue on the github page.
-
-print("Updating plots...")
-while client.acquiring:
-    data, _, _, _ = client.get_result("singleframe_integrated")
-    live_im.set_data(data)
-
-    data, _, _, _ = client.get_result("virtual_image0")
-    live_virt_im.set_data(data)
-    plt.pause(
-        0.02
-    )  # allow the matplotlib event loop to run. ~50 fps. Anything faster we need to
-    # use blitting in matplotlib. (up to ~500 fps)
-    live_im.autoscale()
-    live_virt_im.autoscale()
+# Stopping the stream
+# -------------------
+# The threads stop automatically when ``client.acquiring`` becomes False.
+# You can also stop them manually:
+#
+#   live_diffraction.stop()
+#   live_virtual.stop()
 
 client.disconnect()

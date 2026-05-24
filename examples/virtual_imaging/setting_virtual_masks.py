@@ -17,7 +17,6 @@ Additionally virtual images can be
 """
 
 from deapi import Client
-import matplotlib.pyplot as plt
 import time
 from skimage.draw import disk
 import sys
@@ -67,15 +66,15 @@ c.virtual_masks[2][rr, cc] = 2
 c.virtual_masks[2].plot()
 
 # %%
-
-# Plotting Multiple Virtual Images
+# Plotting Multiple Virtual Masks
 # --------------------------------
-# We can also make a tableau of virtual images using the matplotlib.pyplot
-# package and passing an Axis to the plot function
+import anyplotlib as apl
 
-fig, axs = plt.subplots(1, 2)
-for a, v in zip(axs, c.virtual_masks):
-    v.plot(ax=a)
+fig, axs = apl.subplots(1, 3, figsize=(960, 360))
+for ax, v in zip(axs, c.virtual_masks[:3]):
+    v.plot(ax=ax)
+
+fig  # interactive: drag the overlay widget to reposition each mask
 
 # %%
 # Starting an Acquisition
@@ -90,9 +89,10 @@ c.start_acquisition()
 while c.acquiring:  # wait for acquisition to finish and then plot the results
     time.sleep(1)
 
-fig, axs = plt.subplots(1, 3)
-for a, virt in zip(axs, ["virtual_image0", "virtual_image1", "virtual_image2"]):
-    data, _, _, _ = c.get_result(virt)
-    a.imshow(data)
+fig, axs = apl.subplots(1, 3, figsize=(960, 360))
+for ax, virt in zip(axs, ["virtual_image0", "virtual_image1", "virtual_image2"]):
+    c.get_result(virt).plot(ax=ax)
+
+fig
 
 c.disconnect()

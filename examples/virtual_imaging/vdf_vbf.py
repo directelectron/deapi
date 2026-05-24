@@ -28,7 +28,6 @@ import time
 from scipy.ndimage import gaussian_filter
 from skimage.segmentation import flood
 from skimage.morphology import dilation, disk
-import matplotlib.pyplot as plt
 import sys
 
 client = Client()
@@ -98,22 +97,24 @@ print(
     f"\nVDF: {client.virtual_masks[2].name} ({client.virtual_masks[2].calculation})"
 )
 # %%
-# Acquire the Virtual Images
-# --------------------------
-# We will then acquire the virtual images using the virtual masks and plot the results.
+# Acquire and view the virtual images
+# ------------------------------------
+import anyplotlib as apl
 
-
-client["Frames Per Second"] = 5000  # 5000 frames per second
+client["Frames Per Second"] = 5000
 client.scan(enable="On", size_x=32, size_y=32)
 client.start_acquisition()
-print("Acquiring virtual images...")
-while client.acquiring:  # wait for acquisition to finish and then plot the results
-    time.sleep(1)
 
-fig, axs = plt.subplots(1, 3)
-for a, virt in zip(axs, ["virtual_image0", "virtual_image1", "virtual_image2"]):
-    data, _, _, _ = client.get_result(virt)
-    a.imshow(data)
-    a.set_title(virt)
+fig, axs = apl.subplots(1, 3, figsize=(960, 360))
+
+live_sum = client.live_result("virtual_image0", display_fps=30)
+live_vbf = client.live_result("virtual_image1", display_fps=30)
+live_vdf = client.live_result("virtual_image2", display_fps=30)
+
+live_sum.plot(ax=axs[0])
+live_vbf.plot(ax=axs[1])
+live_vdf.plot(ax=axs[2])
+
+fig  # streams live virtual images while the scan runs
 
 client.disconnect()
