@@ -24,7 +24,7 @@ dependencies = [
     "scikit-image",
     "sympy",
     "pywin32; platform_system == 'Windows'",
-    "anyplotlib",
+    "anyplotlib@git+https://github.com/cssfrancis/anyplotlib.git@main",
 ]
 description = "API for DE Server"
 version = "5.3b6"
