@@ -2,16 +2,18 @@ import time
 import numpy as np
 import pytest
 from unittest.mock import Mock, PropertyMock
-from deapi.data_types import Result
+from deapi.data_types import Attributes, Histogram, Result
 from deapi.live_result import LiveResult
 
 
 def _make_result(shape=(64, 64)):
+    hist = Histogram(min=0.0, max=1.0, bins=256, data=list(range(256)))
+    attrs = Attributes(image_min=0.0, image_max=1.0)
     return Result(
         image=np.zeros(shape, dtype=np.float32),
         pixel_format=None,
-        attributes=None,
-        histogram=None,
+        attributes=attrs,
+        histogram=hist,
     )
 
 
@@ -168,3 +170,82 @@ def test_client_live_result_factory_returns_live_result():
     assert live._frame_type == "virtual_image0"
     assert live._display_fps == 10
     assert live._window_height == 64
+
+
+# ── frame_type property ───────────────────────────────────────────────────────
+
+
+def test_frame_type_readable(idle_client):
+    live = LiveResult(idle_client, "singleframe_integrated")
+    assert live.frame_type == "singleframe_integrated"
+
+
+def test_frame_type_settable(idle_client):
+    live = LiveResult(idle_client, "singleframe_integrated")
+    live.frame_type = "virtual_image0"
+    assert live.frame_type == "virtual_image0"
+
+
+def test_frame_type_change_used_on_next_fetch(active_client):
+    live = LiveResult(active_client, "singleframe_integrated", display_fps=30)
+    ax = _mock_ax()
+    live.plot(ax=ax)
+    live.frame_type = "virtual_image0"
+    time.sleep(0.15)
+    live.stop()
+    last_call = active_client.get_result.call_args_list[-1]
+    assert last_call[0][0] == "virtual_image0"
+
+
+# ── result / image / histogram / attributes properties ───────────────────────
+
+
+def test_result_none_before_plot(idle_client):
+    live = LiveResult(idle_client, "singleframe_integrated")
+    assert live.result is None
+    assert live.image is None
+    assert live.histogram is None
+    assert live.attributes is None
+
+
+def test_result_populated_after_plot(idle_client):
+    live = LiveResult(idle_client, "singleframe_integrated")
+    ax = _mock_ax()
+    live.plot(ax=ax)
+    live.stop()
+    assert live.result is not None
+    assert live.image is not None
+    assert live.histogram is not None
+    assert live.attributes is not None
+
+
+def test_result_updated_while_active(active_client):
+    live = LiveResult(active_client, "singleframe_integrated", display_fps=30)
+    ax = _mock_ax()
+    live.plot(ax=ax)
+    time.sleep(0.15)
+    live.stop()
+    assert live.result is not None
+    assert live.image is not None
+
+
+def test_histogram_has_data(active_client):
+    live = LiveResult(active_client, "singleframe_integrated", display_fps=30)
+    ax = _mock_ax()
+    live.plot(ax=ax)
+    time.sleep(0.15)
+    live.stop()
+    assert live.histogram is not None
+    assert live.histogram.data is not None
+
+
+def test_get_result_called_with_histogram(active_client):
+    live = LiveResult(active_client, "singleframe_integrated", display_fps=60)
+    ax = _mock_ax()
+    live.plot(ax=ax)
+    time.sleep(0.1)
+    live.stop()
+    last_call = active_client.get_result.call_args_list[-1]
+    hist_arg = last_call[1].get("histogram")
+    assert hist_arg is not None
+    assert hist_arg.bins == 256

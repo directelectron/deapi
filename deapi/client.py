@@ -80,6 +80,7 @@ class Client:
     def __init__(self):
         self.commandVersion = commandVersion
         self.read_only = False
+        self._socket_lock = threading.RLock()
 
     def set_log_level(self, level):
         log = logging.getLogger("DECameraClientLib")
@@ -1486,38 +1487,39 @@ class Client:
         vals_to_send = [int(new_width), int(new_height)] + num_positions
         print("Vals to send:", vals_to_send)
         command = self._addSingleCommand(self.SET_SCAN_XY_ARRAY, None, vals_to_send)
-        try:
-            packet = struct.pack("I", command.ByteSize()) + command.SerializeToString()
-            self.socket.send(packet)
-            ret = self.__ReceiveResponseForCommand(command) != False
-            log.info(f"response {ret}")
-        except socket.error:
-            raise socket.error(
-                "Error sending x-y scan positions to socket. Is the server running?"
-            )
-
-        if ret:
+        with self._socket_lock:
             try:
-                # convert to bytes and send
-                tic = time.time()
-                for pos in positions:
-                    x = pos[:, 0].tobytes()
-                    y = pos[:, 1].tobytes()
-                    self.__sendToSocket(self.socket, x, len(x))
-                    self.__sendToSocket(self.socket, y, len(y))
-                toc = time.time()
-                log.info(f"Time to send {len(positions)} Scan Patterns: {toc-tic} s")
-            except socket.error as e:
-                log.log(logging.ERROR, "Error sending data to socket: %s", e)
-                return False
+                packet = struct.pack("I", command.ByteSize()) + command.SerializeToString()
+                self.socket.send(packet)
+                ret = self.__ReceiveResponseForCommand(command) != False
+                log.info(f"response {ret}")
+            except socket.error:
+                raise socket.error(
+                    "Error sending x-y scan positions to socket. Is the server running?"
+                )
 
-            ret = self.__ReceiveResponseForCommand(command) != False
-            self["Scan - Type"] = "XY Array"
-        else:
-            log.error(
-                f"Error sending x-y scan positions to server."
-                f" Acquisition - Status: {self['Acquisition Status']}"
-            )
+            if ret:
+                try:
+                    # convert to bytes and send
+                    tic = time.time()
+                    for pos in positions:
+                        x = pos[:, 0].tobytes()
+                        y = pos[:, 1].tobytes()
+                        self.__sendToSocket(self.socket, x, len(x))
+                        self.__sendToSocket(self.socket, y, len(y))
+                    toc = time.time()
+                    log.info(f"Time to send {len(positions)} Scan Patterns: {toc-tic} s")
+                except socket.error as e:
+                    log.log(logging.ERROR, "Error sending data to socket: %s", e)
+                    return False
+
+                ret = self.__ReceiveResponseForCommand(command) != False
+                self["Scan - Type"] = "XY Array"
+            else:
+                log.error(
+                    f"Error sending x-y scan positions to server."
+                    f" Acquisition - Status: {self['Acquisition Status']}"
+                )
         return ret
 
     @deprecated_argument(name="frameType", since="5.2.0", alternative="frame_type")
@@ -1883,11 +1885,10 @@ class Client:
             )
         else:
             command = self._addSingleCommand(self.SET_VIRTUAL_MASK, None, [id, w, h])
-            ret = True
-            packet = struct.pack("I", command.ByteSize()) + command.SerializeToString()
-            self.socket.send(packet)
+            with self._socket_lock:
+                packet = struct.pack("I", command.ByteSize()) + command.SerializeToString()
+                self.socket.send(packet)
 
-            if ret:
                 if mask.dtype != np.uint8:
                     log.warning("Virtual mask must be a numpy array of type uint8")
                     mask = mask.astype(np.uint8)
@@ -1895,7 +1896,7 @@ class Client:
                 log.info(f"Sending mask of size {len(mask_bytes)}")
                 self.__sendToSocket(self.socket, mask_bytes, len(mask_bytes))
 
-            ret = self.__ReceiveResponseForCommand(command) != False
+                ret = self.__ReceiveResponseForCommand(command) != False
 
         return ret
 
@@ -2941,6 +2942,10 @@ class Client:
 
     # send single command and get a response, if error occurred, return False
     def _sendCommand(self, command: pb.DEPacket = None):
+        with self._socket_lock:
+            return self._sendCommand_unlocked(command)
+
+    def _sendCommand_unlocked(self, command: pb.DEPacket = None):
         step_time = self.GetTime()
 
         if command is None:
