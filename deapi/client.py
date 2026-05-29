@@ -31,6 +31,9 @@ from deapi.data_types import (
     Attributes,
     Histogram,
     PropertySpec,
+    PropertySpecifications,
+    PropertyType,
+    PropertyAllowableType,
     MovieBufferStatus,
     MovieBufferInfo,
     DataType,
@@ -423,16 +426,18 @@ class Client:
     )
     def get_property_specifications(self, property_name):
         """
-        Get a list of allowed values for a property of the camera on DE-Server
-        Only works for DE-MC version greater or equal to 2.7.4
+        Get the specifications for a property of the camera on DE-Server
+        Only supported for DE-MC version 2.7.5 and above
 
         Parameters
         ----------
         property_name : str
-            The name of the property to get the allowed values for
+            The name of the property to get the specifications for
         """
-        t0 = self.GetTime()
-        values = False
+        if self.commandVersion < 13:
+            log.error("get_property_specifications is only supported for server version 2.7.5 and above.")
+            return None
+        
         command = self._addSingleCommand(
             self.GET_PROPERTY_SPECIFICATIONS, property_name
         )
@@ -442,48 +447,53 @@ class Client:
 
         values = self.__getParameters(response.acknowledge[0])
 
-        propSpec = PropertySpec()
-        propSpec.dataType = values[0]
-        propSpec.valueType = values[1]
-        propSpec.category = values[-4]
-        propSpec.options = list(values[2:-4])
-        propSpec.defaultValue = str(values[-3])
-        propSpec.currentValue = str(values[-2])
-        propSpec.readOnly = bool(values[-1])
+        if not values or len(values) == 0:
+            log.error(f"get_property_specifications({property_name}) failed, parameter size not matched.")
+            return None
+        
+        prop_spec = PropertySpecifications()
 
-        optionsLength = len(propSpec.options)
-
-        if propSpec.valueType == "Range":
-            if optionsLength == 2:
-                rangeString = ""
-                for i in range(optionsLength):
-                    if propSpec.dataType == "Integer":
-                        rangeString += str(int(propSpec.options[i]))
-                    else:
-                        rangeString += str(propSpec.options[i])
-                    if i == 0:
-                        rangeString += str(" - ")
-
-                propSpec.options.append(rangeString)
-
-        if propSpec.valueType == "Set":
-            for i in range(optionsLength):
-                if propSpec.defaultValue == propSpec.options[i]:
-                    if propSpec.defaultValue != "":
-                        propSpec.options[i] = propSpec.defaultValue + str("*")
-                    else:
-                        emptyStringIndex = i
-            if propSpec.defaultValue == "":
-                propSpec.options.pop(emptyStringIndex)
-
-        if "allow_all" in propSpec.valueType:
-            propSpec.options = ""
-        elif propSpec.dataType == "String":
-            propSpec.options = str(list(map(lambda a: str(a), propSpec.options)))[1:-1]
+        param_id = 0
+        data_type = values[param_id]
+        param_id += 1
+        if data_type == "String":
+            prop_spec.prop_type = PropertyType.String
+        elif data_type == "Float":
+            prop_spec.prop_type = PropertyType.Float
+        elif data_type == "Integer":
+            prop_spec.prop_type = PropertyType.Integer
         else:
-            propSpec.options = str(propSpec.options)[1:-1]
+            log.error(f"get_property_specifications({property_name}) failed, property type not matched.")
+            return None
+        
+        prop_allowable_type = values[param_id]
+        param_id += 1
 
-        return propSpec
+        if prop_allowable_type == "Range":
+            prop_spec.prop_allowable_type = PropertyAllowableType.Range
+            if prop_spec.prop_type in (PropertyType.Float, PropertyType.Integer):
+                prop_spec.min_value = values[param_id]
+                param_id += 1
+                prop_spec.max_value = values[param_id]
+                param_id += 1
+            else:
+                log.error(f"get_property_specifications({property_name}) failed, cannot read the min/max value.")
+                return None
+        elif prop_allowable_type == "Set":
+            prop_spec.prop_allowable_type = PropertyAllowableType.Set
+            prop_spec.values = list(values[param_id:-4])
+        elif prop_allowable_type == "AllowAll":
+            prop_spec.prop_allowable_type = PropertyAllowableType.AllowAll
+        else:
+            log.error(f"get_property_specifications({property_name}) failed, unknown allowable type.")
+            return None
+
+        prop_spec.category = values[-4]
+        prop_spec.default_value = values[-3]
+        prop_spec.current_value = values[-2]
+        prop_spec.read_only = values[-1]
+
+        return prop_spec
 
     @deprecated_argument(
         name="propertyName", since="5.2.0", alternative="property_name"
@@ -3133,6 +3143,7 @@ class Client:
     SetCurrentCamera = set_current_camera
     ListProperties = list_properties
     GetPropertySpec = get_property_spec
+    GetPropertySpecifications = get_property_specifications
     # PropertyValidValues = property_valid_values
     GetProperty = get_property
     SetProperty = set_property
