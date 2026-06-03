@@ -1594,13 +1594,6 @@ class Client:
             pixel_format = PixelFormat.from_numpy_dtype(pixel_format)
         if attributes is None or attributes == "auto":
             attributes = Attributes(**kwargs)
-            scan_images = [17, 18, 19, 20, 21, 22, 23, 24, 25]
-            if frame_type.value in scan_images:
-                attributes.windowWidth = self.scan_sizex
-                attributes.windowHeight = self.scan_sizey
-            else:
-                attributes.windowWidth = self.image_sizex
-                attributes.windowHeight = self.image_sizey
 
         log.debug("GetResult frameType:%s, pixelFormat:%s", frame_type, pixel_format)
         start_time = self.GetTime()
@@ -1608,12 +1601,6 @@ class Client:
 
         if histogram is None:
             histogram = Histogram()
-
-        if attributes.windowWidth > 0:
-            self.width = attributes.windowWidth
-
-        if attributes.windowHeight > 0:
-            self.height = attributes.windowHeight
 
         image = None
 
@@ -2413,24 +2400,6 @@ class Client:
             log.info(f" {duration:.1f}s")
             sys.stdout.flush()
 
-    def _get_auto_attributes(self, frame_type: FrameType):
-        """
-        Get automatic attributes for the current acquisition settings.
-        Returns
-        -------
-        Attributes
-            The automatic attributes for the current acquisition settings.
-        """
-        attributes = Attributes()
-        scan_images = [17, 18, 19, 20, 21, 22, 23, 24, 25]
-        if frame_type.value in scan_images:
-            attributes.windowWidth = self.scan_sizex
-            attributes.windowHeight = self.scan_sizey
-        else:
-            attributes.windowWidth = self.image_sizex
-            attributes.windowHeight = self.image_sizey
-        return attributes
-
     @deprecated_argument("pixelFormat", alternative="pixel_format", since="5.2.1")
     @deprecated_argument("fileName", alternative="file_name", since="5.2.1")
     @deprecated_argument("textSize", alternative="text_size", since="5.2.1")
@@ -2461,7 +2430,7 @@ class Client:
         if isinstance(frame_type, str):
             frame_type = getattr(FrameType, frame_type.upper())
         if attributes == "auto":
-            attributes = self._get_auto_attributes(frame_type)
+            attributes = Attributes()
 
         self.StartAcquisition(1)
 
