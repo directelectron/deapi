@@ -3,7 +3,7 @@ import numpy as np
 from deapi import Client, Histogram
 import pytest
 from deapi.data_types import (
-    PropertySpec,
+    PropertySpecifications,
     VirtualMask,
     MovieBufferStatus,
     ContrastStretchType,
@@ -172,23 +172,23 @@ class TestClient:
 
     @pytest.mark.server
     @pytest.mark.parametrize("bin_sw", [1, 2, 4])
-    def test_property_spec_set(self, client, bin_sw):
+    def test_property_specifications_set(self, client, bin_sw):
         client.set_property("Hardware Binning X", 1)
         client.set_property("Hardware Binning Y", 1)
         client.set_property("Binning Y", bin_sw)
-        sp = client.get_property_spec("Binning Y")
-        assert isinstance(sp, PropertySpec)
-        assert sp.currentValue == str(bin_sw)
+        sp = client.get_property_specifications("Binning Y")
+        assert isinstance(sp, PropertySpecifications)
+        assert sp.current_value == str(bin_sw)
         assert (
-            sp.options
-            == "'1*', '2', '4', '8', '16', '32', '64', '128', '256', '512', '1024'"
+            sp.values
+            == ['1', '2', '4', '8', '16', '32', '64', '128', '256', '512', '1024']
         )
         client.set_property("Hardware Binning X", 2)
         client.set_property("Hardware Binning Y", 2)
-        sp = client.get_property_spec("Binning Y")
-        assert sp.currentValue == str(bin_sw)
+        sp = client.get_property_specifications("Binning Y")
+        assert sp.current_value == str(bin_sw)
         assert (
-            sp.options == "'1*', '2', '4', '8', '16', '32', '64', '128', '256', '512'"
+            sp.values == ['1', '2', '4', '8', '16', '32', '64', '128', '256', '512']
         )
 
     @pytest.mark.parametrize("bin", [1, 2])

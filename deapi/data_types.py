@@ -168,6 +168,19 @@ class BinningMethod(IntEnum):
     FOURIERCROP = 3
 
 
+class PropertyType(IntEnum):
+    Undef = 0
+    String = 1
+    Float = 2
+    Integer = 3
+
+
+class PropertyAllowableType(IntEnum):
+    Range = 0
+    Set = 1
+    AllowAll = 2
+
+
 class Attributes:
     """Class to hold attributes for getting the result of an image acquisition
 
@@ -544,6 +557,7 @@ class VirtualImageInfo:
 
 class PropertySpec:
     """Class to hold the specification of a property in the DE API
+    Deprecated since DE-MC 2.7.4
 
     Parameters
     ----------
@@ -597,6 +611,75 @@ class PropertySpec:
             f" options={self.options},"
             f" defaultValue={self.defaultValue}, "
             f"currentValue={self.currentValue})"
+        )
+
+
+class PropertySpecifications:
+    """Class to hold the specification of a property in the DE API
+
+    Parameters
+    ----------
+    prop_type : str, optional
+        Type of the property
+    prop_allowable_type : str, optional
+        Allowable type of the property
+    min_value : float, optional
+        Minimum value of the property
+    max_value : float, optional
+        Maximum value of the property
+    values : list, optional
+        List of values for the property
+    default_value : str, optional
+        Default value of the property
+    current_value : str, optional
+        Current value of the property
+    read_only : bool, optional
+        Whether the property is read-only
+    """
+
+    def __init__(
+        self,
+        prop_type: PropertyType = None,
+        prop_allowable_type: PropertyAllowableType = None,
+        min_value: float = None,
+        max_value: float = None,
+        values: list = None,
+        category: str = None,
+        default_value: str = None,
+        current_value: str = None,
+        read_only: bool = None,
+    ):
+        self.prop_type = prop_type
+        self.prop_allowable_type = prop_allowable_type
+        self.min_value = min_value
+        self.max_value = max_value
+        self.values = values
+        self.category = category
+        self.default_value = default_value
+        self.current_value = current_value
+        self.read_only = read_only
+
+    prop_type = None  # Undef | String | Float | Integer
+    prop_allowable_type = None  # Range | Set | AllowAll
+    min_value = None # Minimum value for Range type
+    max_value = None # Maximum value for Range type
+    values = None  # List of values for Set allowable type
+    category = None  # "Alias" | "Advanced" | "Basic" | "Deprecated" | "Engineering" | Obsolete"
+    default_value = None  # Default value
+    current_value = None  # Current value
+    read_only = False  # Read-only property
+
+    def __repr__(self):
+        return (
+            f"PropertySpecifications(prop_type={self.prop_type}, "
+            f"prop_allowable_type={self.prop_allowable_type}, "
+            f"min_value={self.min_value}, "
+            f"max_value={self.max_value}, "
+            f"values={self.values}, "
+            f"category={self.category}, "
+            f"default_value={self.default_value}, "
+            f"current_value={self.current_value}, "
+            f"read_only={self.read_only})"
         )
 
 
