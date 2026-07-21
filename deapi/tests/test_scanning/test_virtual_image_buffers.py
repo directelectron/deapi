@@ -83,45 +83,45 @@ class TestVirtualImageBuffers:
             queue_virtual_buffers=True,
         )
 
-        received_frames: list[tuple[int, int, np.ndarray]] = []
+        received_frames: list[tuple[int, int, int, np.ndarray]] = []
         # UNKNOWN = 0, FAILED = 1, TIMEOUT = 3, FINISHED = 4, OK = 5
         # OK --> Still more frames to access
 
-        finshed = False
+        finished = False
 
-        while not finshed:
+        while not finished:
             for buf_id in range(NUM_VIRTUAL_BUFFERS):
-                status, frame_index, image = client.get_virtual_image_buffer(
+                status, frame_index, pattern_index, image = client.get_virtual_image_buffer(
                     buf_id, virtual_image_info=info
                 )
                 print(
-                    f"buf_id={buf_id} frame={frame_index} status={status} image shape: {image.shape if image is not None else None}"
+                    f"buf_id={buf_id} frame={frame_index} pattern={pattern_index} status={status} image shape: {image.shape if image is not None else None}"
                 )
 
                 if status == MovieBufferStatus.OK:
                     assert (
                         image is not None
-                    ), f"buf_id={buf_id} frame={frame_index}: status OK but image is None"
+                    ), f"buf_id={buf_id} frame={frame_index} pattern={pattern_index}: status OK but image is None"
                     assert image.shape == (
                         info.height,
                         info.width,
-                    ), f"buf_id={buf_id} frame={frame_index}: unexpected shape {image.shape}"
-                    received_frames.append((buf_id, frame_index, image))
+                    ), f"buf_id={buf_id} frame={frame_index} pattern={pattern_index}: unexpected shape {image.shape}"
+                    received_frames.append((buf_id, frame_index, pattern_index, image))
 
                 elif status == MovieBufferStatus.FINISHED:
-                    finshed = True
+                    finished = True
                     # This channel is done — mark finished.
 
                 elif status == MovieBufferStatus.TIMEOUT:
                     print(
-                        f"buf_id={buf_id} frame={frame_index}: timeout waiting for frame"
+                        f"buf_id={buf_id} frame={frame_index} pattern={pattern_index}: timeout waiting for frame"
                     )
                     # This can happen if we check a channel before its first frame is ready.
                     # Just ignore and check again in the next loop iteration.
 
                 elif status == MovieBufferStatus.FAILED:
                     print(
-                        f"buf_id={buf_id} frame={frame_index}: failed to retrieve frame-- Likely this"
+                        f"buf_id={buf_id} frame={frame_index} pattern={pattern_index}: failed to retrieve frame-- Likely this"
                         f"virtual image is not initialized."
                     )
 
@@ -156,19 +156,19 @@ class TestVirtualImageBuffers:
             queue_virtual_buffers=True,
         )
 
-        received_frames: list[tuple[int, int, np.ndarray]] = []
+        received_frames: list[tuple[int, int, int, np.ndarray]] = []
         # UNKNOWN = 0, FAILED = 1, TIMEOUT = 3, FINISHED = 4, OK = 5
         # OK --> Still more frames to access
 
-        finshed = False
+        finished = False
 
-        while not finshed:
+        while not finished:
             for buf_id in range(NUM_VIRTUAL_BUFFERS):
-                status, frame_index, image = client.get_virtual_image_buffer(
+                status, frame_index, pattern_index, image = client.get_virtual_image_buffer(
                     buf_id, virtual_image_info=info
                 )
                 print(
-                    f"buf_id={buf_id} frame={frame_index} status={status} image shape: {image.shape if image is not None else None}"
+                    f"buf_id={buf_id} frame={frame_index} pattern={pattern_index} status={status} image shape: {image.shape if image is not None else None}"
                 )
 
                 if buf_id == 4:
@@ -176,27 +176,27 @@ class TestVirtualImageBuffers:
                 if status == MovieBufferStatus.OK:
                     assert (
                         image is not None
-                    ), f"buf_id={buf_id} frame={frame_index}: status OK but image is None"
+                    ), f"buf_id={buf_id} frame={frame_index} pattern={pattern_index}: status OK but image is None"
                     assert image.shape == (
                         info.height,
                         info.width,
-                    ), f"buf_id={buf_id} frame={frame_index}: unexpected shape {image.shape}"
-                    received_frames.append((buf_id, frame_index, image))
+                    ), f"buf_id={buf_id} frame={frame_index} pattern={pattern_index}: unexpected shape {image.shape}"
+                    received_frames.append((buf_id, frame_index, pattern_index, image))
 
                 elif status == MovieBufferStatus.FINISHED:
-                    finshed = True
+                    finished = True
                     # This channel is done — mark finished.
 
                 elif status == MovieBufferStatus.TIMEOUT:
                     print(
-                        f"buf_id={buf_id} frame={frame_index}: timeout waiting for frame"
+                        f"buf_id={buf_id} frame={frame_index} pattern={pattern_index}: timeout waiting for frame"
                     )
                     # This can happen if we check a channel before its first frame is ready.
                     # Just ignore and check again in the next loop iteration.
 
                 elif status == MovieBufferStatus.FAILED:
                     print(
-                        f"buf_id={buf_id} frame={frame_index}: failed to retrieve frame-- Likely this"
+                        f"buf_id={buf_id} frame={frame_index} pattern={pattern_index}: failed to retrieve frame-- Likely this"
                         f"virtual image is not initialized."
                     )
 
@@ -242,7 +242,7 @@ class TestVirtualImageBuffers:
             queue_virtual_buffers=True,
         )
 
-        received_frames: list[tuple[int, int, np.ndarray]] = []
+        received_frames: list[tuple[int, int, int, np.ndarray]] = []
         # UNKNOWN = 0, FAILED = 1, TIMEOUT = 3, FINISHED = 4, OK = 5
         # OK --> Still more frames to access
 
@@ -253,12 +253,12 @@ class TestVirtualImageBuffers:
             for buf_id in range(NUM_VIRTUAL_BUFFERS):
                 got_frame = False
                 while not got_frame:
-                    status, frame_index, image = client.get_virtual_image_buffer(
+                    status, frame_index, pattern_index, image = client.get_virtual_image_buffer(
                         buf_id, virtual_image_info=info, timeout_msec=1000  # 1 sec
                     )
                     if status == MovieBufferStatus.OK:
                         received_frames.append(
-                            (buf_id, frame_index, image)
+                            (buf_id, frame_index, pattern_index, image)
                         )  # Do whatever with the frame.
                         got_frame = True
 
@@ -271,7 +271,7 @@ class TestVirtualImageBuffers:
                         got_frame = False
                     elif status == MovieBufferStatus.FAILED:
                         print(
-                            f"buf_id={buf_id} frame={frame_index}: failed to retrieve frame-- Likely this"
+                            f"buf_id={buf_id} frame={frame_index} pattern={pattern_index}: failed to retrieve frame-- Likely this"
                             f" virtual image is not initialized."
                         )
                         got_frame = True
