@@ -5,6 +5,27 @@ Changelog
 
 This document describes the changes in the DEAPI library.
 
+5.3.beta5
+=========
+- Modify gain acquisition
+
+5.3.beta4
+=========
+- Add GetEvent functionality to client.py
+- Fixed bug in set_binning
+
+5.3.beta3
+=========
+- Fix the problem that the set_binning function could not set HW binning to 1
+
+5.3.beta2
+=========
+- Add access register
+
+5.3.beta1
+=========
+- Create a Result Class to handle Result + Histogram
+
 5.3.beta0
 =========
 - Add support for binning in x/ y dimensions when returning a result (#19)
