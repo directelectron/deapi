@@ -4,6 +4,12 @@ Changelog
 *********
 
 This document describes the changes in the DEAPI library.
+5.3.beta6
+=========
+- Fixed invalid property errors and bugs in set_binning
+- Updated get_property_specifications
+- Do not automatically set attributes.windowWidth and attributes.windowHeight
+- Return pattern index for get_result and get_virtual_image_buffer
 
 5.3.beta5
 =========
