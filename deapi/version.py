@@ -6,7 +6,7 @@ commandVersion = 16
 # Used by FakeServer so its reported "Server Software Version" always matches
 # the commandVersion used for dispatch, making tests version-agnostic.
 _command_version_to_server_version = {
-    16: "2.8.0.11901",
+    16: "2.8.0.12073",
     15: "2.7.5.1000",
     13: "2.7.4.10590",
     12: "2.7.4.1000",
@@ -18,5 +18,5 @@ _command_version_to_server_version = {
 
 # The server version string that corresponds to the current commandVersion.
 fake_server_software_version = _command_version_to_server_version.get(
-    commandVersion, "2.8.0.11901"
+    commandVersion, "2.8.0.12073"
 )

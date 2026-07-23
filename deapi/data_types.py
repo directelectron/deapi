@@ -281,6 +281,8 @@ class Attributes:
     output_binning_method : int, optional
         Method used for binning the output image. Defaults to BinningMethod.AVERAGE,
         other options are BinningMethod.NONE, BinningMethod.SUM, and BinningMethod.FOURIERCROP.
+    current_scan_pattern_idx : int, optional
+        Index of the current scan pattern.
     """
 
     def __init__(
@@ -332,6 +334,7 @@ class Attributes:
         output_binning_x: int = 1,
         output_binning_y: int = 1,
         output_binning_method: int = 1,  # BinningMethod.AVERAGE
+        current_scan_pattern_idx: int = 0,
     ):
 
         self.centerX = center_x
@@ -381,6 +384,7 @@ class Attributes:
         self.output_binning_x = output_binning_x
         self.output_binning_y = output_binning_y
         self.output_binning_method = output_binning_method
+        self.current_scan_pattern_idx = current_scan_pattern_idx
 
     def __repr__(self):
         return (

@@ -757,9 +757,10 @@ class FakeServer:
             float(np.min(image)),  # autoStretchMin 26
             float(np.max(image)),  # autoStretchMax 27
             float(1.0),  # autoStretchGamma 28
-            float(np.min(image)),  # histogram min 29
-            float(np.max(image)),  # histogram max 30
-            float(np.max(image)),  # histogram upper local max 31
+            int(0),  # current_scan_pattern_idx 29
+            float(np.min(image)),  # histogram min 30
+            float(np.max(image)),  # histogram max 31
+            float(np.max(image)),  # histogram upper local max 32
         ]
 
         # Then histogram...

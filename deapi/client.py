@@ -208,8 +208,8 @@ class Client:
 
         version = [int(part) for part in server_version[:4]]
         temp = version[2] + version[1] * 1000 + version[0] * 1000000
-        if temp >= 2008000 and version[3] >= 11901:
-            ## version 2.8.0 build 11901+ — virtual image buffer support (SDK 5.3.0)
+        if temp >= 2008000 and version[3] >= 12073:
+            ## version 2.8.0 build 12073+ — virtual image buffer support (SDK 5.3.0)
             self.commandVersion = 16
         elif (temp >= 2007005 and version[3] < 11274) or temp >= 2008000:
             ## version after 2.8.0 (older builds)
@@ -1717,6 +1717,8 @@ class Client:
                         "autoStretchGamma",
                     ]
                 )
+            if self.commandVersion >= 16:
+                attributes_order.append("current_scan_pattern_idx")
 
             # special casting rules
             field_casts = {
@@ -2063,6 +2065,8 @@ class Client:
             - Other values indicate timeout, failure, or finished state.
         frame_index : int
             The acquisition frame index associated with this virtual image.
+        pattern_index : int
+            The scan pattern index associated with this virtual image.
         image : numpy.ndarray or None
             2-D array of shape ``(height, width)`` on success, ``None`` otherwise.
         """
@@ -2076,14 +2080,16 @@ class Client:
 
         status = MovieBufferStatus.UNKNOWN
         frame_index = 0
+        pattern_index = 0
         image = None
 
         if response:
             values = self.__getParameters(response.acknowledge[0])
-            if isinstance(values, list) and len(values) >= 3:
+            if isinstance(values, list) and len(values) >= 4:
                 status_int = values[0]
                 total_bytes = values[1]
                 frame_index = values[2]
+                pattern_index = values[3]
                 try:
                     status = MovieBufferStatus(status_int)
                 except ValueError:
@@ -2100,7 +2106,7 @@ class Client:
         else:
             status = MovieBufferStatus.FAILED
 
-        return status, frame_index, image
+        return status, frame_index, pattern_index, image
 
     def save_image(self, image, fileName, textSize=0):
         t0 = self.GetTime()

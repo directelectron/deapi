@@ -473,8 +473,8 @@ frame is captured.
          )
 
          # ── Collect streamed virtual image frames ─────────────────────────────────
-         # Each entry is (buf_id, frame_index, image_array).
-         received_frames: list[tuple[int, int, np.ndarray]] = []
+         # Each entry is (buf_id, frame_index, pattern_index, image_array).
+         received_frames: list[tuple[int, int, int, np.ndarray]] = []
 
          # MovieBufferStatus meanings:
          #   UNKNOWN  = 0  — status not yet determined
@@ -489,7 +489,7 @@ frame is captured.
              for buf_id in range(NUM_VIRTUAL_BUFFERS):
                  got_frame = False
                  while not got_frame:
-                     status, frame_index, image = client.get_virtual_image_buffer(
+                     status, frame_index, pattern_index, image = client.get_virtual_image_buffer(
                          buf_id,
                          virtual_image_info=info,
                          timeout_msec=1000,  # Wait up to 1 s for a frame
@@ -497,7 +497,7 @@ frame is captured.
 
                      if status == MovieBufferStatus.OK:
                          # Frame retrieved — store it for downstream processing
-                         received_frames.append((buf_id, frame_index, image))
+                         received_frames.append((buf_id, frame_index, pattern_index, image))
                          got_frame = True
 
                      elif status == MovieBufferStatus.FINISHED:
@@ -511,7 +511,7 @@ frame is captured.
 
                      elif status == MovieBufferStatus.FAILED:
                          print(
-                             f"buf_id={buf_id} frame={frame_index}: failed to retrieve frame — "
+                             f"buf_id={buf_id} frame={frame_index} pattern={pattern_index}: failed to retrieve frame — "
                              f"likely this virtual image channel is not initialized."
                          )
                          got_frame = True  # Skip this frame and continue
@@ -595,12 +595,12 @@ frame is captured.
                  bool gotFrame = false;
                  while (!gotFrame)
                  {
-                     var (status, frameIndex, image) =
+                     var (status, frameIndex, patternIndex, image) =
                          client.GetVirtualImageBuffer(bufId, info, timeoutMsec: 1000);
 
                      if (status == MovieBufferStatus.OK)
                      {
-                         receivedFrames.Add((bufId, frameIndex, image));
+                         receivedFrames.Add((bufId, frameIndex, patternIndex, image));
                          gotFrame = true;
                      }
                      else if (status == MovieBufferStatus.Finished)
@@ -616,7 +616,7 @@ frame is captured.
                      else  // FAILED or UNKNOWN
                      {
                          Console.WriteLine(
-                             $"bufId={bufId} frame={frameIndex}: failed to retrieve frame — " +
+                             $"bufId={bufId} frame={frameIndex} pattern={patternIndex}: failed to retrieve frame — " +
                              $"likely this virtual image channel is not initialized.");
                          gotFrame = true;
                      }
@@ -684,7 +684,7 @@ frame is captured.
 
              // ── Collect streamed virtual image frames ─────────────────────────────
              // Each entry stores the detector channel, frame index, and pixel data.
-             using Frame = std::tuple<int, int, std::vector<float>>;
+             using Frame = std::tuple<int, int, int, std::vector<float>>;
              std::vector<Frame> receivedFrames;
 
              // deapi::MovieBufferStatus values:
@@ -699,11 +699,11 @@ frame is captured.
                  for (int bufId = 0; bufId < NUM_VIRTUAL_BUFFERS; ++bufId) {
                      bool gotFrame = false;
                      while (!gotFrame) {
-                         auto [status, frameIndex, image] =
+                         auto [status, frameIndex, patternIndex, image] =
                              client.getVirtualImageBuffer(bufId, info, /*timeoutMsec=*/1000);
 
                          if (status == deapi::MovieBufferStatus::OK) {
-                             receivedFrames.emplace_back(bufId, frameIndex, image);
+                             receivedFrames.emplace_back(bufId, frameIndex, patternIndex, image);
                              gotFrame = true;
                          } else if (status == deapi::MovieBufferStatus::FINISHED) {
                              finished = true;
@@ -714,6 +714,7 @@ frame is captured.
                          } else {  // FAILED or UNKNOWN
                              std::cerr << "bufId=" << bufId
                                        << " frame=" << frameIndex
+                                       << " pattern=" << patternIndex
                                        << ": failed to retrieve frame — "
                                           "likely this virtual image channel is not initialized.\n";
                              gotFrame = true;
