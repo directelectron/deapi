@@ -1,11 +1,12 @@
 version = "5.3.0"
 versionInfo = list(map(int, version.split(".")))
-commandVersion = 16
+commandVersion = 17
 
 # Maps each commandVersion to a representative server software version string.
 # Used by FakeServer so its reported "Server Software Version" always matches
 # the commandVersion used for dispatch, making tests version-agnostic.
 _command_version_to_server_version = {
+    17: "2.8.3.12436",
     16: "2.8.0.12073",
     15: "2.7.5.1000",
     13: "2.7.4.10590",
@@ -18,5 +19,5 @@ _command_version_to_server_version = {
 
 # The server version string that corresponds to the current commandVersion.
 fake_server_software_version = _command_version_to_server_version.get(
-    commandVersion, "2.8.0.12073"
+    commandVersion, "2.8.3.12436"
 )

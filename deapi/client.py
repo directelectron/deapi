@@ -160,20 +160,12 @@ class Client:
             The host to connect to, by default "127.0.0.1" for local connection
         port : int, optional
             The port to connect to, by default 13240
-        read_only : bool, optional
+        read_only : bool, optional (deprecated for command version >= 17)
             If True, the client will be in read-only mode, by default False
+            For command version >= 17, the read_only parameter is ignored and
+            the client will query the server to determine whether it should be
+            read-only or read-write.
         """
-        self.read_only = read_only
-        if not read_only and (host == "localhost" or host == "127.0.0.1"):
-            tcp_no_delay = 0  # on loopback interface, nodelay causes delay
-
-            if self.usingMmf:
-                self.mmf = mmap.mmap(0, MMF_DATA_BUFFER_SIZE, "ImageFileMappingObject")
-                self.mmf[0] = True
-        else:
-            self.usingMmf = False  # Disabled MMF if connected remotely
-            tcp_no_delay = 1
-
         if logLevel == logging.DEBUG:
             log.debug("Connecting to server: %s", host)
 
@@ -183,7 +175,6 @@ class Client:
         self.socket.connect(
             (host, port)
         )  # Connect to server reading port for sending data
-        self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, tcp_no_delay)
         self.socket.setblocking(False)
         self.socket.settimeout(2)
 
@@ -200,15 +191,15 @@ class Client:
         self.port = port
         log.info("Connected to server: %s, port: %d", host, port)
 
-        if cVersion >= 12:
-            self.set_client_read_only(read_only)
-
         server_version = self.GetProperty("Server Software Version")
         server_version = re.findall(r"\d+", server_version)
 
         version = [int(part) for part in server_version[:4]]
         temp = version[2] + version[1] * 1000 + version[0] * 1000000
-        if temp >= 2008000 and version[3] >= 12073:
+        if temp >= 2008003 and version[3] >= 12436:
+            ## version 2.8.3 build 12436+
+            self.commandVersion = 17
+        elif temp >= 2008000 and version[3] >= 12073:
             ## version 2.8.0 build 12073+ — virtual image buffer support (SDK 5.3.0)
             self.commandVersion = 16
         elif (temp >= 2007005 and version[3] < 11274) or temp >= 2008000:
@@ -234,6 +225,15 @@ class Client:
             self.commandVersion = 3
         else:
             self.commandVersion = commandVersion
+
+        if self.commandVersion >= 12 and self.commandVersion < 17:
+            self.set_client_read_only(read_only)
+        elif self.commandVersion >= 17:
+            self.get_client_read_only()
+
+        self.SelectImageTransferMode()
+        self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, self.tcp_no_delay)
+
         log.info(f"Command Version: {self.commandVersion}")
         self._initialize_attributes()
         self.update_scan_size()
@@ -245,8 +245,15 @@ class Client:
 
     def set_client_read_only(self, read_only):
         self.read_only = read_only
-        command = self._addSingleCommand(self.SET_CLIENT_READ_ONLY, None, [read_only])
+        command = self._addSingleCommand(self.SET_CLIENT_READ_ONLY_DEPRECATED, None, [read_only])
         response = self._sendCommand(command)
+        return response
+
+    def get_client_read_only(self):
+        command = self._addSingleCommand(self.GET_CLIENT_READ_ONLY, None)
+        response = self._sendCommand(command)
+        if response != False:
+            self.read_only = self.__getParameters(response.acknowledge[0])[0]
         return response
 
     def update_scan_size(self):
@@ -2823,6 +2830,17 @@ class Client:
         if self.connected:
             self.disconnect()
 
+    def SelectImageTransferMode(self):
+        if not self.read_only and (self.host == "localhost" or self.host == "127.0.0.1"):
+            self.tcp_no_delay = 0  # on loopback interface, nodelay causes delay
+
+            if self.usingMmf:
+                self.mmf = mmap.mmap(0, MMF_DATA_BUFFER_SIZE, "ImageFileMappingObject")
+                self.mmf[0] = True
+        else:
+            self.usingMmf = False  # Disabled MMF if connected remotely
+            self.tcp_no_delay = 1
+
     # get multiple parameters from a single acknowledge packet
     def __getParameters(self, single_acknowledge=None):
         output = []
@@ -3162,6 +3180,7 @@ class Client:
     height = 0
     mmf = 0
     usingMmf = True
+    tcp_no_delay = 0
     debugImagesFolder = "D:\\DebugImages\\"
     connected = False
     camera = ""
@@ -3201,7 +3220,7 @@ class Client:
     SET_SCAN_ROI = 28
     SET_SCAN_SIZE_AND_GET_CHANGED_PROPERTIES = 29
     SET_SCAN_ROI__AND_GET_CHANGED_PROPERTIES = 30
-    SET_CLIENT_READ_ONLY = 31
+    SET_CLIENT_READ_ONLY_DEPRECATED = 31
     SET_SCAN_XY_ARRAY = 32
     SET_ADAPTIVE_ROI = 33
     SET_ADAPTIVE_ROI_AND_GET_CHANGED_PROPERTIES = 34
@@ -3213,6 +3232,7 @@ class Client:
     LIST_REGISTERS = 40
     GET_VIRTUAL_IMAGE_INFO = 41
     GET_VIRTUAL_IMAGE = 42
+    GET_CLIENT_READ_ONLY = 43
 
 
 MMF_DATA_HEADER_SIZE = 24
