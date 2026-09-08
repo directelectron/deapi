@@ -151,7 +151,7 @@ class Client:
                 PropertyCollection(client=self, name=collection, properties=props),
             )
 
-    def connect(self, host: str = "127.0.0.1", port: int = 13240, read_only=False):
+    def connect(self, host: str = "127.0.0.1", port: int = 13240, read_only=None):
         """Connect to DE-Server
 
         Parameters
@@ -227,8 +227,16 @@ class Client:
             self.commandVersion = commandVersion
 
         if self.commandVersion >= 12 and self.commandVersion < 17:
+            if read_only is None:
+                read_only = False
             self.set_client_read_only(read_only)
         elif self.commandVersion >= 17:
+            if read_only is not None:
+                log.warning(
+                    "The `read_only` argument to `connect()` is ignored for servers "
+                    "with command version >= 17 (DE-MC version >= 2.8.3.12436). "
+                    "The client now determines read-only status automatically."
+                )
             self.get_client_read_only()
 
         self.SelectImageTransferMode()
