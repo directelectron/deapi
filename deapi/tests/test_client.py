@@ -179,17 +179,24 @@ class TestClient:
         sp = client.get_property_specifications("Binning Y")
         assert isinstance(sp, PropertySpecifications)
         assert sp.current_value == str(bin_sw)
-        assert (
-            sp.values
-            == ['1', '2', '4', '8', '16', '32', '64', '128', '256', '512', '1024']
-        )
+        assert sp.values == [
+            "1",
+            "2",
+            "4",
+            "8",
+            "16",
+            "32",
+            "64",
+            "128",
+            "256",
+            "512",
+            "1024",
+        ]
         client.set_property("Hardware Binning X", 2)
         client.set_property("Hardware Binning Y", 2)
         sp = client.get_property_specifications("Binning Y")
         assert sp.current_value == str(bin_sw)
-        assert (
-            sp.values == ['1', '2', '4', '8', '16', '32', '64', '128', '256', '512']
-        )
+        assert sp.values == ["1", "2", "4", "8", "16", "32", "64", "128", "256", "512"]
 
     @pytest.mark.parametrize("bin", [1, 2])
     @pytest.mark.parametrize("offsetx", [0, 512])

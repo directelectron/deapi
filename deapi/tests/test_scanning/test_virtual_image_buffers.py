@@ -91,8 +91,8 @@ class TestVirtualImageBuffers:
 
         while not finished:
             for buf_id in range(NUM_VIRTUAL_BUFFERS):
-                status, frame_index, pattern_index, image = client.get_virtual_image_buffer(
-                    buf_id, virtual_image_info=info
+                status, frame_index, pattern_index, image = (
+                    client.get_virtual_image_buffer(buf_id, virtual_image_info=info)
                 )
                 print(
                     f"buf_id={buf_id} frame={frame_index} pattern={pattern_index} status={status} image shape: {image.shape if image is not None else None}"
@@ -164,8 +164,8 @@ class TestVirtualImageBuffers:
 
         while not finished:
             for buf_id in range(NUM_VIRTUAL_BUFFERS):
-                status, frame_index, pattern_index, image = client.get_virtual_image_buffer(
-                    buf_id, virtual_image_info=info
+                status, frame_index, pattern_index, image = (
+                    client.get_virtual_image_buffer(buf_id, virtual_image_info=info)
                 )
                 print(
                     f"buf_id={buf_id} frame={frame_index} pattern={pattern_index} status={status} image shape: {image.shape if image is not None else None}"
@@ -253,8 +253,10 @@ class TestVirtualImageBuffers:
             for buf_id in range(NUM_VIRTUAL_BUFFERS):
                 got_frame = False
                 while not got_frame:
-                    status, frame_index, pattern_index, image = client.get_virtual_image_buffer(
-                        buf_id, virtual_image_info=info, timeout_msec=1000  # 1 sec
+                    status, frame_index, pattern_index, image = (
+                        client.get_virtual_image_buffer(
+                            buf_id, virtual_image_info=info, timeout_msec=1000  # 1 sec
+                        )
                     )
                     if status == MovieBufferStatus.OK:
                         received_frames.append(

@@ -151,6 +151,7 @@ class FakeServer:
         self.fake_data = None
         self.socket = socket
         self.current_movie_index = 0
+        self.is_read_only = False
 
         with open(inp_file) as f:
             values = json.load(f)
@@ -309,9 +310,14 @@ class FakeServer:
             return self._fake_list_cameras(command)
         elif (
             command.command[0].command_id
-            == self.SET_CLIENT_READ_ONLY + commandVersion * 100
+            == self.SET_CLIENT_READ_ONLY_DEPRECATED + commandVersion * 100
         ):
             return self._fake_set_client_read_only(command)
+        elif (
+            command.command[0].command_id
+            == self.GET_CLIENT_READ_ONLY + commandVersion * 100
+        ):
+            return self._fake_get_client_read_only(command)
         elif (
             command.command[0].command_id
             == self.SET_VIRTUAL_MASK + commandVersion * 100
@@ -341,6 +347,17 @@ class FakeServer:
         acknowledge_return.type = pb.DEPacket.P_ACKNOWLEDGE
         ack1 = acknowledge_return.acknowledge.add()
         ack1.command_id = command.command[0].command_id
+        return (acknowledge_return,)
+
+    def _fake_get_client_read_only(self, command):
+        acknowledge_return = pb.DEPacket()
+        acknowledge_return.type = pb.DEPacket.P_ACKNOWLEDGE
+        ack1 = acknowledge_return.acknowledge.add()
+        ack1.command_id = command.command[0].command_id
+        bool_param = ack1.parameter.add()
+        bool_param.type = pb.AnyParameter.P_BOOL
+        bool_param.p_bool = False
+        self.is_read_only = bool_param.p_bool
         return (acknowledge_return,)
 
     def _fake_set_virtual_mask(self, command):
@@ -919,6 +936,7 @@ class FakeServer:
     SET_SCAN_ROI = 28
     SET_SCAN_SIZE_AND_GET_CHANGED_PROPERTIES = 29
     SET_SCAN_ROI__AND_GET_CHANGED_PROPERTIES = 30
-    SET_CLIENT_READ_ONLY = 31
+    SET_CLIENT_READ_ONLY_DEPRECATED = 31
     GET_VIRTUAL_IMAGE_INFO = 41
     GET_VIRTUAL_IMAGE = 42
+    GET_CLIENT_READ_ONLY = 43
