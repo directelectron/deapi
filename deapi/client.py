@@ -240,7 +240,9 @@ class Client:
             self.get_client_read_only()
 
         self.SelectImageTransferMode()
-        self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, self.tcp_no_delay)
+        self.socket.setsockopt(
+            socket.IPPROTO_TCP, socket.TCP_NODELAY, self.tcp_no_delay
+        )
 
         log.info(f"Command Version: {self.commandVersion}")
         self._initialize_attributes()
@@ -253,7 +255,9 @@ class Client:
 
     def set_client_read_only(self, read_only):
         self.read_only = read_only
-        command = self._addSingleCommand(self.SET_CLIENT_READ_ONLY_DEPRECATED, None, [read_only])
+        command = self._addSingleCommand(
+            self.SET_CLIENT_READ_ONLY_DEPRECATED, None, [read_only]
+        )
         response = self._sendCommand(command)
         return response
 
@@ -450,9 +454,11 @@ class Client:
             The name of the property to get the specifications for
         """
         if self.commandVersion < 13:
-            log.error("get_property_specifications is only supported for server version 2.7.5 and above.")
+            log.error(
+                "get_property_specifications is only supported for server version 2.7.5 and above."
+            )
             return None
-        
+
         command = self._addSingleCommand(
             self.GET_PROPERTY_SPECIFICATIONS, property_name
         )
@@ -463,9 +469,11 @@ class Client:
         values = self.__getParameters(response.acknowledge[0])
 
         if not values or len(values) == 0:
-            log.error(f"get_property_specifications({property_name}) failed, parameter size not matched.")
+            log.error(
+                f"get_property_specifications({property_name}) failed, parameter size not matched."
+            )
             return None
-        
+
         prop_spec = PropertySpecifications()
 
         param_id = 0
@@ -478,9 +486,11 @@ class Client:
         elif data_type == "Integer":
             prop_spec.prop_type = PropertyType.Integer
         else:
-            log.error(f"get_property_specifications({property_name}) failed, property type not matched.")
+            log.error(
+                f"get_property_specifications({property_name}) failed, property type not matched."
+            )
             return None
-        
+
         prop_allowable_type = values[param_id]
         param_id += 1
 
@@ -492,7 +502,9 @@ class Client:
                 prop_spec.max_value = values[param_id]
                 param_id += 1
             else:
-                log.error(f"get_property_specifications({property_name}) failed, cannot read the min/max value.")
+                log.error(
+                    f"get_property_specifications({property_name}) failed, cannot read the min/max value."
+                )
                 return None
         elif prop_allowable_type == "Set":
             prop_spec.prop_allowable_type = PropertyAllowableType.Set
@@ -500,7 +512,9 @@ class Client:
         elif prop_allowable_type == "AllowAll":
             prop_spec.prop_allowable_type = PropertyAllowableType.AllowAll
         else:
-            log.error(f"get_property_specifications({property_name}) failed, unknown allowable type.")
+            log.error(
+                f"get_property_specifications({property_name}) failed, unknown allowable type."
+            )
             return None
 
         prop_spec.category = values[-4]
@@ -2839,7 +2853,9 @@ class Client:
             self.disconnect()
 
     def SelectImageTransferMode(self):
-        if not self.read_only and (self.host == "localhost" or self.host == "127.0.0.1"):
+        if not self.read_only and (
+            self.host == "localhost" or self.host == "127.0.0.1"
+        ):
             self.tcp_no_delay = 0  # on loopback interface, nodelay causes delay
 
             if self.usingMmf:

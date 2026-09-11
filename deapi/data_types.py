@@ -665,8 +665,8 @@ class PropertySpecifications:
 
     prop_type = None  # Undef | String | Float | Integer
     prop_allowable_type = None  # Range | Set | AllowAll
-    min_value = None # Minimum value for Range type
-    max_value = None # Maximum value for Range type
+    min_value = None  # Minimum value for Range type
+    max_value = None  # Maximum value for Range type
     values = None  # List of values for Set allowable type
     category = None  # "Alias" | "Advanced" | "Basic" | "Deprecated" | "Engineering" | Obsolete"
     default_value = None  # Default value
