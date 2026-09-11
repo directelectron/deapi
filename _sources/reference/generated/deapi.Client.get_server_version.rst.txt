@@ -1,0 +1,6 @@
+get\_server\_version
+====================
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.get_server_version

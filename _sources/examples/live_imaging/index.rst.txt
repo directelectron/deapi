@@ -1,0 +1,102 @@
+
+
+.. _sphx_glr_examples_live_imaging:
+
+Live Imaging Examples
+=====================
+These examples demonstrate how to visualize the data as it is being acquired.
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This example demonstrates how to monitor the intensity of the brightest pixel in the sensor data during acquisition.">
+
+.. only:: html
+
+  .. image:: /examples/live_imaging/images/thumb/sphx_glr_bright_spot_intensity_thumb.png
+    :alt:
+
+  :doc:`/examples/live_imaging/bright_spot_intensity`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Monitoring Bright Spot Intensity</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This example shows how to view the sensor data during acquisition. This is useful for monitoring the data during acquisition.">
+
+.. only:: html
+
+  .. image:: /examples/live_imaging/images/thumb/sphx_glr_viewing_the_sensor_thumb.png
+    :alt:
+
+  :doc:`/examples/live_imaging/viewing_the_sensor`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Viewing Sensor Data During Acquisition</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This example shows how to take an image every minute.  The results are saved to disk as:">
+
+.. only:: html
+
+  .. image:: /examples/live_imaging/images/thumb/sphx_glr_taking_an_image_every_minute_thumb.png
+    :alt:
+
+  :doc:`/examples/live_imaging/taking_an_image_every_minute`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Taking an Image every 10 seconds</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Viewing the Sensor in TEM Mode">
+
+.. only:: html
+
+  .. image:: /examples/live_imaging/images/thumb/sphx_glr_viewing_the_sensor_tem_thumb.png
+    :alt:
+
+  :doc:`/examples/live_imaging/viewing_the_sensor_tem`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Viewing the Sensor in TEM Mode</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/live_imaging/bright_spot_intensity
+   /examples/live_imaging/viewing_the_sensor
+   /examples/live_imaging/taking_an_image_every_minute
+   /examples/live_imaging/viewing_the_sensor_tem
+

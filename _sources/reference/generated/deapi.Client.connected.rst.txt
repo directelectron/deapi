@@ -1,0 +1,9 @@
+connected
+=========
+
+.. currentmodule:: deapi
+
+.. autoproperty:: Client.connected
+
+.. minigallery:: deapi.Client.connected
+    :add-heading: Examples using ``Client.connected``

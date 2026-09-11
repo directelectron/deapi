@@ -1,0 +1,9 @@
+dataType
+========
+
+.. currentmodule:: deapi
+
+.. autoproperty:: PropertySpec.dataType
+
+.. minigallery:: deapi.PropertySpec.dataType
+    :add-heading: Examples using ``PropertySpec.dataType``

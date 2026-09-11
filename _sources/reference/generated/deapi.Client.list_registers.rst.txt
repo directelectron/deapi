@@ -1,0 +1,6 @@
+list\_registers
+===============
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.list_registers

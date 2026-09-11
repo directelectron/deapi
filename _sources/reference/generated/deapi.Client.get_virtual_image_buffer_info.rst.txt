@@ -1,0 +1,6 @@
+get\_virtual\_image\_buffer\_info
+=================================
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.get_virtual_image_buffer_info

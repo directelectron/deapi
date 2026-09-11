@@ -1,0 +1,6 @@
+set\_log\_level
+===============
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.set_log_level

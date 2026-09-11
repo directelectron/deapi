@@ -1,0 +1,6 @@
+is\_get\_event\_enabled
+=======================
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.is_get_event_enabled

@@ -1,0 +1,6 @@
+to\_buffer
+==========
+
+.. currentmodule:: deapi
+
+.. automethod:: MovieBufferInfo.to_buffer

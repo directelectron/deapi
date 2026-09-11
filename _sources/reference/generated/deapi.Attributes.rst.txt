@@ -1,0 +1,25 @@
+﻿Attributes
+==========
+
+.. currentmodule:: deapi
+
+.. autoclass:: Attributes
+
+    
+    
+    
+
+    
+    
+    .. rubric:: Methods
+
+    .. autosummary::
+        :toctree:
+        :template: custom-method-template.rst
+        
+        
+    
+    
+
+.. minigallery:: deapi.Attributes
+    :add-heading: Examples using ``Attributes``

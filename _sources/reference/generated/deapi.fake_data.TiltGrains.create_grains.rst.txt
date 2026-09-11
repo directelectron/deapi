@@ -1,0 +1,6 @@
+create\_grains
+==============
+
+.. currentmodule:: deapi.fake_data
+
+.. automethod:: TiltGrains.create_grains

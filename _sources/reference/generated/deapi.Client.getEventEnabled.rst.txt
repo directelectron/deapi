@@ -1,0 +1,9 @@
+getEventEnabled
+===============
+
+.. currentmodule:: deapi
+
+.. autoproperty:: Client.getEventEnabled
+
+.. minigallery:: deapi.Client.getEventEnabled
+    :add-heading: Examples using ``Client.getEventEnabled``

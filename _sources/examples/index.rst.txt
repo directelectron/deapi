@@ -1,0 +1,313 @@
+:orphan:
+
+Using the DEAPI
+===============
+Below are a gallery of examples for controlling the DE server using the DEAPI.
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+Live Imaging Examples
+=====================
+These examples demonstrate how to visualize the data as it is being acquired.
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This example demonstrates how to monitor the intensity of the brightest pixel in the sensor data during acquisition.">
+
+.. only:: html
+
+  .. image:: /examples/live_imaging/images/thumb/sphx_glr_bright_spot_intensity_thumb.png
+    :alt:
+
+  :doc:`/examples/live_imaging/bright_spot_intensity`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Monitoring Bright Spot Intensity</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This example shows how to view the sensor data during acquisition. This is useful for monitoring the data during acquisition.">
+
+.. only:: html
+
+  .. image:: /examples/live_imaging/images/thumb/sphx_glr_viewing_the_sensor_thumb.png
+    :alt:
+
+  :doc:`/examples/live_imaging/viewing_the_sensor`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Viewing Sensor Data During Acquisition</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This example shows how to take an image every minute.  The results are saved to disk as:">
+
+.. only:: html
+
+  .. image:: /examples/live_imaging/images/thumb/sphx_glr_taking_an_image_every_minute_thumb.png
+    :alt:
+
+  :doc:`/examples/live_imaging/taking_an_image_every_minute`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Taking an Image every 10 seconds</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Viewing the Sensor in TEM Mode">
+
+.. only:: html
+
+  .. image:: /examples/live_imaging/images/thumb/sphx_glr_viewing_the_sensor_tem_thumb.png
+    :alt:
+
+  :doc:`/examples/live_imaging/viewing_the_sensor_tem`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Viewing the Sensor in TEM Mode</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+Taking References
+=================
+Below is a gallery of examples on how to take references using the deapi.
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+Setting up an Acquisition
+=========================
+Below is a gallery of examples on how to set up an acquisition using the deapi.
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This script will: 1. Connect to the DE server 2. Set the hardware ROI to 256x256 3. Set the scan size to 256x256 4. Set the number of frames per second to 1000 5. Acquire a STEM image using a HAADF detector">
+
+.. only:: html
+
+  .. image:: /examples/setting_parameters/images/thumb/sphx_glr_setting_up_stem_thumb.png
+    :alt:
+
+  :doc:`/examples/setting_parameters/setting_up_stem`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Setting up a STEM Experiment</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+Virtual Imaging
+===============
+These examples demonstrate how to do live virtual imaging in the deapi
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Virtual images are easily created from a series of (currently) 4 seperate masks. These masks are 8 bit images with values:">
+
+.. only:: html
+
+  .. image:: /examples/virtual_imaging/images/thumb/sphx_glr_setting_virtual_masks_thumb.png
+    :alt:
+
+  :doc:`/examples/virtual_imaging/setting_virtual_masks`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Creating a Custom Virtual Mask</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The virtual images are created by summing or subtracting the pixel values of the input image based on the values of the virtual masks. The virtual masks are 8-bit images with values: - 0: Negative Mask, pixel values subtracted - 1: Default value, pixels not accounted for - 2: Positive Mask, pixel values added">
+
+.. only:: html
+
+  .. image:: /examples/virtual_imaging/images/thumb/sphx_glr_vdf_vbf_thumb.png
+    :alt:
+
+  :doc:`/examples/virtual_imaging/vdf_vbf`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Virtual Dark/Bright Field (VDF/VBF) Imaging</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+Visualization
+=============
+One key thing many people are interested in is how to visualize their data. Below are some examples/ explanations of
+how to visualize your data.
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="If you haven&#x27;t already looked at the &quot;The get_result Function&quot; example, please do so as it provides important context for how the get_result function can be used to build responsive visualization tools by offloading the heavy lifting for visualization to the server side.">
+
+.. only:: html
+
+  .. image:: /examples/visualization/images/thumb/sphx_glr_creating_a_simple_dashboard_thumb.png
+    :alt:
+
+  :doc:`/examples/visualization/creating_a_simple_dashboard`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Creating a Simple Dashboard with Panel and Matplotlib</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The get_result function is the main entry point to access results while an acquisition is running, and after it has finished.  The function can be slightly confusing at first but this tutorial hopefully helps to simplify and clarify its usage and show how powerful the function is and how you can leverage it to build fast/responsive visualization tools.">
+
+.. only:: html
+
+  .. image:: /examples/visualization/images/thumb/sphx_glr_using_get_result_thumb.png
+    :alt:
+
+  :doc:`/examples/visualization/using_get_result`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">The get_result Function</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+   :includehidden:
+
+
+   /examples/live_imaging/index.rst
+   /examples/references/index.rst
+   /examples/setting_parameters/index.rst
+   /examples/virtual_imaging/index.rst
+   /examples/visualization/index.rst
+
+
+.. only:: html
+
+  .. container:: sphx-glr-footer sphx-glr-footer-gallery
+
+    .. container:: sphx-glr-download sphx-glr-download-python
+
+      :download:`Download all examples in Python source code: examples_python.zip </examples/examples_python.zip>`
+
+    .. container:: sphx-glr-download sphx-glr-download-jupyter
+
+      :download:`Download all examples in Jupyter notebooks: examples_jupyter.zip </examples/examples_jupyter.zip>`
+
+
+.. only:: html
+
+ .. rst-class:: sphx-glr-signature
+
+    `Gallery generated by Sphinx-Gallery <https://sphinx-gallery.github.io>`_

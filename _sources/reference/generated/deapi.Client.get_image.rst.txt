@@ -1,0 +1,6 @@
+get\_image
+==========
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.get_image

@@ -1,0 +1,6 @@
+setEngModeAndGetChangedProperties
+=================================
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.setEngModeAndGetChangedProperties

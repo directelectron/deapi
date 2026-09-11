@@ -1,0 +1,9 @@
+total\_bytes
+============
+
+.. currentmodule:: deapi
+
+.. autoproperty:: MovieBufferInfo.total_bytes
+
+.. minigallery:: deapi.MovieBufferInfo.total_bytes
+    :add-heading: Examples using ``MovieBufferInfo.total_bytes``

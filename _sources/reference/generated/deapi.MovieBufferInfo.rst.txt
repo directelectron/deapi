@@ -1,0 +1,38 @@
+﻿MovieBufferInfo
+===============
+
+.. currentmodule:: deapi
+
+.. autoclass:: MovieBufferInfo
+
+    
+    
+    .. rubric:: Attributes
+
+    .. autosummary::
+        :toctree:
+        :template: custom-attribute-template.rst
+        
+        
+        MovieBufferInfo.total_bytes
+        
+    
+    
+
+    
+    
+    .. rubric:: Methods
+
+    .. autosummary::
+        :toctree:
+        :template: custom-method-template.rst
+        
+        
+        
+        MovieBufferInfo.to_buffer
+        
+    
+    
+
+.. minigallery:: deapi.MovieBufferInfo
+    :add-heading: Examples using ``MovieBufferInfo``

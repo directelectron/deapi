@@ -1,0 +1,6 @@
+create\_fake\_diffraction\_data
+===============================
+
+.. currentmodule:: deapi.fake_data
+
+.. automethod:: TiltGrains.create_fake_diffraction_data

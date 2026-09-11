@@ -1,0 +1,9 @@
+sdkEventSemaphore
+=================
+
+.. currentmodule:: deapi
+
+.. autoproperty:: Client.sdkEventSemaphore
+
+.. minigallery:: deapi.Client.sdkEventSemaphore
+    :add-heading: Examples using ``Client.sdkEventSemaphore``

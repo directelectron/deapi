@@ -1,0 +1,6 @@
+get\_virtual\_mask
+==================
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.get_virtual_mask

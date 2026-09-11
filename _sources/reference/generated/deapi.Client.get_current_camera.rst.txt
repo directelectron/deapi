@@ -1,0 +1,6 @@
+get\_current\_camera
+====================
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.get_current_camera

@@ -1,0 +1,9 @@
+host
+====
+
+.. currentmodule:: deapi
+
+.. autoproperty:: Client.host
+
+.. minigallery:: deapi.Client.host
+    :add-heading: Examples using ``Client.host``

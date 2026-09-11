@@ -1,0 +1,9 @@
+tcp\_no\_delay
+==============
+
+.. currentmodule:: deapi
+
+.. autoproperty:: Client.tcp_no_delay
+
+.. minigallery:: deapi.Client.tcp_no_delay
+    :add-heading: Examples using ``Client.tcp_no_delay``

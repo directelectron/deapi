@@ -1,0 +1,6 @@
+stop\_manual\_final\_saving
+===========================
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.stop_manual_final_saving
