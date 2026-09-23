@@ -63,10 +63,13 @@ def test_stop_ends_the_simulated_frames(client):
 
 
 def test_external_image_is_served(client):
-    """A HAADF-only search reads external_image1; the simulated server answers it."""
-    _scan(client, 8, 1)
+    """A HAADF-only search reads external_image1; the simulated server answers it,
+    including after the first pass of a repeated scan."""
+    _scan(client, 8, 1000)
     client.start_acquisition(1)
+    time.sleep(0.2)  # past the first pass: 64 positions at 1000 fps
     result = client.get_result("external_image1", "FLOAT32")
     image = getattr(result, "image", None)
     image = result[0] if image is None else image
     assert np.asarray(image).size > 0
+    client.stop_acquisition()
