@@ -83,6 +83,11 @@ class Client:
     def __init__(self):
         self.commandVersion = commandVersion
         self.read_only = False
+        #: How many acquisitions this client has started, and when the last one was sent
+        #: (time.monotonic). SimulatedGpuFrames times its frames from these: a short
+        #: simulated acquisition can be over before its consumer first asks.
+        self.acquisitions_started = 0
+        self.acquisition_started_at = 0.0
 
     def set_log_level(self, level):
         log = logging.getLogger("DECameraClientLib")
@@ -1333,6 +1338,7 @@ class Client:
                 log.debug("   Build Time: %.1f ms", lapsed)
                 step_time = self.GetTime()
 
+            started = time.monotonic()
             response = self._sendCommand(command)
             if logLevel == logging.DEBUG:
                 lapsed = (self.GetTime() - step_time) * 1000
@@ -1342,6 +1348,9 @@ class Client:
             if response:
                 ret = response.acknowledge[0].error != True
                 self.refreshProperties = True
+                if ret:
+                    self.acquisition_started_at = started
+                    self.acquisitions_started += 1
 
         if logLevel == logging.DEBUG:
             lapsed = (self.GetTime() - step_time) * 1000
@@ -1981,6 +1990,34 @@ class Client:
                 movieBufferInfo.imageDataType = DataType(dataType)
 
         return movieBufferInfo
+
+    def get_gpu_frames(self):
+        """
+        Zero-copy CuPy access to the server's GPU movie buffers (Windows, same computer).
+
+        Call before start_acquisition. The returned GpuFrames holds both movie buffers as
+        CuPy arrays (``.buffers``) and the semaphores; iterating it yields each finished
+        buffer as ``batch.images`` (cupy float32, images x height x width) and ``batch.info``
+        (frame, scanX, scanY, valid per image). The buffer is released back to the server
+        when the loop advances; the server's processing waits while it is held, so call
+        ``close()`` on it when done. Requires CuPy. See deapi.gpu_frames.
+
+        Against deapi's simulated server this returns a SimulatedGpuFrames instead: the
+        same interface, with NumPy batches of the simulated dataset and no CuPy needed.
+        """
+        from deapi.gpu_frames import open_gpu_frames
+
+        return open_gpu_frames(self._attach_gpu_frames(), self)
+
+    def _attach_gpu_frames(self, attach=True):
+        """Ask DE-Server to hand its GPU movie buffer handles to this process (or detach).
+        Returns what it answered: [control block handle], or ["simulated"] from the fake
+        server."""
+        command = self._addSingleCommand(self.GET_GPU_FRAMES, None, [str(os.getpid()), attach])
+        response = self._sendCommand(command)
+        if response is False:
+            raise RuntimeError("DE-Server could not share its GPU movie buffers with this process")
+        return list(self.__getParameters(response.acknowledge[0]))
 
     def get_movie_buffer(
         self, movieBuffer, movieBufferSize, numFrames, timeoutMsec=5000
@@ -3245,6 +3282,7 @@ class Client:
     GET_VIRTUAL_IMAGE_INFO = 41
     GET_VIRTUAL_IMAGE = 42
     GET_CLIENT_READ_ONLY = 43
+    GET_GPU_FRAMES = 44
 
 
 MMF_DATA_HEADER_SIZE = 24
