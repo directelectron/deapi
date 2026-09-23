@@ -14,6 +14,11 @@ from sympy import parse_expr
 
 inp_file = resources.files(deapi) / "prop_dump.json"
 
+#: The fastest this simulated camera reads out, whatever "Frames Per Second" asks for — a
+#: real server clamps it to what the readout allows. SimulatedGpuFrames paces its batches
+#: by the same number, so the frames last as long as the acquisition does.
+SIMULATED_MAX_FPS = 2000.0
+
 
 def add_parameter(ack, value):
     """
@@ -327,6 +332,8 @@ class FakeServer:
             == self.GET_VIRTUAL_IMAGE + commandVersion * 100
         ):
             return self._fake_get_virtual_image(command)
+        elif command.command[0].command_id == self.GET_GPU_FRAMES + commandVersion * 100:
+            return self._fake_get_gpu_frames(command)
         else:
             raise NotImplementedError(
                 f"Command {command.command[0].command_id} not implemented"
@@ -375,6 +382,20 @@ class FakeServer:
         print(f"Virtual mask {mask_id} set with {mask}")
         return (acknowledge_return,)
 
+    def _fake_get_gpu_frames(self, command):
+        """There is no GPU memory to share: answer "simulated", and the client's
+        get_gpu_frames builds SimulatedGpuFrames over this server's dataset instead."""
+        acknowledge_return = pb.DEPacket()
+        acknowledge_return.type = pb.DEPacket.P_ACKNOWLEDGE
+        ack1 = acknowledge_return.acknowledge.add()
+        ack1.command_id = command.command[0].command_id
+        add_parameter(ack1, "simulated")
+        return (acknowledge_return,)
+
+    def stop(self):
+        """End the acquisition now (the client's UDP stop, see initialize_server)."""
+        self.end_time = min(self.end_time, time.time())
+
     def _fake_list_cameras(self, command):
         acknowledge_return = pb.DEPacket()
         acknowledge_return.type = pb.DEPacket.P_ACKNOWLEDGE
@@ -403,7 +424,11 @@ class FakeServer:
         acknowledge_return = pb.DEPacket()
         num_acq = command.command[0].parameter[0].p_int
         if self["Scan - Enable"] == "On":
-            frames = int(self["Scan - Size X"]) * int(self["Scan - Size Y"])
+            frames = (
+                int(self["Scan - Size X"])
+                * int(self["Scan - Size Y"])
+                * int(self["Scan - Repeats"] or 1)
+            )
             self._initialize_data(
                 int(self["Scan - Size X"]),
                 int(self["Scan - Size Y"]),
@@ -419,7 +444,7 @@ class FakeServer:
             )
             frames = num_acq
             self.number_of_frames_requested = frames
-        fps = float(self["Frames Per Second"])
+        fps = min(float(self["Frames Per Second"]), SIMULATED_MAX_FPS)
         total_time = frames * num_acq / fps
         self.start_time = time.time()
         print(f"Acquisition started for {total_time} seconds")
@@ -921,3 +946,4 @@ class FakeServer:
     SET_CLIENT_READ_ONLY = 31
     GET_VIRTUAL_IMAGE_INFO = 41
     GET_VIRTUAL_IMAGE = 42
+    GET_GPU_FRAMES = 44
