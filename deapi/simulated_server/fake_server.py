@@ -269,10 +269,11 @@ class FakeServer:
         if self.acquisition_status == "Idle":
             return tuple(np.array(self.fake_data.navigator.shape) - 1)
         else:
+            # Frames so far at the rate the acquisition runs at, wrapped to the
+            # scan: with Scan - Repeats each pass starts again at the first position.
+            fps = min(float(self["Frames Per Second"]), SIMULATED_MAX_FPS)
             index = np.unravel_index(
-                int(
-                    (time.time() - self.start_time) * float(self["Frames Per Second"]),
-                ),
+                int((time.time() - self.start_time) * fps) % self.fake_data.navigator.size,
                 self.fake_data.navigator.shape,
             )  # only works for raster scans
             return index
