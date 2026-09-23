@@ -732,6 +732,13 @@ class FakeServer:
             ]
             image = self.fake_data.get_virtual_image(image, method=calculation_type)
             image = image.astype(pixel_format_dict[pixel_format])
+        elif 22 <= frame_type < 26:  # external images: an annular (HAADF) detector
+            ky, kx = self.fake_data.signal.shape[1:]
+            yy, xx = np.mgrid[0:ky, 0:kx]
+            r = np.hypot(yy - ky / 2, xx - kx / 2)
+            mask = np.where(r > 0.15 * min(kx, ky), 2, 1).astype(np.int8)
+            image = self.fake_data.get_virtual_image(mask, method="Sum")
+            image = image.astype(pixel_format_dict[pixel_format])
 
         else:
             raise ValueError(f"Frame type {frame_type} not Supported in PythonDEServer")
