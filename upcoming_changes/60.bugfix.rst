@@ -1,1 +1,0 @@
-Fixed virtual masks and XY scan arrays sometimes arriving incomplete, which hung the connection (seen on macOS): the client now sends every byte of them.
