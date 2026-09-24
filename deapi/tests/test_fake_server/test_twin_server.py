@@ -19,7 +19,9 @@ def _free_port():
         return s.getsockname()[1]
 
 
-def test_twin_flag_without_the_twin_installed_explains_how_to_get_it(monkeypatch, capsys):
+def test_twin_flag_without_the_twin_installed_explains_how_to_get_it(
+    monkeypatch, capsys
+):
     monkeypatch.setitem(sys.modules, "de_twin", None)  # import de_twin -> ImportError
     monkeypatch.setitem(sys.modules, "de_twin.faces", None)
     monkeypatch.setattr(sys, "argv", ["pydeserver", "--twin"])
@@ -31,9 +33,21 @@ def test_twin_server_serves_twin_frames():
     pytest.importorskip("de_twin")
     port = _free_port()
     proc = subprocess.Popen(
-        [sys.executable, "-u", "-m", "deapi.simulated_server.initialize_server", str(port),
-         "--twin", "--camera", "DESim", "--specimen", "Dense Au on holey C"],
-        stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+        [
+            sys.executable,
+            "-u",
+            "-m",
+            "deapi.simulated_server.initialize_server",
+            str(port),
+            "--twin",
+            "--camera",
+            "DESim",
+            "--specimen",
+            "Dense Au on holey C",
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
     )
     lines = []
     started = threading.Event()
