@@ -1,0 +1,1 @@
+Added an example that moves the stage with ``de_microscope`` and images holes in a grid, run against the digital twin.
