@@ -4,6 +4,13 @@ Changelog
 *********
 
 This document describes the changes in the DEAPI library.
+
+Changes are filed as fragment files in ``upcoming_changes/`` and assembled into this
+file by `towncrier <https://towncrier.readthedocs.io/>`_ when a release is prepared
+(see ``upcoming_changes/README.rst``).
+
+.. towncrier release notes start
+
 5.3.beta6
 =========
 - Fixed invalid property errors and bugs in set_binning
