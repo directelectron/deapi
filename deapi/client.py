@@ -1527,7 +1527,7 @@ class Client:
         command = self._addSingleCommand(self.SET_SCAN_XY_ARRAY, None, vals_to_send)
         try:
             packet = struct.pack("I", command.ByteSize()) + command.SerializeToString()
-            self.socket.send(packet)
+            self.socket.sendall(packet)
             ret = self.__ReceiveResponseForCommand(command) != False
             log.info(f"response {ret}")
         except socket.error:
@@ -1879,7 +1879,7 @@ class Client:
             command = self._addSingleCommand(self.SET_VIRTUAL_MASK, None, [id, w, h])
             ret = True
             packet = struct.pack("I", command.ByteSize()) + command.SerializeToString()
-            self.socket.send(packet)
+            self.socket.sendall(packet)
 
             if ret:
                 if mask.dtype != np.uint8:
@@ -3092,29 +3092,17 @@ class Client:
         return buffer
 
     def __sendToSocket(self, sock, buffer, bytes):
+        """Send all of *buffer*, or raise.
+
+        ``socket.send`` may accept only part of a buffer (routinely on macOS's loopback once
+        the socket has a timeout), so the return value must be honoured: dropping the rest
+        left the server waiting for bytes that never came, and every later command on the
+        connection hung. ``sendall`` loops until every byte is sent and raises
+        ``socket.timeout`` if the server stops reading for *timeout* seconds.
+        """
         timeout = self.exposureTime * 10 + 30
-        startTime = self.GetTime()
         self.socket.settimeout(timeout)
-
-        retval = True
-        chunkSize = 4096
-        for i in range(0, len(buffer), chunkSize):
-            try:
-                sock.send(buffer[i : min(len(buffer), i + chunkSize)])
-            except socket.timeout:
-
-                log.debug(f" __sendToSocket : timeout in trying to send {bytes} bytes")
-                if self.GetTime() - startTime > timeout:
-                    log.error(" __recvFromSocket: max timeout %d seconds", timeout)
-                    retval = False
-                    break
-                else:
-                    pass  # continue further
-            except socket.error as e:
-                log.error(f"Error during send: {e}")
-                # Handle the error as needed, e.g., close the connection
-                retval = False
-                break
+        sock.sendall(buffer)
         return buffer
 
     def __saveText(self, image, fileName, textSize):

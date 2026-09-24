@@ -15,11 +15,25 @@ import psutil
 
 
 def close_port(port):
+    """Stop a simulated server left listening on *port* by an earlier run.
+
+    Only deapi's own simulated server is stopped: on a development machine the port
+    may belong to a real DE-Server, which a test run must never kill.
+    """
     for conn in psutil.net_connections(kind="inet"):
-        if conn.laddr.port == port:
-            print(f"Closing port {port} by terminating PID {conn.pid}")
+        if conn.laddr.port != port or conn.status != psutil.CONN_LISTEN or not conn.pid:
+            continue
+        try:
             process = psutil.Process(conn.pid)
+            if "initialize_server" not in " ".join(process.cmdline()):
+                pytest.exit(
+                    f"port {port} is in use by {process.name()} (PID {conn.pid}), "
+                    "not a simulated server; stop it or run with --server"
+                )
+            print(f"Closing port {port} by terminating PID {conn.pid}")
             process.terminate()
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            pass
 
 
 def wait_for_idle(client, timeout: float = 30, interval: float = 0.1):

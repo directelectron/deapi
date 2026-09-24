@@ -62,6 +62,9 @@ class TestClient:
 
     def test_start_acquisition_scan_disabled(self, client):
         client.scan(enable="Off")
+        # Without a scan the acquisition is a single frame: at the suite's 1000 fps it
+        # is over in 1 ms, often before `acquiring` is read (macOS CI). 0.5 s is not.
+        client["Frames Per Second"] = 2
         client.start_acquisition(1)
         assert client.acquiring
         wait_for_idle(client)
