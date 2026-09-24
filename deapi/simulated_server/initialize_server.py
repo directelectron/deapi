@@ -1,4 +1,5 @@
 import sys
+import threading
 import traceback
 
 from deapi.simulated_server.fake_server import FakeServer
@@ -28,6 +29,22 @@ def _recv_exact(conn, n):
     return buf
 
 
+def _serve_stop(host, port, current):
+    """The client's stop_acquisition: a UDP "PyClientStopAcq" to the same port, answered
+    "Stopped". Without it a stop against this server would wait for a reply forever."""
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as udp:
+        try:
+            udp.bind((host, port))
+        except OSError as e:
+            sys.stderr.write(f"stop_acquisition will not be answered: UDP {port}: {e}\n")
+            return
+        while True:
+            message, addr = udp.recvfrom(64)
+            if message.startswith(b"PyClientStopAcq") and current:
+                current[-1].stop()
+            udp.sendto(b"Stopped", addr)
+
+
 # Defining main function
 def main(port=13240):
     parser = argparse.ArgumentParser()
@@ -52,6 +69,8 @@ def main(port=13240):
             f"    Port: {PORT} \n"
         )
         sys.stderr.flush()
+        current = []  # the server of the connection being served, for the stop listener
+        threading.Thread(target=_serve_stop, args=(HOST, PORT, current), daemon=True).start()
         while True:
             conn, addr = server_socket.accept()  # What waits for a connection
             # Guard against a stalled client leaving _recv_exact blocked forever.
@@ -60,6 +79,7 @@ def main(port=13240):
             # somehow delivers a short write.
             conn.settimeout(120)
             server = FakeServer(socket=conn)
+            current[:] = [server]
             connected = True
             while connected:
                 try:

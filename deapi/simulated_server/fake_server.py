@@ -14,6 +14,11 @@ from sympy import parse_expr
 
 inp_file = resources.files(deapi) / "prop_dump.json"
 
+#: The fastest this simulated camera reads out, whatever "Frames Per Second" asks for — a
+#: real server clamps it to what the readout allows. SimulatedGpuFrames paces its batches
+#: by the same number, so the frames last as long as the acquisition does.
+SIMULATED_MAX_FPS = 2000.0
+
 
 def add_parameter(ack, value):
     """
@@ -264,10 +269,11 @@ class FakeServer:
         if self.acquisition_status == "Idle":
             return tuple(np.array(self.fake_data.navigator.shape) - 1)
         else:
+            # Frames so far at the rate the acquisition runs at, wrapped to the
+            # scan: with Scan - Repeats each pass starts again at the first position.
+            fps = min(float(self["Frames Per Second"]), SIMULATED_MAX_FPS)
             index = np.unravel_index(
-                int(
-                    (time.time() - self.start_time) * float(self["Frames Per Second"]),
-                ),
+                int((time.time() - self.start_time) * fps) % self.fake_data.navigator.size,
                 self.fake_data.navigator.shape,
             )  # only works for raster scans
             return index
@@ -327,6 +333,8 @@ class FakeServer:
             == self.GET_VIRTUAL_IMAGE + commandVersion * 100
         ):
             return self._fake_get_virtual_image(command)
+        elif command.command[0].command_id == self.GET_GPU_FRAMES + commandVersion * 100:
+            return self._fake_get_gpu_frames(command)
         else:
             raise NotImplementedError(
                 f"Command {command.command[0].command_id} not implemented"
@@ -375,6 +383,20 @@ class FakeServer:
         print(f"Virtual mask {mask_id} set with {mask}")
         return (acknowledge_return,)
 
+    def _fake_get_gpu_frames(self, command):
+        """There is no GPU memory to share: answer "simulated", and the client's
+        get_gpu_frames builds SimulatedGpuFrames over this server's dataset instead."""
+        acknowledge_return = pb.DEPacket()
+        acknowledge_return.type = pb.DEPacket.P_ACKNOWLEDGE
+        ack1 = acknowledge_return.acknowledge.add()
+        ack1.command_id = command.command[0].command_id
+        add_parameter(ack1, "simulated")
+        return (acknowledge_return,)
+
+    def stop(self):
+        """End the acquisition now (the client's UDP stop, see initialize_server)."""
+        self.end_time = min(self.end_time, time.time())
+
     def _fake_list_cameras(self, command):
         acknowledge_return = pb.DEPacket()
         acknowledge_return.type = pb.DEPacket.P_ACKNOWLEDGE
@@ -403,7 +425,11 @@ class FakeServer:
         acknowledge_return = pb.DEPacket()
         num_acq = command.command[0].parameter[0].p_int
         if self["Scan - Enable"] == "On":
-            frames = int(self["Scan - Size X"]) * int(self["Scan - Size Y"])
+            frames = (
+                int(self["Scan - Size X"])
+                * int(self["Scan - Size Y"])
+                * int(self["Scan - Repeats"] or 1)
+            )
             self._initialize_data(
                 int(self["Scan - Size X"]),
                 int(self["Scan - Size Y"]),
@@ -419,7 +445,7 @@ class FakeServer:
             )
             frames = num_acq
             self.number_of_frames_requested = frames
-        fps = float(self["Frames Per Second"])
+        fps = min(float(self["Frames Per Second"]), SIMULATED_MAX_FPS)
         total_time = frames * num_acq / fps
         self.start_time = time.time()
         print(f"Acquisition started for {total_time} seconds")
@@ -707,6 +733,13 @@ class FakeServer:
             ]
             image = self.fake_data.get_virtual_image(image, method=calculation_type)
             image = image.astype(pixel_format_dict[pixel_format])
+        elif 22 <= frame_type < 26:  # external images: an annular (HAADF) detector
+            ky, kx = self.fake_data.signal.shape[1:]
+            yy, xx = np.mgrid[0:ky, 0:kx]
+            r = np.hypot(yy - ky / 2, xx - kx / 2)
+            mask = np.where(r > 0.15 * min(kx, ky), 2, 1).astype(np.int8)
+            image = self.fake_data.get_virtual_image(mask, method="Sum")
+            image = image.astype(pixel_format_dict[pixel_format])
 
         else:
             raise ValueError(f"Frame type {frame_type} not Supported in PythonDEServer")
@@ -921,3 +954,4 @@ class FakeServer:
     SET_CLIENT_READ_ONLY = 31
     GET_VIRTUAL_IMAGE_INFO = 41
     GET_VIRTUAL_IMAGE = 42
+    GET_GPU_FRAMES = 44
