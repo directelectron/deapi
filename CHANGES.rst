@@ -39,6 +39,10 @@ file by `towncrier <https://towncrier.readthedocs.io/>`_ when a release is prepa
 =========
 - Create a Result Class to handle Result + Histogram
 
+Unreleased
+==========
+- ``pydeserver --twin`` serves frames from the `de-twin <https://github.com/directelectron/de-twin>`_ digital twin instead of the built-in fake data (optional ``twin`` extra: ``pip install "deapi[twin]"``).
+
 5.3.beta0
 =========
 - Add support for binning in x/ y dimensions when returning a result (#19)

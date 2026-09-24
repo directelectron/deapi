@@ -63,3 +63,26 @@ The pyDEServer "Cheats" in a couple of ways:
 
 This is implemented with the `BaseFakeData` class. Which implements a `__getitem__` method that returns the
 data at the index in the navigation data. This can be used to return a single frame or a set of frames.
+Realistic data from the digital twin
+------------------------------------
+
+For data that behaves like a real instrument, the pyDEServer can serve frames rendered by
+`de-twin <https://github.com/directelectron/de-twin>`_, a digital twin of a Direct Electron
+camera on a TEM (column, specimen, in-situ holder and detector; Python 3.10+). Install the optional extra and
+start the server with ``--twin``:
+
+.. code-block::
+
+    pip install "deapi[twin]"
+    pydeserver --port 13241 --twin --camera DE16 --specimen "Dense Au on holey C"
+
+Clients connect exactly as before (``client.usingMmf = False``). The twin supplies:
+
+* raw detector frames with dark offset, noise and gain structure, and references that
+  work like DE-Server's;
+* images that follow the simulated column (stage, magnification, defocus);
+* the ``Instrument ...`` metadata properties.
+
+Other options are passed to the twin. For example, ``--soap-port 5002`` also serves the
+twin's microscope as a DE-TEM-Channel, and ``--seed``, ``--holder`` and ``--time-scale`` are
+available too; see ``python -m de_twin.faces.deapi_server --help``.
