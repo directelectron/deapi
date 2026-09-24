@@ -1,0 +1,1 @@
+``pydeserver --twin`` serves frames rendered by the `de-twin <https://github.com/directelectron/de-twin>`_ digital twin instead of the built-in fake data: a simulated microscope, specimen and detector, with a DE-TEM-Channel (``--soap-port``) so stage and optics changes show up in the images. Install it with ``pip install "deapi[twin]"``.

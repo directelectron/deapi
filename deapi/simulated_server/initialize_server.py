@@ -28,13 +28,42 @@ def _recv_exact(conn, n):
     return buf
 
 
+def serve_twin(port, twin_args=()):
+    """Serve frames rendered by the de-twin digital twin instead of the built-in fake data.
+
+    Needs the optional ``twin`` extra (``pip install "deapi[twin]"``). ``twin_args`` are
+    passed to the twin's server, e.g. ``["--specimen", "Apoferritin in ice", "--camera",
+    "Celeritas", "--soap-port", "5002"]``; see ``python -m de_twin.faces.deapi_server --help``.
+    """
+    try:
+        from de_twin.faces import deapi_server
+    except ImportError:
+        sys.stderr.write(
+            'pydeserver --twin needs the digital twin: pip install "deapi[twin]"\n'
+        )
+        return 2
+    return deapi_server.main([str(port), *twin_args])
+
+
 # Defining main function
 def main(port=13240):
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", type=int, help="Port to listen on")
-    args, _ = parser.parse_known_args()
+    parser.add_argument(
+        "--twin",
+        action="store_true",
+        help='serve frames from the de-twin digital twin (pip install "deapi[twin]"); '
+        "other options are passed to the twin, e.g. --specimen, --camera, --soap-port",
+    )
+    args, rest = parser.parse_known_args()
     if args.port:
         port = args.port
+    if args.twin:
+        # the twin may call back into this loop (its --deapi-loop option): don't recurse
+        sys.argv = [a for a in sys.argv if a != "--twin"]
+        if rest and rest[0].isdigit():  # the positional port, already in ``port``
+            rest = rest[1:]
+        return serve_twin(port, rest)
 
     HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
     PORT = port  # Port to listen on (non-privileged ports are > 1023)

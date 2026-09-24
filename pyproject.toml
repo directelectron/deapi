@@ -60,6 +60,10 @@ tests = [
 service = [
     "pyqt6",
 ]
+# Serve frames from the de-twin digital twin: `pydeserver --twin`
+twin = [
+    "de-twin>=0.1.1; python_version >= '3.10'",
+]
 doc = [
     "sphinx",
     "pydata_sphinx_theme",
