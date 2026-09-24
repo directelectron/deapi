@@ -61,7 +61,9 @@ def main(port=13240):
     if args.twin:
         # the twin may call back into this loop (its --deapi-loop option): don't recurse
         sys.argv = [a for a in sys.argv if a != "--twin"]
-        return serve_twin(port, [a for a in rest if not a.isdigit()])
+        if rest and rest[0].isdigit():  # the positional port, already in ``port``
+            rest = rest[1:]
+        return serve_twin(port, rest)
 
     HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
     PORT = port  # Port to listen on (non-privileged ports are > 1023)

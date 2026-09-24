@@ -78,3 +78,19 @@ def test_twin_server_serves_twin_frames():
     finally:
         proc.terminate()
         proc.wait(10)
+
+
+def test_twin_options_are_passed_through(monkeypatch):
+    seen = {}
+    monkeypatch.setattr(
+        initialize_server,
+        "serve_twin",
+        lambda port, args: seen.update(port=port, args=args),
+    )
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["pydeserver", "13241", "--twin", "--soap-port", "5002", "--camera", "DE16"],
+    )
+    initialize_server.main(13241)
+    assert seen == {"port": 13241, "args": ["--soap-port", "5002", "--camera", "DE16"]}
