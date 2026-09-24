@@ -81,6 +81,9 @@ def main(port=13240):
                 except Exception:
                     traceback.print_exc(file=sys.stderr)
                     connected = False
+            # Close it now, not when the next accept() replaces it: a connection left
+            # open here would take the client's next commands and never answer them.
+            conn.close()
 
 
 # Using the special variable

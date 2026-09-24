@@ -1,0 +1,1 @@
+The simulated server closes a connection after an error, so the client gets an error instead of waiting; the test suite only stops deapi's own simulated server on port 13240, never a real DE-Server.
