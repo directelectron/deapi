@@ -77,3 +77,50 @@ Source = "https://github.com/directelectron/deapi"
 [project.scripts]
 pydeserver = "deapi.simulated_server.initialize_server:main"
 de_service = "deapi.service.de_service:main"
+
+[tool.towncrier]
+package          = "deapi"
+package_dir      = "."
+directory        = "upcoming_changes"
+filename         = "CHANGES.rst"
+start_string     = ".. towncrier release notes start\n"
+issue_format     = "`#{issue} <https://github.com/directelectron/deapi/pull/{issue}>`_"
+title_format     = "{version} ({project_date})"
+underlines       = ["=", "-", "~"]
+
+# Behaviour changes lead the release notes: they are the entries a reader
+# upgrading has to act on, and they are easy to miss filed under "Bug Fixes".
+[[tool.towncrier.type]]
+directory    = "api_change"
+name         = "API and Behaviour Changes"
+showcontent  = true
+
+[[tool.towncrier.type]]
+directory    = "new_feature"
+name         = "New Features"
+showcontent  = true
+
+[[tool.towncrier.type]]
+directory    = "bugfix"
+name         = "Bug Fixes"
+showcontent  = true
+
+[[tool.towncrier.type]]
+directory    = "deprecation"
+name         = "Deprecations"
+showcontent  = true
+
+[[tool.towncrier.type]]
+directory    = "removal"
+name         = "Removals"
+showcontent  = true
+
+[[tool.towncrier.type]]
+directory    = "doc"
+name         = "Documentation"
+showcontent  = true
+
+[[tool.towncrier.type]]
+directory    = "maintenance"
+name         = "Maintenance"
+showcontent  = true

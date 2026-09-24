@@ -1,0 +1,192 @@
+name: Prepare Release
+
+# Run manually from the Actions tab.
+# Opens a PR that bumps the version in pyproject.toml and builds CHANGES.rst from
+# the towncrier fragments in upcoming_changes/. After merging it, create the GitHub
+# Release by hand (tag v<version>); publishing the release triggers publish.yaml,
+# which uploads to PyPI.
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "Version component to bump"
+        required: true
+        type: choice
+        options:
+          - pre-release   # increments the bN counter on the current base version (5.3b6 -> 5.3.0b7)
+          - finalize      # drop the bN suffix: release the current beta's base as stable (5.3b6 -> 5.3.0)
+          - minor
+          - bugfix
+          - major
+      beta:
+        description: "Mark as beta pre-release (adds bN suffix). Ignored for 'pre-release' (always beta) and 'finalize' (always stable)."
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write        # push branch
+  pull-requests: write   # open PR
+
+jobs:
+  prepare:
+    name: Prepare release PR
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.13"
+          enable-cache: true
+
+      # ── Compute the new version ──────────────────────────────────────────
+      - name: Compute new version
+        id: version
+        env:
+          BUMP: ${{ inputs.bump }}
+          IS_BETA: ${{ inputs.beta }}
+        run: |
+          CURRENT=$(grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
+          export CURRENT_VERSION="$CURRENT"
+
+          NEW_VERSION=$(python3 - <<'PYEOF'
+          import re, os
+
+          current = os.environ["CURRENT_VERSION"]
+          bump    = os.environ["BUMP"]
+          is_beta = os.environ["IS_BETA"].lower() == "true"
+
+          # deapi's versions have had no patch component (5.3b6); read it as 0 and
+          # always write major.minor.patch from here on (5.3b6 == 5.3.0b6 in PEP 440).
+          m = re.match(r"^(\d+)\.(\d+)(?:\.(\d+))?(?:b(\d+))?$", current)
+          if not m:
+              raise SystemExit(f"cannot parse the current version {current!r}")
+          major  = int(m.group(1))
+          minor  = int(m.group(2))
+          patch  = int(m.group(3) or 0)
+          beta_n = int(m.group(4)) if m.group(4) else None
+          on_beta = beta_n is not None
+
+          if bump == "finalize":
+              # Release the current beta's base as stable: just drop the bN
+              # suffix, keep major.minor.patch. e.g. 5.3.0b7 -> 5.3.0.
+              if not on_beta:
+                  raise SystemExit(
+                      f"'finalize' requires a beta base version, but current "
+                      f"version {current!r} has no bN suffix. Use minor / bugfix "
+                      f"/ major to start a new release instead."
+                  )
+              is_beta = False
+          elif bump == "pre-release":
+              # Keep the same base; just walk the beta counter forward.
+              is_beta = True
+              beta_n  = (beta_n or 0) + 1
+          elif on_beta:
+              # We are on a beta of the NEXT release (e.g. 5.3.0b7). The base
+              # major.minor.patch is that upcoming version, so minor/bugfix/major
+              # would skip it entirely. The common intent from a beta is
+              # 'finalize', so steer the user there rather than guess.
+              raise SystemExit(
+                  f"Current version {current!r} is a beta of the upcoming "
+                  f"{major}.{minor}.{patch} release. To ship it, use bump="
+                  f"'finalize' (-> {major}.{minor}.{patch}). A '{bump}' bump from "
+                  f"a beta would skip {major}.{minor}.{patch} entirely; "
+                  f"that is almost never intended."
+              )
+          elif bump == "major":
+              major, minor, patch = major + 1, 0, 0
+          elif bump == "minor":
+              minor, patch = minor + 1, 0
+          elif bump == "bugfix":
+              patch += 1
+
+          if is_beta:
+              if bump != "pre-release":
+                  beta_n = 1          # fresh beta series for the new base
+              print(f"{major}.{minor}.{patch}b{beta_n}", end="")
+          else:
+              print(f"{major}.{minor}.{patch}", end="")
+          PYEOF
+          )
+
+          # Derive is_beta from the COMPUTED version (ends in bN?), not the raw input.
+          if [[ "$NEW_VERSION" =~ b[0-9]+$ ]]; then IS_BETA_OUT=true; else IS_BETA_OUT=false; fi
+
+          echo "new_version=$NEW_VERSION"                  >> "$GITHUB_OUTPUT"
+          echo "tag=v$NEW_VERSION"                         >> "$GITHUB_OUTPUT"
+          echo "branch=release/v$NEW_VERSION"              >> "$GITHUB_OUTPUT"
+          echo "is_beta=$IS_BETA_OUT"                      >> "$GITHUB_OUTPUT"
+          echo "Bumping (${{ inputs.bump }}): $CURRENT → $NEW_VERSION"
+
+      # ── Bump version strings ─────────────────────────────────────────────
+      # Only the package version: deapi/version.py holds the client's protocol
+      # version (sent to DE-Server), which does not follow package releases.
+      - name: Bump version in pyproject.toml
+        run: |
+          sed -i 's/^version = ".*"/version = "${{ steps.version.outputs.new_version }}"/' pyproject.toml
+
+      # ── Build changelog ──────────────────────────────────────────────────
+      - name: Build changelog with towncrier
+        run: |
+          FRAGMENT_COUNT=$(find upcoming_changes -maxdepth 1 -name "*.rst" \
+                            ! -name "README.rst" | wc -l)
+          if [ "$FRAGMENT_COUNT" -eq 0 ]; then
+            echo "⚠ No news fragments found — skipping towncrier (CHANGES.rst unchanged)."
+          else
+            uvx towncrier build --yes --version "${{ steps.version.outputs.new_version }}"
+          fi
+
+      # ── Commit and push ──────────────────────────────────────────────────
+      - name: Configure git
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit release changes
+        run: |
+          git checkout -b "${{ steps.version.outputs.branch }}"
+
+          # Stage the version bump, updated changelog, and consumed fragments.
+          git add pyproject.toml CHANGES.rst
+          git add -A upcoming_changes/    # stages deleted fragment files
+
+          git commit -m "chore: prepare release ${{ steps.version.outputs.tag }}"
+          git push origin "${{ steps.version.outputs.branch }}"
+
+      # ── Open pull request ────────────────────────────────────────────────
+      - name: Open pull request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.version.outputs.tag }}
+          BRANCH: ${{ steps.version.outputs.branch }}
+          IS_BETA: ${{ steps.version.outputs.is_beta }}
+        run: |
+          if [ "$IS_BETA" = "true" ]; then PRE="tick **Set as a pre-release**"; else PRE="leave **Set as a pre-release** unticked"; fi
+          gh pr create \
+            --title "Release ${TAG}" \
+            --base  main \
+            --head  "${BRANCH}" \
+            --body  "## Release ${TAG}
+
+          > Auto-generated by the **Prepare Release** workflow.
+
+          ### What changed
+          - Version bumped to \`${TAG#v}\` in \`pyproject.toml\`
+          - \`CHANGES.rst\` updated from the towncrier fragments in \`upcoming_changes/\`
+
+          ### Review checklist
+          - [ ] \`CHANGES.rst\` reads well — edit the text directly in this PR if needed
+          - [ ] The version in \`pyproject.toml\` is correct
+          - [ ] CI passes
+
+          ### After merging
+          Create the GitHub Release by hand: **Releases → Draft a new release**, tag
+          \`${TAG}\` on \`main\`, paste this version's section of \`CHANGES.rst\` as the
+          notes, ${PRE}, and publish. Publishing it runs \`publish.yaml\`, which uploads
+          to PyPI."
