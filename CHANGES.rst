@@ -11,6 +11,34 @@ file by `towncrier <https://towncrier.readthedocs.io/>`_ when a release is prepa
 
 .. towncrier release notes start
 
+5.3.0 (2026-09-24)
+==================
+
+New Features
+------------
+
+- ``pydeserver --twin`` serves frames rendered by the `de-twin <https://github.com/directelectron/de-twin>`_ digital twin instead of the built-in fake data: a simulated microscope, specimen and detector, with a DE-TEM-Channel (``--soap-port``) so stage and optics changes show up in the images. Install it with ``pip install "deapi[twin]"``. (`#59 <https://github.com/directelectron/deapi/pull/59>`_)
+
+
+Bug Fixes
+---------
+
+- Fixed virtual masks and XY scan arrays sometimes arriving incomplete, which hung the connection (seen on macOS): the client now sends every byte of them. (`#60 <https://github.com/directelectron/deapi/pull/60>`_)
+
+
+Documentation
+-------------
+
+- Added an example that moves the stage with ``de_microscope`` and images holes in a grid, run against the digital twin. (`#59 <https://github.com/directelectron/deapi/pull/59>`_)
+
+
+Maintenance
+-----------
+
+- The simulated server closes a connection after an error, so the client gets an error instead of waiting; the test suite only stops deapi's own simulated server on port 13240, never a real DE-Server. (`#60 <https://github.com/directelectron/deapi/pull/60>`_)
+- Releases are prepared by the **Prepare Release** workflow, and the changelog is assembled from towncrier fragments in ``upcoming_changes/``, as in the other Direct Electron Python packages. (`#61 <https://github.com/directelectron/deapi/pull/61>`_)
+
+
 5.3.beta6
 =========
 - Fixed invalid property errors and bugs in set_binning
