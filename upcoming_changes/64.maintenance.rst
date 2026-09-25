@@ -1,0 +1,1 @@
+Bumped the google protobuf version to 6.33 and dropped support for Python < 3.10. Closes #3691

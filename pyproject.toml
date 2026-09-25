@@ -8,11 +8,10 @@ classifiers = [
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering",
 ]
 dependencies = [
@@ -26,7 +25,7 @@ dependencies = [
     "pywin32; platform_system == 'Windows'",
 ]
 description = "API for DE Server"
-version = "5.3.1"
+version = "5.3.0"
 keywords = [
     "EELS",
     "STEM",
@@ -37,7 +36,7 @@ keywords = [
     "4D STEM",
 ]
 name = "deapi"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 
 [tool.setuptools.packages.find]
 include = ["deapi*", "deapi.*"]
