@@ -11,6 +11,15 @@ file by `towncrier <https://towncrier.readthedocs.io/>`_ when a release is prepa
 
 .. towncrier release notes start
 
+5.3.1 (2026-09-25)
+==================
+
+Maintenance
+-----------
+
+- Bumped the google protobuf version to 6.33 and dropped support for Python < 3.10. Closes #3691 (`#64 <https://github.com/directelectron/deapi/pull/64>`_)
+
+
 5.3.0 (2026-09-24)
 ==================
 
