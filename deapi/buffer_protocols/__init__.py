@@ -17,8 +17,7 @@ else:
 
     long = int  # python 3 no longer has int
     if int(pyVersion[1]) >= 10:
-        # import pb_3_19_3 as pb
-        import deapi.buffer_protocols.pb_3_23_3 as pb
+        import deapi.buffer_protocols.pb_6_33_4 as pb
     elif int(pyVersion[1]) >= 8:
         import deapi.buffer_protocols.pb_3_11_4 as pb
     else:
