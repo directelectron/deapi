@@ -1,0 +1,6 @@
+current\_movie\_buffer
+======================
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.current_movie_buffer

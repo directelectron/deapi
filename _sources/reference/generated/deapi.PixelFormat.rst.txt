@@ -1,0 +1,41 @@
+﻿PixelFormat
+===========
+
+.. currentmodule:: deapi
+
+.. autoclass:: PixelFormat
+
+    
+    
+    .. rubric:: Attributes
+
+    .. autosummary::
+        :toctree:
+        :template: custom-attribute-template.rst
+        
+        
+        
+        
+        
+    
+    
+
+    
+    
+    .. rubric:: Methods
+
+    .. autosummary::
+        :toctree:
+        :template: custom-method-template.rst
+        
+        
+        PixelFormat.to_numpy_dtype
+        
+        
+        PixelFormat.from_numpy_dtype
+        
+    
+    
+
+.. minigallery:: deapi.PixelFormat
+    :add-heading: Examples using ``PixelFormat``

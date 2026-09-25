@@ -1,0 +1,6 @@
+ensure\_get\_event\_supported
+=============================
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.ensure_get_event_supported

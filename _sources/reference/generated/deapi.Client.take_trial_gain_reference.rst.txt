@@ -1,0 +1,6 @@
+take\_trial\_gain\_reference
+============================
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.take_trial_gain_reference

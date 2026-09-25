@@ -1,0 +1,6 @@
+get\_time
+=========
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.get_time

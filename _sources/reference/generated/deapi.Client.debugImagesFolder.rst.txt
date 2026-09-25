@@ -1,0 +1,9 @@
+debugImagesFolder
+=================
+
+.. currentmodule:: deapi
+
+.. autoproperty:: Client.debugImagesFolder
+
+.. minigallery:: deapi.Client.debugImagesFolder
+    :add-heading: Examples using ``Client.debugImagesFolder``

@@ -1,0 +1,9 @@
+read\_only
+==========
+
+.. currentmodule:: deapi
+
+.. autoproperty:: Client.read_only
+
+.. minigallery:: deapi.Client.read_only
+    :add-heading: Examples using ``Client.read_only``

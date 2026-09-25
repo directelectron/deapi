@@ -1,0 +1,9 @@
+acquiring
+=========
+
+.. currentmodule:: deapi
+
+.. autoproperty:: Client.acquiring
+
+.. minigallery:: deapi.Client.acquiring
+    :add-heading: Examples using ``Client.acquiring``

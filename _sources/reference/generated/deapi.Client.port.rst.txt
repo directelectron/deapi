@@ -1,0 +1,9 @@
+port
+====
+
+.. currentmodule:: deapi
+
+.. autoproperty:: Client.port
+
+.. minigallery:: deapi.Client.port
+    :add-heading: Examples using ``Client.port``

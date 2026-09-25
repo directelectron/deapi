@@ -1,0 +1,6 @@
+update\_feature\_hw\_binning
+============================
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.update_feature_hw_binning

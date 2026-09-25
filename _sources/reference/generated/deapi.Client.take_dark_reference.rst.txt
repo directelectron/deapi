@@ -1,0 +1,6 @@
+take\_dark\_reference
+=====================
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.take_dark_reference

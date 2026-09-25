@@ -1,0 +1,6 @@
+list\_cameras
+=============
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.list_cameras

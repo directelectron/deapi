@@ -1,0 +1,29 @@
+﻿MovieBufferStatus
+=================
+
+.. currentmodule:: deapi
+
+.. autoclass:: MovieBufferStatus
+
+    
+    
+    .. rubric:: Attributes
+
+    .. autosummary::
+        :toctree:
+        :template: custom-attribute-template.rst
+        
+        
+        
+        
+        
+        
+    
+    
+
+    
+    
+    
+
+.. minigallery:: deapi.MovieBufferStatus
+    :add-heading: Examples using ``MovieBufferStatus``

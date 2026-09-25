@@ -1,0 +1,6 @@
+get\_client\_read\_only
+=======================
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.get_client_read_only

@@ -1,0 +1,372 @@
+﻿Client
+======
+
+.. currentmodule:: deapi
+
+.. autoclass:: Client
+
+    
+    
+    .. rubric:: Attributes
+
+    .. autosummary::
+        :toctree:
+        :template: custom-attribute-template.rst
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        Client.acquiring
+        
+        
+        Client.camera
+        
+        
+        Client.connected
+        
+        
+        Client.debugImagesFolder
+        
+        
+        Client.eventMutex
+        
+        
+        Client.exposureTime
+        
+        
+        Client.getEventEnabled
+        
+        
+        Client.height
+        
+        
+        Client.host
+        
+        
+        Client.mmf
+        
+        
+        Client.port
+        
+        
+        Client.read_only
+        
+        
+        Client.refreshProperties
+        
+        
+        Client.sdkEventSemaphore
+        
+        
+        Client.tcp_no_delay
+        
+        
+        Client.usingMmf
+        
+        
+        Client.width
+        
+    
+    
+
+    
+    
+    .. rubric:: Methods
+
+    .. autosummary::
+        :toctree:
+        :template: custom-method-template.rst
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        Client.connect
+        
+        
+        Client.current_movie_buffer
+        
+        
+        Client.disable_get_event
+        
+        
+        Client.disconnect
+        
+        
+        Client.enable_get_event
+        
+        
+        Client.ensure_get_event_supported
+        
+        
+        Client.getProperty
+        
+        
+        Client.get_client_read_only
+        
+        
+        Client.get_current_camera
+        
+        
+        Client.get_current_info
+        
+        
+        Client.get_event
+        
+        
+        Client.get_image
+        
+        
+        Client.get_movie_buffer
+        
+        
+        Client.get_movie_buffer_info
+        
+        
+        Client.get_properties
+        
+        
+        Client.get_property
+        
+        
+        Client.get_property_spec
+        
+        
+        Client.get_property_specifications
+        
+        
+        Client.get_register
+        
+        
+        Client.get_result
+        
+        
+        Client.get_server_version
+        
+        
+        Client.get_time
+        
+        
+        Client.get_virtual_image_buffer
+        
+        
+        Client.get_virtual_image_buffer_info
+        
+        
+        Client.get_virtual_mask
+        
+        
+        Client.grab
+        
+        
+        Client.gui
+        
+        
+        Client.is_get_event_enabled
+        
+        
+        Client.list_cameras
+        
+        
+        Client.list_properties
+        
+        
+        Client.list_registers
+        
+        
+        Client.print_acquisition_info
+        
+        
+        Client.print_saving_info
+        
+        
+        Client.print_server_info
+        
+        
+        Client.save_image
+        
+        
+        Client.setEngMode
+        
+        
+        Client.setEngModeAndGetChangedProperties
+        
+        
+        Client.setProperty
+        
+        
+        Client.setROI
+        
+        
+        Client.set_adaptive_roi
+        
+        
+        Client.set_adaptive_roi_and_get_changed_properties
+        
+        
+        Client.set_binning
+        
+        
+        Client.set_client_read_only
+        
+        
+        Client.set_current_camera
+        
+        
+        Client.set_engineering_mode
+        
+        
+        Client.set_hw_roi
+        
+        
+        Client.set_hw_roi_and_get_changed_properties
+        
+        
+        Client.set_log_level
+        
+        
+        Client.set_property
+        
+        
+        Client.set_property_and_get_changed_properties
+        
+        
+        Client.set_register
+        
+        
+        Client.set_sw_roi
+        
+        
+        Client.set_sw_roi_and_get_changed_properties
+        
+        
+        Client.set_virtual_mask
+        
+        
+        Client.set_xy_array
+        
+        
+        Client.start_acquisition
+        
+        
+        Client.start_manual_final_saving
+        
+        
+        Client.start_manual_movie_saving
+        
+        
+        Client.stop_acquisition
+        
+        
+        Client.stop_manual_final_saving
+        
+        
+        Client.stop_manual_movie_saving
+        
+        
+        Client.take_dark_reference
+        
+        
+        Client.take_gain_reference
+        
+        
+        Client.take_trial_gain_reference
+        
+        
+        Client.update_feature_hw_binning
+        
+        
+        Client.update_image_size
+        
+        
+        Client.update_scan_size
+        
+        
+        Client.wait_for_saving_files
+        
+    
+    
+
+.. minigallery:: deapi.Client
+    :add-heading: Examples using ``Client``

@@ -1,0 +1,9 @@
+defaultValue
+============
+
+.. currentmodule:: deapi
+
+.. autoproperty:: PropertySpec.defaultValue
+
+.. minigallery:: deapi.PropertySpec.defaultValue
+    :add-heading: Examples using ``PropertySpec.defaultValue``

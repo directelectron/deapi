@@ -1,0 +1,6 @@
+start\_manual\_movie\_saving
+============================
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.start_manual_movie_saving

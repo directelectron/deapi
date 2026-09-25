@@ -1,0 +1,6 @@
+connect
+=======
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.connect
