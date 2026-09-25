@@ -44,7 +44,7 @@ from deapi.data_types import (
 )
 
 
-from deapi.buffer_protocols import pb
+from deapi.buffer_protocols import pb_6_33_4 as pb
 from deapi.version import version, commandVersion
 from deapi.version import commandVersion as cVersion
 from deapi.wrappers import write_only, disable_scan, deprecated_argument
