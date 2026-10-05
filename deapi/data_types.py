@@ -67,7 +67,8 @@ class FrameType(Enum):
     REFERENCE_BADPIXELMAP = 48
     SUMTOTAL_MOTIONCORRECTED = 49
     SCAN_SUBSAMPLINGMASK = 50
-    NUMBER_OF_OPTIONS = 51
+    PMCBED = 51
+    NUMBER_OF_OPTIONS = 52
     # deprecated frame type
     CRUDE_FRAME = 2  # for engineering testing        #Same as CRUDEFRAME
     SINGLE_FRAME_RAW_LEVEL0 = (
