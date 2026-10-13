@@ -1,0 +1,6 @@
+set\_adaptive\_roi
+==================
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.set_adaptive_roi

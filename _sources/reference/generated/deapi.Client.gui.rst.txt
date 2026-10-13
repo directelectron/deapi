@@ -1,0 +1,6 @@
+gui
+===
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.gui

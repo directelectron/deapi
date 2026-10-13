@@ -1,0 +1,9 @@
+acquisitions\_started
+=====================
+
+.. currentmodule:: deapi
+
+.. autoproperty:: Client.acquisitions_started
+
+.. minigallery:: deapi.Client.acquisitions_started
+    :add-heading: Examples using ``Client.acquisitions_started``

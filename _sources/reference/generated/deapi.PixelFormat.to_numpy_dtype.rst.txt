@@ -1,0 +1,6 @@
+to\_numpy\_dtype
+================
+
+.. currentmodule:: deapi
+
+.. automethod:: PixelFormat.to_numpy_dtype

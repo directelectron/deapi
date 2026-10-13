@@ -1,0 +1,6 @@
+disable\_get\_event
+===================
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.disable_get_event

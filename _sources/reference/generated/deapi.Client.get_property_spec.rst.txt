@@ -1,0 +1,6 @@
+get\_property\_spec
+===================
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.get_property_spec

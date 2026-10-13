@@ -1,0 +1,29 @@
+﻿DataType
+========
+
+.. currentmodule:: deapi
+
+.. autoclass:: DataType
+
+    
+    
+    .. rubric:: Attributes
+
+    .. autosummary::
+        :toctree:
+        :template: custom-attribute-template.rst
+        
+        
+        
+        
+        
+        
+    
+    
+
+    
+    
+    
+
+.. minigallery:: deapi.DataType
+    :add-heading: Examples using ``DataType``

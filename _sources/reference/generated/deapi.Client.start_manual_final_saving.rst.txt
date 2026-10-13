@@ -1,0 +1,6 @@
+start\_manual\_final\_saving
+============================
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.start_manual_final_saving

@@ -1,0 +1,67 @@
+
+
+.. _sphx_glr_examples_visualization:
+
+Visualization
+=============
+One key thing many people are interested in is how to visualize their data. Below are some examples/ explanations of
+how to visualize your data.
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="If you haven&#x27;t already looked at the &quot;The get_result Function&quot; example, please do so as it provides important context for how the get_result function can be used to build responsive visualization tools by offloading the heavy lifting for visualization to the server side.">
+
+.. only:: html
+
+  .. image:: /examples/visualization/images/thumb/sphx_glr_creating_a_simple_dashboard_thumb.png
+    :alt:
+
+  :doc:`/examples/visualization/creating_a_simple_dashboard`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Creating a Simple Dashboard with Panel and Matplotlib</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The get_result function is the main entry point to access results while an acquisition is running, and after it has finished.  The function can be slightly confusing at first but this tutorial hopefully helps to simplify and clarify its usage and show how powerful the function is and how you can leverage it to build fast/responsive visualization tools.">
+
+.. only:: html
+
+  .. image:: /examples/visualization/images/thumb/sphx_glr_using_get_result_thumb.png
+    :alt:
+
+  :doc:`/examples/visualization/using_get_result`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">The get_result Function</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/visualization/creating_a_simple_dashboard
+   /examples/visualization/using_get_result
+

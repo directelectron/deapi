@@ -1,0 +1,6 @@
+list\_properties
+================
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.list_properties

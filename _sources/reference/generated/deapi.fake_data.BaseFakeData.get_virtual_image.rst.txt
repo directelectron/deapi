@@ -1,0 +1,6 @@
+get\_virtual\_image
+===================
+
+.. currentmodule:: deapi.fake_data
+
+.. automethod:: BaseFakeData.get_virtual_image
