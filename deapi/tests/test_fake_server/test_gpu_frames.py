@@ -12,8 +12,16 @@ from deapi.gpu_frames import SimulatedGpuFrames
 @pytest.fixture(autouse=True)
 def _restore(client):
     """The client is shared by the whole session: leave the scan as it was found."""
-    before = {name: client[name] for name in ("Scan - Enable", "Scan - Size X", "Scan - Size Y",
-                                              "Scan - Repeats", "Frames Per Second")}
+    before = {
+        name: client[name]
+        for name in (
+            "Scan - Enable",
+            "Scan - Size X",
+            "Scan - Size Y",
+            "Scan - Repeats",
+            "Frames Per Second",
+        )
+    }
     yield
     for name, value in before.items():
         client[name] = value
@@ -40,7 +48,9 @@ def test_simulated_frames_cover_every_scan_position(client):
         assert batch.images.dtype == np.float32 and batch.images.ndim == 3
         assert batch.info["valid"].all()
         seen += len(batch.images)
-        positions.update(zip(batch.info["scanX"].tolist(), batch.info["scanY"].tolist()))
+        positions.update(
+            zip(batch.info["scanX"].tolist(), batch.info["scanY"].tolist())
+        )
     frames.close()
     assert seen == 8 * 8 * 2
     assert positions == {(x, y) for x in range(8) for y in range(8)}

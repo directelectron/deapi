@@ -2013,10 +2013,14 @@ class Client:
         """Ask DE-Server to hand its GPU movie buffer handles to this process (or detach).
         Returns what it answered: [control block handle], or ["simulated"] from the fake
         server."""
-        command = self._addSingleCommand(self.GET_GPU_FRAMES, None, [str(os.getpid()), attach])
+        command = self._addSingleCommand(
+            self.GET_GPU_FRAMES, None, [str(os.getpid()), attach]
+        )
         response = self._sendCommand(command)
         if response is False:
-            raise RuntimeError("DE-Server could not share its GPU movie buffers with this process")
+            raise RuntimeError(
+                "DE-Server could not share its GPU movie buffers with this process"
+            )
         return list(self.__getParameters(response.acknowledge[0]))
 
     def get_movie_buffer(

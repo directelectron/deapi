@@ -274,7 +274,8 @@ class FakeServer:
             # scan: with Scan - Repeats each pass starts again at the first position.
             fps = min(float(self["Frames Per Second"]), SIMULATED_MAX_FPS)
             index = np.unravel_index(
-                int((time.time() - self.start_time) * fps) % self.fake_data.navigator.size,
+                int((time.time() - self.start_time) * fps)
+                % self.fake_data.navigator.size,
                 self.fake_data.navigator.shape,
             )  # only works for raster scans
             return index
@@ -339,7 +340,9 @@ class FakeServer:
             == self.GET_VIRTUAL_IMAGE + commandVersion * 100
         ):
             return self._fake_get_virtual_image(command)
-        elif command.command[0].command_id == self.GET_GPU_FRAMES + commandVersion * 100:
+        elif (
+            command.command[0].command_id == self.GET_GPU_FRAMES + commandVersion * 100
+        ):
             return self._fake_get_gpu_frames(command)
         else:
             raise NotImplementedError(

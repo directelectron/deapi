@@ -53,7 +53,9 @@ def _serve_stop(host, port, current):
         try:
             udp.bind((host, port))
         except OSError as e:
-            sys.stderr.write(f"stop_acquisition will not be answered: UDP {port}: {e}\n")
+            sys.stderr.write(
+                f"stop_acquisition will not be answered: UDP {port}: {e}\n"
+            )
             return
         while True:
             message, addr = udp.recvfrom(64)
@@ -99,7 +101,9 @@ def main(port=13240):
         )
         sys.stderr.flush()
         current = []  # the server of the connection being served, for the stop listener
-        threading.Thread(target=_serve_stop, args=(HOST, PORT, current), daemon=True).start()
+        threading.Thread(
+            target=_serve_stop, args=(HOST, PORT, current), daemon=True
+        ).start()
         while True:
             conn, addr = server_socket.accept()  # What waits for a connection
             # Guard against a stalled client leaving _recv_exact blocked forever.
