@@ -1991,23 +1991,30 @@ class Client:
 
         return movieBufferInfo
 
-    def get_gpu_frames(self):
+    def get_gpu_frames(self, peer_devices=()):
         """
         Zero-copy CuPy access to the server's GPU movie buffers (Windows, same computer).
 
         Call before start_acquisition. The returned GpuFrames holds both movie buffers as
         CuPy arrays (``.buffers``) and the semaphores; iterating it yields each finished
-        buffer as ``batch.images`` (cupy float32, images x height x width) and ``batch.info``
-        (frame, scanX, scanY, valid per image). The buffer is released back to the server
-        when the loop advances; the server's processing waits while it is held, so call
-        ``close()`` on it when done. Requires CuPy. See deapi.gpu_frames.
+        buffer as ``batch.images`` (cupy float32, images x height x width, on GPU
+        ``.device``) and ``batch.info`` (frame, scanX, scanY, valid per image). The buffer
+        is released back to the server when the loop advances; the server's processing
+        waits while it is held, so close it when done (or use it in a ``with`` block).
+        Requires CuPy. See deapi.gpu_frames.
 
-        Against deapi's simulated server this returns a SimulatedGpuFrames instead: the
-        same interface, with NumPy batches of the simulated dataset and no CuPy needed.
+        ``peer_devices``: other GPUs that will work on the frames. They read the buffers
+        directly where the driver allows peer access (``.peer_access``), and their current
+        streams are synchronized before each release either way.
+
+        Only a process on the server computer can map the buffers; from another computer
+        this raises with the server's reason. Against deapi's simulated server this
+        returns a SimulatedGpuFrames instead: the same interface, with NumPy batches of the
+        simulated dataset and no CuPy needed.
         """
         from deapi.gpu_frames import open_gpu_frames
 
-        return open_gpu_frames(self._attach_gpu_frames(), self)
+        return open_gpu_frames(self._attach_gpu_frames(), self, peer_devices)
 
     def _attach_gpu_frames(self, attach=True):
         """Ask DE-Server to hand its GPU movie buffer handles to this process (or detach).
@@ -2018,10 +2025,17 @@ class Client:
         )
         response = self._sendCommand(command)
         if response is False:
+            raise RuntimeError("DE-Server did not answer GET_GPU_FRAMES")
+        acknowledge = response.acknowledge[0]
+        if acknowledge.error:
             raise RuntimeError(
-                "DE-Server could not share its GPU movie buffers with this process"
+                "DE-Server cannot share its GPU movie buffers with this process: "
+                + (acknowledge.error_message or "no reason given")
             )
-        return list(self.__getParameters(response.acknowledge[0]))
+        values = list(self.__getParameters(acknowledge))
+        if attach and not values:
+            raise RuntimeError("DE-Server answered GET_GPU_FRAMES without a handle")
+        return values
 
     def get_movie_buffer(
         self, movieBuffer, movieBufferSize, numFrames, timeoutMsec=5000

@@ -6,7 +6,8 @@ import time
 import numpy as np
 import pytest
 
-from deapi.gpu_frames import SimulatedGpuFrames
+from deapi.buffer_protocols import pb
+from deapi.gpu_frames import FrameSource, SimulatedGpuFrames
 
 
 @pytest.fixture(autouse=True)
@@ -83,3 +84,25 @@ def test_external_image_is_served(client):
     image = result[0] if image is None else image
     assert np.asarray(image).size > 0
     client.stop_acquisition()
+
+
+def test_simulated_frames_close_with_the_block(client):
+    with client.get_gpu_frames() as frames:
+        assert isinstance(frames, FrameSource)
+    assert frames._closed
+    frames.close()  # again: no-op
+    assert list(frames.batches()) == []
+
+
+def test_server_refusal_is_reported(client, monkeypatch):
+    """From another computer (or with a consumer already attached) the server refuses,
+    and its reason reaches the caller."""
+    refusal = pb.DEPacket()
+    acknowledge = refusal.acknowledge.add()
+    acknowledge.error = True
+    acknowledge.error_message = (
+        "GPU frame sharing is only available to clients on the server computer"
+    )
+    monkeypatch.setattr(client, "_sendCommand", lambda command: refusal)
+    with pytest.raises(RuntimeError, match="only available to clients on the server"):
+        client.get_gpu_frames()
