@@ -68,7 +68,8 @@ class FrameType(Enum):
     SUMTOTAL_MOTIONCORRECTED = 49
     SCAN_SUBSAMPLINGMASK = 50
     PMCBED = 51
-    NUMBER_OF_OPTIONS = 52
+    CUMULATIVE_PMCBED = 52
+    NUMBER_OF_OPTIONS = 53
     # deprecated frame type
     CRUDE_FRAME = 2  # for engineering testing        #Same as CRUDEFRAME
     SINGLE_FRAME_RAW_LEVEL0 = (
