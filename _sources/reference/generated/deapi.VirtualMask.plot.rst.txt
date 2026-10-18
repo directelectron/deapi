@@ -1,0 +1,6 @@
+plot
+====
+
+.. currentmodule:: deapi
+
+.. automethod:: VirtualMask.plot

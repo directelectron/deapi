@@ -1,0 +1,6 @@
+save\_image
+===========
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.save_image

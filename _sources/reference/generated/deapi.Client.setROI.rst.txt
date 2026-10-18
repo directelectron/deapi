@@ -1,0 +1,6 @@
+setROI
+======
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.setROI

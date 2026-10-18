@@ -1,0 +1,9 @@
+calculation
+===========
+
+.. currentmodule:: deapi
+
+.. autoproperty:: VirtualMask.calculation
+
+.. minigallery:: deapi.VirtualMask.calculation
+    :add-heading: Examples using ``VirtualMask.calculation``

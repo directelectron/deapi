@@ -1,0 +1,6 @@
+grab
+====
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.grab

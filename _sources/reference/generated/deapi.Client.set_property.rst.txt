@@ -1,0 +1,6 @@
+set\_property
+=============
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.set_property

@@ -1,0 +1,28 @@
+﻿PropertyCollection
+==================
+
+.. currentmodule:: deapi
+
+.. autoclass:: PropertyCollection
+
+    
+    
+    
+
+    
+    
+    .. rubric:: Methods
+
+    .. autosummary::
+        :toctree:
+        :template: custom-method-template.rst
+        
+        
+        
+        PropertyCollection.gui
+        
+    
+    
+
+.. minigallery:: deapi.PropertyCollection
+    :add-heading: Examples using ``PropertyCollection``

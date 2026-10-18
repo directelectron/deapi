@@ -1,0 +1,6 @@
+get\_gpu\_frames
+================
+
+.. currentmodule:: deapi
+
+.. automethod:: Client.get_gpu_frames
