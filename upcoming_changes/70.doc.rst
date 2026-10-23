@@ -1,0 +1,1 @@
+Removed an unused ``cgitb`` import from the live imaging example, which stopped it from running on Python 3.13.
