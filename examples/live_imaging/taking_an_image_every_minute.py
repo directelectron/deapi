@@ -11,8 +11,6 @@ In this case we can set the "Autosave Movie Sum Count" to 10. This will sum 10 f
 before saving the final image.
 """
 
-from cgitb import enable
-
 import deapi
 import matplotlib.pyplot as plt
 import time
